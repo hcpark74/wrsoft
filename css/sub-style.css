@@ -1207,11 +1207,12 @@ br.m-br {
 
 .culture-subtext {
     font-size: 1.125rem;
-    color: #666;
-    font-weight: 300;
+    color: #444;
+    font-weight: 400;
     line-height: 1.8;
     max-width: 800px;
     margin: 0 auto;
+    word-break: keep-all;
 }
 
 /* Why Woori Soft? Grid */
@@ -1224,20 +1225,24 @@ br.m-br {
 }
 
 .value-card {
-    background: #fff;
-    border: 1px solid #e5e5e5;
-    border-radius: 12px;
-    padding: 40px;
-    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    padding: 50px 40px;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     display: flex;
     flex-direction: column;
     text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
 }
 
 .value-card:hover {
+    background: rgba(255, 255, 255, 0.85);
     border-color: var(--secondary-color);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    transform: translateY(-10px);
 }
 
 .value-icon {
@@ -1248,14 +1253,16 @@ br.m-br {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 60px;
-    height: 60px;
+    width: 65px;
+    height: 65px;
     background: linear-gradient(135deg, var(--secondary-color) 0%, #0099b8 100%);
     color: #fff;
-    font-size: 1.5rem;
+    font-size: 1.625rem;
     font-weight: 700;
-    border-radius: 50%;
+    border-radius: 18px;
+    /* 구부러진 박스 스타일 */
     font-family: var(--font-number);
+    box-shadow: 0 8px 20px rgba(55, 182, 233, 0.25);
 }
 
 .value-title {
@@ -1397,10 +1404,18 @@ br.m-br {
     position: relative;
     display: flex;
     align-items: center;
-    background-color: #eff0f2;
+    background-color: #f3f4f6;
     width: 100%;
     height: 8.75rem;
-    transition: var(--transition-custom);
+    transition: all 0.4s ease;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.flex-wrapper li:hover {
+    transform: translateX(15px);
+    background-color: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .flex-wrapper li .icon-wrap {
