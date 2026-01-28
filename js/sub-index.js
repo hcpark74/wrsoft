@@ -34,10 +34,27 @@ window.addEventListener('resize', function () {
 });
 
 $(window).scroll(function () {
-    if ($(this).scrollTop() > 300) {
-        $('.top-btn-t').fadeIn();
+    const scrollTop = $(this).scrollTop();
+    const scrollHeight = $(document).height();
+    const windowHeight = $(window).height();
+    const sections = $('section');
+    const $arrow = $('.top-btn .inner-circle > svg.down');
+
+    let nextSectionTop = -1;
+    sections.each(function () {
+        const sectionTop = $(this).offset().top;
+        if (sectionTop > scrollTop + 50) {
+            nextSectionTop = sectionTop;
+            return false;
+        }
+    });
+
+    if (nextSectionTop === -1 || scrollTop + windowHeight >= scrollHeight - 150) {
+        // 더 이상 내려갈 섹션이 없거나 하단 도달: 화살표 위쪽 (180도)
+        $arrow.css("transform", "translate(-50%, -50%) scale(0.65) rotate(180deg)");
     } else {
-        $('.top-btn-t').fadeOut();
+        // 이동 가능 섹션 존재: 화살표 아래쪽 (0도)
+        $arrow.css("transform", "translate(-50%, -50%) scale(0.65) rotate(0deg)");
     }
 });
 
@@ -112,17 +129,20 @@ function initUI() {
     }
 
     //마우스 이벤트
-    const mouseTl = gsap.timeline({
-        paused: true,
-    });
+    const mouseEventIcon = document.querySelector('.curser-wrap i');
+    if (mouseEventIcon) {
+        const mouseTl = gsap.timeline({
+            paused: true,
+        });
 
-    mouseTl.to('.curser-wrap i', 0.1, { opacity: 1 }, "a");
+        mouseTl.to('.curser-wrap i', 0.1, { opacity: 1 }, "a");
 
-    $('.mouse-event').off('mouseenter mouseleave').on('mouseenter', function () {
-        mouseTl.play()
-    }).on('mouseleave', function () {
-        mouseTl.reverse()
-    });
+        $('.mouse-event').off('mouseenter mouseleave').on('mouseenter', function () {
+            mouseTl.play();
+        }).on('mouseleave', function () {
+            mouseTl.reverse();
+        });
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -307,10 +327,39 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    $('.top-btn-t').click(function () {
-        $('body, html').animate({
-            scrollTop: 0
-        }, 800);
+    // Unified top button click handler (works for both main and sub pages)
+    $(document).on('click', '.top-btn, .top-btn a, .top-btn .inner-circle, .top-btn-t', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const scrollTop = $(window).scrollTop();
+        const scrollHeight = $(document).height();
+        const windowHeight = $(window).height();
+        const sections = $('section'); // 서브 페이지의 섹션들
+
+        let nextSectionTop = -1;
+
+        // 현재 스크롤 위치보다 아래에 있는 첫 번째 섹션을 찾음
+        sections.each(function () {
+            const sectionTop = $(this).offset().top;
+            if (sectionTop > scrollTop + 50) { // 50px 여유를 두어 현재 섹션 판정 방지
+                nextSectionTop = sectionTop;
+                return false; // 가장 가까운 섹션을 찾으면 루프 종료
+            }
+        });
+
+        if (scrollTop + windowHeight >= scrollHeight - 150 || nextSectionTop === -1) {
+            // 하단에 있거나 더 이상 내려갈 섹션이 없을 때는 맨 위로 이동
+            $('body, html').animate({
+                scrollTop: 0
+            }, 800);
+        } else {
+            // 다음 섹션으로 이동
+            $('body, html').animate({
+                scrollTop: nextSectionTop
+            }, 600);
+        }
+
         return false;
     });
 

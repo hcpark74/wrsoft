@@ -1368,6 +1368,7 @@ footer .footer-inner>.copyright .slogan-ko {
     bottom: 40px;
     z-index: 10;
     transition: bottom 1s ease;
+    cursor: pointer;
 }
 
 .top-btn.last-page {
@@ -1381,6 +1382,7 @@ footer .footer-inner>.copyright .slogan-ko {
     position: relative;
     width: 8rem;
     height: 8rem;
+    cursor: pointer;
 }
 
 .top-btn .inner-circle::before {
@@ -1437,21 +1439,11 @@ footer .footer-inner>.copyright .slogan-ko {
     }
 }
 
-.no-pc-section {
-    display: none;
-}
+/* .no-pc-section removed */
 
-/* top-btn */
+/* top-btn-t - Legacy button, hidden in favor of unified .top-btn */
 .top-btn-t {
-    width: 64px;
-    height: 64px;
-    position: fixed;
-    right: 20px;
-    bottom: 40px;
-    background: url(/images/top-btn.png) no-repeat center / contain;
-    display: none;
-    z-index: 2;
-    cursor: pointer;
+    display: none !important;
 }
 
 /* ====================
@@ -1602,11 +1594,11 @@ footer .footer-inner>.copyright .slogan-ko {
     }
 
     .top-btn {
-        position: absolute;
-        bottom: -240px;
-        right: 50%;
-        transform: translateX(+50%) rotate(180deg);
-        pointer-events: none;
+        position: fixed;
+        bottom: 40px;
+        right: 20px;
+        transform: none;
+        pointer-events: auto;
     }
 
     /* section02 */
@@ -1656,14 +1648,15 @@ footer .footer-inner>.copyright .slogan-ko {
         font-size: 1.125rem;
     }
 
-    /* section03 */
-    section.only-pc {
-        display: none;
+    /* section03 - Unified */
+    section.main-information {
+        display: block;
+        height: auto !important;
     }
 
-    .no-pc-section {
-        display: block;
-        height: 1023px;
+    .fullpage-inner-scroll {
+        overflow: visible;
+        max-height: none;
     }
 
     .area-box {
@@ -1723,14 +1716,14 @@ footer .footer-inner>.copyright .slogan-ko {
         background: transparent;
     }
 
-    .system-wrap .main-system-list {
+    .main-system-list-scroll .main-system-list {
         width: 230%;
         gap: 40px;
         margin: 0 20px;
         justify-content: flex-start;
     }
 
-    .system-wrap .main-system-list .list-item {
+    .main-system-list-scroll .main-system-list .list-item {
         padding: 4rem 1.5rem;
     }
 
@@ -2048,14 +2041,15 @@ footer .footer-inner>.copyright .slogan-ko {
         display: none;
     }
 
-    /* section03 */
-    section.only-pc {
-        display: none;
+    /* section03 - Unified */
+    section.main-information {
+        display: block;
+        height: auto !important;
     }
 
-    .no-pc-section {
-        display: block;
-        height: 713px;
+    .fullpage-inner-scroll {
+        overflow: visible;
+        max-height: none;
     }
 
     .main-information .main-title>h4 {
@@ -2125,27 +2119,27 @@ footer .footer-inner>.copyright .slogan-ko {
         width: 3.125rem;
     }
 
-    .system-wrap {
+    .main-system-list-scroll {
         overflow-x: scroll;
         position: absolute;
         top: 30px;
     }
 
-    .system-wrap::-webkit-scrollbar {
+    .main-system-list-scroll::-webkit-scrollbar {
         width: 10px;
         background: transparent;
         display: none;
     }
 
-    .system-wrap::-webkit-scrollbar-track {
+    .main-system-list-scroll::-webkit-scrollbar-track {
         background: transparent;
     }
 
-    .system-wrap::-webkit-scrollbar-thumb {
+    .main-system-list-scroll::-webkit-scrollbar-thumb {
         background: transparent;
     }
 
-    .system-wrap .main-system-list {
+    .main-system-list-scroll .main-system-list {
         width: 380%;
         min-width: 360%;
         gap: 20px;
@@ -2265,11 +2259,11 @@ footer .footer-inner>.copyright .slogan-ko {
 
     /* top-btn */
     .top-btn {
-        position: absolute;
-        bottom: 3%;
-        right: 50%;
-        transform: translateX(+50%);
-        pointer-events: none;
+        position: fixed;
+        bottom: 20px;
+        right: 10px;
+        transform: none;
+        pointer-events: auto;
     }
 
     .top-btn .inner-circle {
@@ -2277,18 +2271,7 @@ footer .footer-inner>.copyright .slogan-ko {
         height: 5rem;
     }
 
-    /* top-btn */
-    .top-btn-t {
-        width: 46px;
-        height: 46px;
-        position: fixed;
-        right: 10px;
-        bottom: 20px;
-        background: url(/images/top-btn.png) no-repeat center / contain;
-        display: none;
-        z-index: 2;
-        cursor: pointer;
-    }
+
 
     .curser-wrap {
         display: none;

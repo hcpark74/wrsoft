@@ -33,13 +33,8 @@ window.addEventListener('resize', function () {
 	}
 });
 
-$(window).scroll(function () {
-	if ($(this).scrollTop() > 300) {
-		$('.top-btn-t').fadeIn();
-	} else {
-		$('.top-btn-t').fadeOut();
-	}
-});
+// Arrow rotation is handled by fullpage.js onLeave callback
+// No scroll-based visibility control needed on main page
 
 function initUI() {
 	const isMobile = () => $(window).width() < 1024;
@@ -112,17 +107,20 @@ function initUI() {
 	}
 
 	//마우스 이벤트
-	const mouseTl = gsap.timeline({
-		paused: true,
-	});
+	const mouseEventIcon = document.querySelector('.curser-wrap i');
+	if (mouseEventIcon) {
+		const mouseTl = gsap.timeline({
+			paused: true,
+		});
 
-	mouseTl.to('.curser-wrap i', 0.1, { opacity: 1 }, "a");
+		mouseTl.to('.curser-wrap i', 0.1, { opacity: 1 }, "a");
 
-	$('.mouse-event').off('mouseenter mouseleave').on('mouseenter', function () {
-		mouseTl.play();
-	}).on('mouseleave', function () {
-		mouseTl.reverse();
-	});
+		$('.mouse-event').off('mouseenter mouseleave').on('mouseenter', function () {
+			mouseTl.play();
+		}).on('mouseleave', function () {
+			mouseTl.reverse();
+		});
+	}
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -295,6 +293,9 @@ document.addEventListener("DOMContentLoaded", function () {
 		var $fullPageSection = $fullPage.children("section");
 		var tabletWidth = 1024;
 
+		// Show top-btn on main page (uses fullpage.js)
+		$('.top-btn').show();
+
 		$fullPage.fullpage({
 			css3: true,
 			fitToSection: false,
@@ -308,17 +309,18 @@ document.addEventListener("DOMContentLoaded", function () {
 					$("section").eq(destination - 1).addClass("animated");
 				}, 200);
 
-				let _degree = 180;
+				let _degree = 0; // Default: down arrow (continue scrolling)
 
 				if (destination == 1) {
 					//$('#mainContent1').addClass('down');
 					$("#header").removeClass("black");
-					_degree = 0;
+					_degree = 0; // Down arrow - encourage scrolling down
 
 				} else if (destination == 2) {
 					$("#header").addClass("black");
 
 					$('#main01').removeClass('up down');
+					_degree = 0; // Down arrow - continue scrolling
 
 				} else if (destination == 3) {
 					const $topBtn = document.querySelector('.top-btn');
@@ -338,6 +340,8 @@ document.addEventListener("DOMContentLoaded", function () {
 						fullpageScroll();
 						$('.fullpage-inner-scroll').on('scroll', { passive: true }, fullpageScroll);
 					}
+					_degree = 0; // Down arrow - continue to last section
+
 				} else if (destination == 4) {
 					const $topBtn = document.querySelector('.top-btn');
 
@@ -356,6 +360,7 @@ document.addEventListener("DOMContentLoaded", function () {
 						fullpageScrollBottom();
 						$('.fullpage-inner-scroll-bottom').on('scroll', { passive: true }, fullpageScrollBottom);
 					}
+					_degree = 180; // Up arrow - last section, go back to top
 				}
 
 				pageFullPageNum = destination;
@@ -583,17 +588,28 @@ document.addEventListener("DOMContentLoaded", function () {
 		sectionAni();
 	});
 
-	$('.top-btn').click(function (e) {
-		if (pageFullPageNum === 1) {
-			$.fn.fullpage.moveTo(2);
+	// Top button click handler for main page (fullpage.js)
+	$(document).on('click', '.top-btn, .top-btn a, .top-btn .inner-circle', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (pageFullPageNum < 4) {
+			// 1, 2, 3번 섹션에서는 화살표가 아래(0도)를 향하고 있으므로 다음 섹션으로 이동
+			$.fn.fullpage.moveTo(pageFullPageNum + 1);
 		} else {
+			// 마지막 섹션에서는 화살표가 위(180도)를 향하므로 맨 처음으로 이동
 			$('.fullpage-inner-scroll').scrollTop(0).off('wheel');
+			$('.fullpage-inner-scroll-bottom').scrollTop(0).off('wheel');
 			$.fn.fullpage.moveTo(1);
 			$.fn.fullpage.setAllowScrolling(true);
 		}
+
+		return false;
 	});
 
-	$('.top-btn-t').click(function () {
+	// Legacy handler for .top-btn-t (if exists)
+	$(document).on('click', '.top-btn-t', function (e) {
+		e.preventDefault();
 		$('body, html').animate({
 			scrollTop: 0
 		}, 800);
