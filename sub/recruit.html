@@ -30,77 +30,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/smoothscroll/1.5.1/SmoothScroll.min.js"
         integrity="sha512-BkMKSo7sGBeDmtIyZoyInJbrI/XqQ1ez6SZotOL0e+iT6tzOjBmtMpWWPUVbcdqLbaukREItSDV2aohX+9gBlw=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/js/include.js"></script>
     <script src="/js/sub-index.js"></script>
 
 </head>
 
 <body>
     <div class="wrapper">
-        <header id="header">
-            <div class="header-inner">
-                <div class="logo">
-                    <h1><a href="/index.html"><img src="/images/logo.png" alt="logo"></a></h1>
-                </div>
-                <div class="header-slogan">
-                    <p class="slogan-en">Solid Roots, Smart Future</p>
-                </div>
-            </div>
-
-            <!-- Gnb -->
-            <div class="gnb-navigation-wrapper">
-                <div class="container">
-                    <ul class="site-map">
-                        <li>
-                            <a href="#">Company</a>
-                            <ul class="gnb-2dep">
-                                <li><a href="/sub/company.html"><span>우리소프트</span></a></li>
-                                <li><a href="/sub/history.html"><span>연혁</span></a></li>
-                                <li><a href="/sub/certification.html"><span>인증 및 수상</span></a></li>
-                                <li><a href="/sub/location.html"><span>오시는길</span></a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Business</a>
-                            <ul class="gnb-2dep">
-                                <li><a href="/sub/business.html"><span>주요사업</span></a></li>
-                                <li><a href="/sub/solution.html"><span>솔루션</span></a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Reference</a>
-                            <ul class="gnb-2dep">
-                                <li><a href="/sub/client.html "><span>주요고객사</span></a></li>
-                                <li><a href="/sub/partner.html "><span>파트너사</span></a></li>
-                                <li><a href="/sub/reference.html"><span>수행사업</span></a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="#">Recruit</a>
-                            <ul class="gnb-2dep">
-                                <li><a href="/sub/welfare.html"><span>복리후생</span></a></li>
-                                <li><a href="/sub/recruit.html"><span>채용안내</span></a></li>
-                            </ul>
-                        </li>
-
-                        <div class="gnb-mail">
-                            <div>
-                                <img src="/images/icon-mail.png" alt="메일">
-                                <p>채용 문의 : recruit@wrsoft.co.kr</p>
-                            </div>
-                            <div>
-                                <img src="/images/icon-mail.png" alt="메일">
-                                <p>비지니스 문의 : layman@wrsoft.co.kr</p>
-                            </div>
-                        </div>
-                    </ul>
-                </div>
-            </div>
-
-            <div id="nav-btn" class="nav-btn">
-                <span></span>
-                <span></span>
-            </div>
-        </header>
+        <header id="header" data-include="/components/header.html"></header>
 
         <main class="recruit">
             <section class="sub-01">
@@ -549,27 +486,7 @@
 
         </main>
 
-        <footer>
-            <div class="footer-inner">
-                <address class="item">서울특별시 영등포구 선유로 233 누리빌딩 3층<br class="m-br" /> Tel : 02 2057 8453 / Fax : 02 2057
-                    8460</address>
-                <div class="mail item">
-                    <div>
-                        <img src="/images/icon-mail.png" alt="메일">
-                        <p>채용 문의 : recruit@wrsoft.co.kr</p>
-                    </div>
-                    <div>
-                        <img src="/images/icon-mail.png" alt="메일">
-                        <p>비지니스 문의 : layman@wrsoft.co.kr</p>
-                    </div>
-                </div>
-                <div class="copyright item">
-                    <p class="slogan">Solid Roots, Smart Future.<br class="m-br" /> <span class="slogan-ko">탄탄한 기술의 뿌리,
-                            스마트한 내일의 금융</span></p>
-                    <p>COPYRIGHT ⓒ 2025 WOORISO. ALL RIGHTS RESERVED</p>
-                </div>
-            </div>
-        </footer>
+        <footer data-include="/components/footer.html"></footer>
 
         <div class="curser-wrap" id="custom-cursor">
             <div class="curser-inner">

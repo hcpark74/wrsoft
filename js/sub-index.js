@@ -19,7 +19,7 @@ window.addEventListener('resize', function () {
             $(".gnb-navigation-wrapper > div > ul > li")
                 .removeClass('active')
                 .children(".gnb-2dep").slideUp();
-                $('#custom-cursor').remove();
+            $('#custom-cursor').remove();
         } else {
             isPc = true;
             $(".gnb-navigation-wrapper > div > ul > li")
@@ -39,11 +39,13 @@ $(window).scroll(function () {
     } else {
         $('.top-btn-t').fadeOut();
     }
-});   
+});
 
-document.addEventListener("DOMContentLoaded", function () {
-    $(".gnb-navigation-wrapper > div > ul > li").click(function (e) {
-        if ($(window).width() < 1024) {
+function initUI() {
+    const isMobile = () => $(window).width() < 1024;
+
+    $(".gnb-navigation-wrapper > div > ul > li").off('click').on('click', function (e) {
+        if (isMobile()) {
             let _isActive = $(this).hasClass("active")
 
             $(".gnb-navigation-wrapper > div > ul > li").removeClass('active');
@@ -57,8 +59,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // gnb 메뉴 열고 닫기
-    $("#nav-btn").click(function () {
-        if ($(window).width() < 1024) {
+    $("#nav-btn").off('click').on('click', function () {
+        if (isMobile()) {
             $(".gnb-navigation-wrapper > div > ul > li")
                 .removeClass('active')
                 .children(".gnb-2dep").slideUp();
@@ -74,58 +76,66 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // mouse-hover
-    $('.gnb-navigation-wrapper .site-map > li').on('mouseover', function () {
+    $('.gnb-navigation-wrapper .site-map > li').off('mouseover mouseleave').on('mouseover', function () {
         $(this).parent('ul').addClass('sitemap-over');
         $(this).addClass('on');
-    });
-
-    $('.gnb-navigation-wrapper .site-map > li').on('mouseleave', function () {
+    }).on('mouseleave', function () {
         $(this).parent('ul').removeClass('sitemap-over');
         $(this).removeClass('on');
     });
 
-    $(".reference .btn-wrap button").click(function () {
-        $(this).parent().parent().next(".swiper-container").hide();
-        $(".control-box").hide();
-        $(".swiper-pagination-s").hide();
-        $(".btn-contents").css("display", "flex");
-    });
-
     // 마우스 커스텀
     document.body.style.cursor = 'none';
-    
-    const customCursor = document.querySelector(".curser-wrap");
-    $(document).mousemove(function (e) {
-        gsap.to(customCursor, {
-            x: e.clientX,
-            y: e.clientY,
-            xPercent: -50,
-            yPercent: -50,
-            duration: 0.1,
-            opacity: 1,
-        });
-    });
 
-    //마우스 a태그 호버시
-    const customCursor2 = document.querySelector(".curser-wrap .cursor");
-    $('body a, body button').hover(function () {
-        gsap.to(customCursor2, 0.1, { scale: 0.3 });
-    }, function () {
-        gsap.to(customCursor2, 0.1, { scale: 1 });
-    });
+    const customCursor = document.querySelector(".curser-wrap");
+    if (customCursor) {
+        $(document).off('mousemove').on('mousemove', function (e) {
+            gsap.to(customCursor, {
+                x: e.clientX,
+                y: e.clientY,
+                xPercent: -50,
+                yPercent: -50,
+                duration: 0.1,
+                opacity: 1,
+            });
+        });
+
+        //마우스 a태그 호버시
+        const customCursor2 = document.querySelector(".curser-wrap .cursor");
+        if (customCursor2) {
+            $('body a, body button').off('mouseenter mouseleave').on('mouseenter', function () {
+                gsap.to(customCursor2, 0.1, { scale: 0.3 });
+            }).on('mouseleave', function () {
+                gsap.to(customCursor2, 0.1, { scale: 1 });
+            });
+        }
+    }
 
     //마우스 이벤트
     const mouseTl = gsap.timeline({
         paused: true,
     });
 
-    mouseTl
-        .to('.curser-wrap i', 0.1, { opacity: 1 }, "a")
+    mouseTl.to('.curser-wrap i', 0.1, { opacity: 1 }, "a");
 
-    $('.mouse-event').hover(function () {
+    $('.mouse-event').off('mouseenter mouseleave').on('mouseenter', function () {
         mouseTl.play()
-    }, function () {
+    }).on('mouseleave', function () {
         mouseTl.reverse()
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // If header/footer are already in DOM, init immediately
+    if (document.querySelector('#nav-btn')) {
+        initUI();
+    }
+
+    $(".reference .btn-wrap button").click(function () {
+        $(this).parent().parent().next(".swiper-container").hide();
+        $(".control-box").hide();
+        $(".swiper-pagination-s").hide();
+        $(".btn-contents").css("display", "flex");
     });
 
     //smooth scroll
@@ -254,7 +264,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     referenceActive_3();
-    
+
     function referenceActive_4() {
         let idx = 1;
 
@@ -327,16 +337,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const urlParams = new URL(location.href).searchParams;
     const selectedBtn = urlParams.get('btn');
-    
-    if(selectedBtn!=null&&selectedBtn!='') {
+
+    if (selectedBtn != null && selectedBtn != '') {
         $('#' + selectedBtn).trigger('click');
     }
-    
+
 });
 
 function changeReference(type) {
     $('.btn-contents > .content').hide();
-    $('#' + type).css({"display": "flex", "animation" : "fadeUp 1s ease forwards"});
+    $('#' + type).css({ "display": "flex", "animation": "fadeUp 1s ease forwards" });
     $('.btn-wrap button').removeClass('on');
     $('#' + type + 'Btn').addClass('on');
 };
@@ -368,6 +378,7 @@ function historyScrollEvent() {
         nearCompanyDetail?.classList.add('active');
 
         $(".company-detail.active").parent(".history-year-list").siblings(".number-sticky").css("color", "black");
-        $(".company-detail.active").parent(".history-year-list").siblings(".number-sticky").children(".typo-num-div").css("color", "black")
     });
 }
+
+window.addEventListener('componentsLoaded', initUI);
