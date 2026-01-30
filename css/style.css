@@ -342,9 +342,11 @@ main {
 }
 
 .t-br,
-.m-br {
+.m-br,
+.no-pc-section {
     display: none;
 }
+
 
 /* section01 - swiper */
 section.main-visual {
@@ -1549,6 +1551,11 @@ footer .footer-inner>.copyright .slogan-ko {
     .m-br {
         display: none;
     }
+
+    .no-pc-section {
+        display: block;
+    }
+
 
     /* section01 */
     section.main-visual {
