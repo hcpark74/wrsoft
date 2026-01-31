@@ -1,6 +1,169 @@
 @charset "utf-8";
+@import url('../reset.css');
+@import url('../style.css');
 
-/* company specific styles */
+/* ====================
+   COMMON SUB-PAGE STYLES
+   (Transferred from sub-style.css)
+==================== */
+
+main section.sub-01 {
+    width: 100%;
+    height: 100vh;
+}
+
+main section .screen {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: 0;
+}
+
+.visual-img-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.visual-img-icon .sub-img {
+    width: 100%;
+    height: 100%;
+    background: url(/images/sub-bg.png) no-repeat center / cover;
+    transform: scale(1.08, 1.08);
+    animation: image-zoom-out 6s 0s forwards;
+}
+
+.sub-title {
+    color: #fff;
+    position: absolute;
+    bottom: 172px;
+    left: 100px;
+}
+
+.sub-title>* {
+    transform: translateY(30px);
+    transition: all 0.8s ease-in-out;
+    transition-property: transform, opacity;
+}
+
+.sub-title>p {
+    font-size: 2rem;
+    font-weight: 400;
+    transition-delay: 0.2s;
+}
+
+.sub-title>h2 {
+    font-family: var(--font-eng);
+    font-weight: 500;
+    transition-delay: 0.5s;
+    margin-top: 12px;
+}
+
+/* sub-gnb */
+.sub-gnb {
+    width: 100%;
+    height: 72px;
+    z-index: 3;
+    position: absolute;
+    bottom: 0;
+}
+
+.sub-gnb-inner {
+    width: 100%;
+    height: 72px;
+    border-top: 2px solid #9499A5;
+    background: transparent;
+    transition: all 0.4s ease-in-out;
+}
+
+.sub-gnb-inner ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+}
+
+.sub-gnb-inner ul>li {
+    width: 25%;
+}
+
+.sub-gnb-inner li>a:hover,
+.sub-gnb-inner li.on>a {
+    color: #fff;
+}
+
+.sub-gnb-inner li>a:hover:before,
+.sub-gnb-inner li.on>a:before {
+    width: 100%;
+    margin-left: -50%;
+}
+
+.sub-gnb-inner li>a:before {
+    content: "";
+    width: 0;
+    height: 3px;
+    background: #fff;
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transition: all 0.4s ease-in-out;
+}
+
+.sub-gnb-inner li>a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    height: 72px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #9499A5;
+    cursor: pointer;
+    transition: all 0.4s ease-in-out;
+}
+
+.main-title {
+    padding: 6.25rem 0;
+}
+
+.main-title>p {
+    font-size: 3.125rem;
+    font-weight: 500;
+    color: #000;
+    text-align: center;
+}
+
+.main-title span {
+    color: var(--secondary-color);
+}
+
+br.pc-br {
+    display: block;
+}
+
+br.t-br,
+br.m-br {
+    display: none;
+}
+
+.flex-box {
+    display: flex;
+    align-items: center;
+}
+
+/* ====================
+   COMPANY SPECIFIC STYLES
+==================== */
 
 .company section {
     width: 100%;
@@ -134,12 +297,10 @@
 
 .leadership-section .ceo-quote {
     font-size: 2rem;
-    /* Increased size for full-width impact */
     line-height: 1.4;
     color: #232323;
     font-weight: 300;
     margin-bottom: 60px;
-    /* More space before the body content */
     border-left: 4px solid var(--secondary-color);
     padding-left: 30px;
     font-style: italic;
@@ -186,20 +347,6 @@
     font-size: 0.875rem;
     color: #888;
     font-weight: 300;
-}
-
-/* For using other parts of the same image if needed */
-.img-crop.part-mid img {
-    transform: translateY(-33.33%);
-}
-
-.img-crop.part-btm img {
-    transform: translateY(-66.66%);
-}
-
-.img-crop.part-btm img,
-.img-crop .part-btm img {
-    transform: translateY(-66.66%);
 }
 
 /* company - Facts Section */
@@ -338,4 +485,391 @@
     text-align: center;
     font-weight: 300;
     margin-top: 20px;
+}
+
+/* ====================
+   TABLET VERSION
+==================== */
+@media (min-width:769px) and (max-width:1024px) {
+    .container {
+        width: calc(100vw - 40px);
+    }
+
+    .main-title {
+        padding: 6.25rem 0 5rem 0;
+    }
+
+    .main-title>p {
+        font-size: 2rem;
+    }
+
+    .sub-title {
+        left: 20px;
+    }
+
+    .sub-title>h2 {
+        font-size: 3.75rem;
+    }
+
+    br.t-br {
+        display: block;
+    }
+
+    br.pc-br,
+    br.m-br {
+        display: none;
+    }
+
+    .company section {
+        height: auto;
+    }
+
+    .visual-img-icon .sub-img {
+        background-image: url(/images/sub-bg-t.png);
+    }
+
+    .company section.sub-02.who-we-are-section,
+    .company section.sub-02.leadership-section,
+    .company section.sub-02.facts-section {
+        height: auto;
+    }
+
+    .company section.sub-02 .flex-box {
+        flex-direction: column;
+        gap: 50px;
+    }
+
+    .company section.sub-02 .flex-box .img-box {
+        width: calc(100% - 136px);
+        height: auto;
+    }
+
+    /* company - Who We Are, Leadership, Facts responsive */
+    .who-we-are-section {
+        padding: 60px 0;
+    }
+
+    .who-we-are-section .main-headline {
+        font-size: 2rem;
+    }
+
+    .who-we-are-section .sub-description {
+        font-size: 1rem;
+        padding: 0 20px;
+    }
+
+    .leadership-section {
+        padding: 60px 0;
+    }
+
+    .leadership-flex {
+        flex-direction: column;
+        gap: 40px;
+        padding: 0 20px;
+    }
+
+    .leadership-section .ceo-quote {
+        font-size: 1.5rem;
+        padding-left: 20px;
+    }
+
+    .leadership-section .ceo-text {
+        font-size: 0.9375rem;
+    }
+
+    .leadership-img {
+        display: block;
+        flex: 0 0 100%;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .facts-section {
+        padding: 60px 0;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .facts-title p {
+        font-size: 1.75rem;
+    }
+
+    .facts-grid {
+        flex-direction: column;
+        gap: 40px;
+        padding: 0 20px;
+    }
+
+    .fact-item {
+        padding: 0;
+        border-left: none;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 40px;
+    }
+
+    .fact-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .fact-number {
+        font-size: 3rem;
+    }
+
+    .fact-symbol {
+        font-size: 1.5rem;
+    }
+
+    .company section.sub-03 {
+        height: auto;
+        padding-top: 60px;
+        padding-bottom: 100px;
+    }
+
+    .icon-box>p {
+        font-size: 1.25rem;
+    }
+
+    .company .text-box {
+        text-align: center;
+    }
+
+    .company .sub-03 .flex-box {
+        gap: 0;
+    }
+}
+
+/* ====================
+   MOBILE VERSION
+==================== */
+@media (max-width:768px) {
+    .container {
+        width: calc(100vw - 32px);
+    }
+
+    .sub-title {
+        left: 16px;
+    }
+
+    .sub-title>h2 {
+        font-size: 1.75rem;
+    }
+
+    .sub-title>p {
+        font-size: 1rem;
+    }
+
+    .sub-gnb-inner li>a {
+        font-size: 0.875rem;
+        font-weight: 300;
+    }
+
+    .main-title {
+        padding: 3.75rem 0 2rem;
+    }
+
+    .main-title>p {
+        font-size: 1.25rem;
+    }
+
+    br.pc-br,
+    br.t-br {
+        display: none;
+    }
+
+    br.m-br {
+        display: block;
+    }
+
+    /* company */
+    .visual-img-icon .sub-img {
+        background-image: url(/images/sub-bg-m.png);
+    }
+
+    .company section {
+        height: auto;
+        padding-bottom: 20px;
+    }
+
+    .company section.sub-02.who-we-are-section,
+    .company section.sub-02.leadership-section,
+    .company section.sub-02.facts-section {
+        height: auto;
+        padding-bottom: 0;
+    }
+
+    .company .sub-02 .flex-box {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .company .sub-02 .img-box {
+        width: 100%;
+        height: auto;
+    }
+
+    /* company - Who We Are, Leadership, Facts mobile responsive */
+    .who-we-are-section {
+        padding: 3.75rem 0;
+    }
+
+    .who-we-are-section .section-label {
+        font-size: 0.75rem;
+        margin-bottom: 15px;
+    }
+
+    .who-we-are-section .main-headline {
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+        padding: 0 16px;
+    }
+
+    .who-we-are-section .sub-description {
+        font-size: 0.875rem;
+        padding: 0 16px;
+        line-height: 1.6;
+    }
+
+    .leadership-section {
+        padding: 3.75rem 0;
+    }
+
+    .leadership-flex {
+        flex-direction: column;
+        gap: 30px;
+        padding: 0 16px;
+    }
+
+    .leadership-section .section-label {
+        font-size: 0.75rem;
+        margin-bottom: 15px;
+    }
+
+    .leadership-section .ceo-quote {
+        font-size: 1.125rem;
+        padding-left: 15px;
+        margin-bottom: 30px;
+        border-left-width: 3px;
+    }
+
+    .leadership-section .ceo-text {
+        font-size: 0.875rem;
+        line-height: 1.6;
+    }
+
+    .leadership-section .ceo-text p {
+        margin-bottom: 15px;
+    }
+
+    .leadership-img {
+        display: block;
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin: 30px auto 0;
+    }
+
+    .leadership-img img {
+        width: 100%;
+        height: auto;
+    }
+
+    .ceo-sign {
+        margin-top: 30px;
+    }
+
+    .ceo-name {
+        font-size: 1rem;
+    }
+
+    .ceo-title {
+        font-size: 0.75rem;
+    }
+
+    .facts-section {
+        padding: 3.75rem 0;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .facts-title {
+        margin-bottom: 40px;
+    }
+
+    .facts-title p {
+        font-size: 1.25rem;
+        margin-bottom: 15px;
+    }
+
+    .title-underline {
+        width: 40px;
+        height: 2px;
+    }
+
+    .facts-grid {
+        flex-direction: column;
+        gap: 30px;
+        padding: 0 16px;
+    }
+
+    .fact-item {
+        padding: 0;
+        border-left: none;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 30px;
+    }
+
+    .fact-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .fact-number {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+
+    .fact-symbol {
+        font-size: 1.25rem;
+    }
+
+    .fact-label {
+        font-size: 1rem;
+        margin: 10px 0 5px;
+    }
+
+    .fact-desc {
+        font-size: 0.75rem;
+    }
+
+    .company section.sub-03 {
+        padding-top: 3.75rem;
+        padding-bottom: 60px;
+    }
+
+    .text-box>p {
+        font-size: 0.75rem;
+        font-weight: 300;
+        text-align: center;
+    }
+
+    .company .sub-03 .flex-box {
+        flex-wrap: wrap;
+        gap: 40px 0;
+    }
+
+    .icon-box .svg-box {
+        height: auto;
+    }
+
+    .icon-box .svg-box>svg {
+        width: 120px;
+        height: 120px;
+    }
+
+    .company .sub-03 .flex-box>.icon-box {
+        width: 50%;
+    }
+
+    .icon-box>p {
+        font-size: 1rem;
+        margin-top: 10px;
+    }
 }

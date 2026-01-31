@@ -1,0 +1,540 @@
+@charset "utf-8";
+@import url('../reset.css');
+@import url('../style.css');
+
+/* ====================
+   COMMON SUB-PAGE STYLES
+==================== */
+
+main section.sub-01 {
+    width: 100%;
+    height: 100vh;
+}
+
+main section .screen {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: 0;
+}
+
+.visual-img-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.visual-img-icon .sub-img {
+    width: 100%;
+    height: 100%;
+    background: url(/images/sub-bg.png) no-repeat center / cover;
+    transform: scale(1.08, 1.08);
+    animation: image-zoom-out 6s 0s forwards;
+}
+
+.visual-img-icon .sub-img03 {
+    background-image: url(/images/sub-bg03.png);
+}
+
+.sub-title {
+    color: #fff;
+    position: absolute;
+    bottom: 172px;
+    left: 100px;
+}
+
+.sub-title>* {
+    transform: translateY(30px);
+    transition: all 0.8s ease-in-out;
+    transition-property: transform, opacity;
+}
+
+.sub-title>p {
+    font-size: 2rem;
+    font-weight: 400;
+    transition-delay: 0.2s;
+}
+
+.sub-title>h2 {
+    font-family: var(--font-eng);
+    font-weight: 500;
+    transition-delay: 0.5s;
+    margin-top: 12px;
+}
+
+/* sub-gnb */
+.sub-gnb {
+    width: 100%;
+    height: 72px;
+    z-index: 3;
+    position: absolute;
+    bottom: 0;
+}
+
+.sub-gnb-inner {
+    width: 100%;
+    height: 72px;
+    border-top: 2px solid #9499A5;
+    background: transparent;
+    transition: all 0.4s ease-in-out;
+}
+
+.sub-gnb-inner ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+}
+
+.sub-gnb-inner ul>li {
+    width: 25%;
+}
+
+.sub-gnb-inner ul.gnb-two>li {
+    width: 50%;
+}
+
+.sub-gnb-inner li>a:hover,
+.sub-gnb-inner li.on>a {
+    color: #fff;
+}
+
+.sub-gnb-inner li>a:hover:before,
+.sub-gnb-inner li.on>a:before {
+    width: 100%;
+    margin-left: -50%;
+}
+
+.sub-gnb-inner li>a:before {
+    content: "";
+    width: 0;
+    height: 3px;
+    background: #fff;
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transition: all 0.4s ease-in-out;
+}
+
+.sub-gnb-inner li>a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    height: 72px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #9499A5;
+    cursor: pointer;
+    transition: all 0.4s ease-in-out;
+}
+
+.main-title {
+    padding: 6.25rem 0;
+}
+
+.main-title>p {
+    font-size: 3.125rem;
+    font-weight: 500;
+    color: #000;
+    text-align: center;
+}
+
+.main-title span {
+    color: var(--secondary-color);
+}
+
+br.pc-br {
+    display: block;
+}
+
+br.t-br,
+br.m-br {
+    display: none;
+}
+
+.flex-box {
+    display: flex;
+    align-items: center;
+}
+
+/* ====================
+   WELFARE SPECIFIC STYLES
+==================== */
+
+.recruit .sub-02 {
+    padding-bottom: 150px;
+}
+
+.recruit .sub-bg>div {
+    width: 100%;
+    height: 420px;
+    background: url(/images/sub-recruit.png) no-repeat center / cover;
+}
+
+.recruit .sub-bg.sub-bg02>div {
+    background: url(/images/sub-recruit.png) no-repeat center / cover;
+}
+
+/* Welfare grid (grid-box) */
+.recruit .grid-box {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 2.5rem;
+    margin-top: 100px;
+}
+
+.recruit .grid-box>li {
+    position: relative;
+    height: 25rem;
+    background-color: #eff0f2;
+    padding: 4rem 3rem;
+    transition: var(--transition-custom);
+    list-style: none;
+}
+
+.recruit .grid-box>li strong {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.recruit .grid-box>li p {
+    font-size: 1.25rem;
+    font-weight: 300;
+    line-height: 1.6;
+}
+
+.recruit .grid-box>li>.icon-wrap {
+    position: absolute;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    transition: var(--transition-custom);
+}
+
+.recruit .grid-box>li.active {
+    color: #fff;
+    background: var(--primary-color02);
+}
+
+.recruit .grid-box>li.active svg path {
+    stroke: #fff;
+}
+
+.recruit .grid-box>li.active svg path.blue {
+    stroke: var(--secondary-color);
+}
+
+/* Recruit list (flex-wrapper) - duplicated from recruit because structure is shared but some elements might be used */
+.flex-wrapper {
+    margin-top: 100px;
+}
+
+.flex-wrapper ul {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem 0;
+}
+
+.flex-wrapper li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #f3f4f6;
+    width: 100%;
+    height: 8.75rem;
+    transition: all 0.4s ease;
+    border-radius: 12px;
+    overflow: hidden;
+    list-style: none;
+}
+
+.flex-wrapper li:hover {
+    transform: translateX(15px);
+    background-color: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.flex-wrapper li .icon-wrap {
+    margin: 0 156px 0 75px;
+    flex-shrink: 0;
+}
+
+.flex-wrapper li .text-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-wrapper li .inner-text {
+    display: flex;
+    align-items: center;
+    gap: 70px;
+}
+
+.flex-wrapper li .inner-text .flex-box {
+    gap: 24px;
+    flex-shrink: 0;
+}
+
+.flex-wrapper li .text-box .num {
+    font-size: 2.5rem;
+    font-weight: 400;
+    font-family: var(--font-number);
+    color: #aeb2bc;
+}
+
+.flex-wrapper li .text-box .txt {
+    font-size: 2.5rem;
+    font-weight: 700;
+    width: 148px;
+}
+
+.flex-wrapper li .inner-text .txt-detail {
+    font-size: 1.25rem;
+    font-weight: 300;
+    letter-spacing: 0.2px;
+    line-height: 1.6;
+}
+
+.flex-wrapper li.active {
+    color: #fff;
+    background-color: var(--primary-color02);
+}
+
+.flex-wrapper li.active svg path {
+    stroke: #fff;
+}
+
+.flex-wrapper li.active svg path.blue {
+    stroke: var(--secondary-color);
+}
+
+/* ====================
+   TABLET VERSION
+==================== */
+@media (min-width:769px) and (max-width:1024px) {
+    .container {
+        width: calc(100vw - 40px);
+    }
+
+    .main-title {
+        padding: 6.25rem 0 5rem 0;
+    }
+
+    .main-title>p {
+        font-size: 2rem;
+    }
+
+    .sub-title {
+        left: 20px;
+    }
+
+    .sub-title>h2 {
+        font-size: 3.75rem;
+    }
+
+    br.t-br {
+        display: block;
+    }
+
+    br.pc-br,
+    br.m-br {
+        display: none;
+    }
+
+    .visual-img-icon .sub-img {
+        background-image: url(/images/sub-bg-t.png);
+    }
+
+    /* recruit/welfare tablet */
+    .recruit .grid-box {
+        grid-gap: 2.5rem 1rem;
+    }
+
+    .recruit .grid-box>li {
+        height: 22rem;
+        padding: 4rem 1.5rem;
+    }
+
+    .recruit .grid-box>li strong {
+        font-size: 2rem;
+    }
+
+    .recruit .grid-box>li p {
+        font-size: 1rem;
+    }
+
+    .flex-wrapper li .icon-wrap {
+        margin: 0 20px;
+    }
+
+    .flex-wrapper li .icon-wrap svg {
+        width: 68px;
+        height: auto;
+    }
+
+    .flex-wrapper li .inner-text {
+        gap: 0;
+        width: 100%;
+        justify-content: space-between;
+        padding-right: 40px;
+    }
+
+    .flex-wrapper li .inner-text .flex-box {
+        width: 30%;
+        gap: 15px;
+    }
+
+    .flex-wrapper li .text-box .num,
+    .flex-wrapper li .text-box .txt {
+        font-size: 1.75rem;
+    }
+
+    .flex-wrapper li .inner-text .txt-detail {
+        width: 70%;
+        font-size: 1rem;
+    }
+}
+
+/* ====================
+   MOBILE VERSION
+==================== */
+@media (max-width:768px) {
+    .container {
+        width: calc(100vw - 32px);
+    }
+
+    .sub-title {
+        left: 16px;
+    }
+
+    .sub-title>h2 {
+        font-size: 1.75rem;
+    }
+
+    .sub-title>p {
+        font-size: 1rem;
+    }
+
+    .sub-gnb-inner li>a {
+        font-size: 0.875rem;
+        font-weight: 300;
+    }
+
+    .main-title {
+        padding: 3.75rem 0 2rem;
+    }
+
+    .main-title>p {
+        font-size: 1.25rem;
+    }
+
+    br.pc-br,
+    br.t-br {
+        display: none;
+    }
+
+    br.m-br {
+        display: block;
+    }
+
+    /* recruit/welfare mobile */
+    .visual-img-icon .sub-img03 {
+        background-image: url(/images/sub-bg03-m.png);
+    }
+
+    .recruit .sub-02 {
+        padding-bottom: 60px;
+    }
+
+    .recruit .sub-bg {
+        width: 100%;
+        height: 145px;
+        margin-bottom: 40px;
+    }
+
+    .recruit .grid-box {
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 0.75rem;
+        margin-top: 40px;
+    }
+
+    .recruit .grid-box>li {
+        height: 13.125rem;
+        padding: 1.5rem 0.8rem;
+    }
+
+    .recruit .grid-box>li strong {
+        font-size: 1.125rem;
+    }
+
+    .recruit .grid-box>li p {
+        font-size: 0.75rem;
+    }
+
+    .recruit .grid-box>li>.icon-wrap {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+
+    .recruit .grid-box>li>.icon-wrap svg {
+        width: 60px;
+        height: 60px;
+    }
+
+    .flex-wrapper {
+        margin-top: 40px;
+    }
+
+    .flex-wrapper ul {
+        gap: 0.75rem 0;
+    }
+
+    .flex-wrapper li {
+        height: auto;
+        min-height: 8.75rem;
+        padding: 20px 0;
+    }
+
+    .flex-wrapper li .icon-wrap {
+        margin: 0 15px;
+    }
+
+    .flex-wrapper li .icon-wrap svg {
+        width: 58px;
+        height: auto;
+    }
+
+    .flex-wrapper li .inner-text {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .flex-wrapper li .inner-text .flex-box {
+        gap: 10px;
+        width: 100%;
+    }
+
+    .flex-wrapper li .text-box .num,
+    .flex-wrapper li .text-box .txt {
+        font-size: 1.125rem;
+    }
+
+    .flex-wrapper li .inner-text .txt-detail {
+        font-size: 0.75rem;
+    }
+}
