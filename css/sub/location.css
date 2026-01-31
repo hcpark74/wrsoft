@@ -1,0 +1,106 @@
+@charset "utf-8";
+
+/* ====================
+   LOCATION PAGE
+   ==================== */
+
+.location .sub-02 {
+    padding-bottom: 100px;
+}
+
+.map-top {
+    display: flex;
+    justify-content: space-between;
+}
+
+.map-top .map-address {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 19px;
+}
+
+.map-top .map-address>p {
+    font-size: 2rem;
+    font-weight: 400;
+}
+
+.map-top .map-direction {
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 0.24px;
+    padding-left: 40px;
+}
+
+.map-top .right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.map-top .right>a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 28px;
+    border: 1px solid #000;
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 0.24px;
+}
+
+.map {
+    width: 100%;
+    height: 600px;
+    margin: 2rem 0;
+}
+
+.map iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.contact-list {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+}
+
+.contact-list .item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    position: relative;
+    padding-top: 60px;
+}
+
+.contact-list .item:last-child {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.contact-list .item:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #000;
+    transition: width 0.25s;
+}
+
+.contact-list .item .mail-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.contact-list .item p {
+    font-size: 2rem;
+    font-weight: 400;
+}

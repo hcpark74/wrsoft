@@ -1,0 +1,55 @@
+@charset "utf-8";
+
+/* ====================
+   CERTIFICATION PAGE
+   ==================== */
+
+.certification .sub-02 {
+    padding-bottom: 9.375rem;
+}
+
+.certification-content>ul {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    row-gap: 40px;
+    column-gap: 20px;
+}
+
+.certification-content>ul>li {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.certification-content .certification-imgbox {
+    width: 100%;
+    height: 583px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff0f2;
+    margin-bottom: 20px;
+}
+
+.certification-content .certification-imgbox img {
+    width: 220px;
+    height: auto;
+    box-shadow: 4px 4px 10px 0px rgba(0, 0, 0, 0.25);
+    transition: 0.6s;
+}
+
+.certification-content .certification-imgbox:hover {
+    border: 6px solid var(--secondary-color);
+}
+
+.certification-content .certification-imgbox:hover img {
+    box-shadow: none;
+    transform: scale(1.5);
+}
+
+.certification-content>ul>li>p {
+    text-align: center;
+    font-size: 1.125rem;
+    font-weight: 300;
+}

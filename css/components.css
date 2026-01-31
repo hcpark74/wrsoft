@@ -1,0 +1,125 @@
+@charset "utf-8";
+
+/* ====================
+   CUSTOM CURSOR
+==================== */
+.curser-wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 7777;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.curser-wrap .curser-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5em;
+    height: 2.5em;
+}
+
+.curser-wrap .curser-inner .cursor {
+    position: relative;
+    z-index: 2;
+    width: 1em;
+    height: 1em;
+    background-color: var(--point-color);
+    border-radius: 3em;
+}
+
+.curser-wrap .curser-inner i {
+    position: absolute;
+    width: 2.5em;
+    height: 2.5em;
+    backdrop-filter: blur(5px);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3em;
+    opacity: 0;
+}
+
+/* ====================
+   TOP BUTTON
+==================== */
+.top-btn {
+    position: fixed;
+    right: var(--grid-margin);
+    bottom: 40px;
+    z-index: 10;
+    transition: bottom 1s ease;
+    cursor: pointer;
+}
+
+.top-btn.last-page {
+    bottom: 120px;
+}
+
+.top-btn .inner-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 8rem;
+    height: 8rem;
+    cursor: pointer;
+}
+
+.top-btn .inner-circle::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.65);
+    background-color: #fff;
+    border-radius: 50%;
+    transition: all 0.8s ease;
+}
+
+.top-btn .inner-circle:hover::before {
+    transform: translate(-50%, -50%) scale(1.25);
+}
+
+.top-btn .inner-circle:hover>svg.text_box {
+    fill: #000;
+    transition-delay: 0.1s;
+}
+
+.top-btn .inner-circle>svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.65) rotate(0deg);
+    border-radius: 50%;
+    fill: #fff;
+}
+
+.top-btn .inner-circle>svg>path {
+    width: 150%;
+    height: 150%;
+}
+
+.top-btn .inner-circle>svg.text_box {
+    fill: #fff;
+    position: absolute;
+    animation: circle-rotate 12s linear infinite;
+    width: 130%;
+    height: auto;
+}
+
+@keyframes circle-rotate {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* top-btn-t - Legacy button, hidden in favor of unified .top-btn */
+.top-btn-t {
+    display: none !important;
+}

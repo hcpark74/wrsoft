@@ -1,0 +1,78 @@
+@charset "utf-8";
+
+/* ====================
+   CLIENT & PARTNER PAGE
+   ==================== */
+
+.sub-02.client .listbox {
+    margin: 0 0 0 var(--grid-margin);
+}
+
+.card-slider {
+    width: 100%;
+}
+
+.card-slider-wrapper {
+    margin-top: 118px;
+    display: flex;
+}
+
+.reference .pause-btn {
+    display: none;
+}
+
+.reference .sub-02.client .card-item {
+    width: 433px;
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    background: #fff;
+    border: 1px solid #aeb2bc;
+}
+
+.reference .sub-02.client .card-item .company {
+    font-size: 1.125rem;
+    font-weight: 300;
+    letter-spacing: 0.2px;
+    color: #7f8493;
+}
+
+.reference .sub-02.client {
+    position: relative;
+}
+
+.reference .sub-02 .swiper-pagination-s {
+    position: absolute;
+    width: 800px;
+    height: 3px;
+    left: 367px;
+    top: 981px;
+    background: #c7cad1;
+}
+
+.swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
+    background: #000 !important;
+}
+
+.sub-02.client .swiper-slide-prev {
+    opacity: 1;
+}
+
+.sub-02.client .control-box {
+    bottom: 77px;
+}
+
+.sub-02.client .swiper-pagination-s {
+    top: 755px;
+}
+
+.sub-02.client .bottom-text {
+    color: var(--primary-color02);
+    font-size: 2rem;
+    font-weight: 400;
+    text-align: center;
+    margin-top: 70px;
+}

@@ -1,0 +1,133 @@
+@charset "utf-8";
+
+/* history - Section 02 */
+.history .sub-02 {
+    width: 100%;
+    height: 100%;
+}
+
+.history-bg {
+    width: 100%;
+    height: 420px;
+    background: url(/images/sub-history.png) no-repeat center / cover;
+}
+
+.history-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    margin: 2rem 0 18rem;
+}
+
+.history-content-div {
+    display: flex;
+}
+
+.typo-num-div:not(.front-number) {
+    display: flex;
+}
+
+.typo-num-div.front-number {
+    display: none;
+}
+
+.typo-num-div:not(.front-number),
+.number-sticky {
+    position: sticky;
+    top: 40%;
+    transition: position 1s;
+    font-size: 6.25rem;
+    font-weight: 700;
+    font-family: var(--font-number);
+    color: #9499a5;
+    margin-bottom: auto;
+}
+
+.typo-num-div .split-text-char {
+    font-family: var(--font-number);
+}
+
+.year-history .typo-num-div:not(.front-number) {
+    width: 8.125rem;
+    color: #000;
+}
+
+.year-history {
+    display: flex;
+    gap: 300px;
+}
+
+.history-list {
+    position: relative;
+}
+
+.history-list::before {
+    content: "";
+    width: 1px;
+    height: calc(100% - 14rem);
+    background-color: #000;
+    position: absolute;
+    top: 90px;
+    left: 363px;
+}
+
+.history-year-list .company-detail:first-child {
+    margin-top: 4rem;
+}
+
+.history-year-list .company-detail {
+    margin-bottom: 3.75rem;
+}
+
+.history-year-list .company-detail ul {
+    margin-left: 20px;
+}
+
+.history-year-list .company-with {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2.5rem;
+    position: relative;
+    color: var(--primary-color02);
+}
+
+.company-detail.active .company-with::before {
+    background-color: var(--secondary-color);
+}
+
+.history-year-list .company-with::before {
+    content: "";
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    transition: var(--transition-custom);
+    background-color: #9499A5;
+    position: absolute;
+    top: 50%;
+    left: -73px;
+    transform: translateY(-50%);
+}
+
+.history-year-list ul li {
+    position: relative;
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 0.24px;
+    margin-bottom: 0.75rem;
+}
+
+.history-year-list ul li::before {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: -15px;
+    width: 4px;
+    height: 4px;
+    background: #000;
+    border-radius: 50%;
+}
+
+.history-year-list .company-detail:last-child {
+    margin-bottom: 100px;
+}

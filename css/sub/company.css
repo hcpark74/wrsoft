@@ -1,0 +1,341 @@
+@charset "utf-8";
+
+/* company specific styles */
+
+.company section {
+    width: 100%;
+    height: 100%;
+    padding-bottom: 220px;
+}
+
+/* company - Who We Are Section */
+.who-we-are-section {
+    padding: 100px 0;
+    background-color: #fff;
+}
+
+.who-we-are-flex {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.who-we-are-content {
+    flex: 1;
+}
+
+.who-we-are-img {
+    flex: 0 0 540px;
+    display: block;
+}
+
+.who-we-are-img img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.who-we-are-section .section-label {
+    color: var(--secondary-color);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+    font-family: var(--font-eng);
+}
+
+.who-we-are-section .main-headline {
+    font-size: 2.625rem;
+    line-height: 1.3;
+    font-weight: 700;
+    color: #232323;
+    margin-bottom: 40px;
+    font-family: var(--font-eng);
+}
+
+.who-we-are-section .headline-sub {
+    color: #666;
+    font-weight: 400;
+    font-family: var(--font-main);
+}
+
+.who-we-are-section .sub-description p {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: #555;
+    font-weight: 300;
+    margin-bottom: 24px;
+    word-break: keep-all;
+}
+
+.who-we-are-section .sub-description p:last-child {
+    margin-bottom: 0;
+}
+
+.who-we-are-section .sub-description strong {
+    font-weight: 500;
+    color: var(--primary-color02);
+}
+
+/* company - Leadership Section */
+.leadership-section {
+    background-color: #f9f9f9;
+    padding: 100px 0;
+}
+
+.leadership-section .container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.leadership-flex {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 80px;
+}
+
+.leadership-img {
+    flex: 0 0 420px;
+}
+
+.leadership-img .img-crop {
+    width: 100%;
+    height: 310px;
+    overflow: hidden;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.leadership-img .img-crop img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.leadership-content {
+    flex: 1;
+}
+
+.leadership-section .section-label {
+    color: var(--secondary-color);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+    font-family: var(--font-eng);
+}
+
+.leadership-section .ceo-quote {
+    font-size: 2rem;
+    /* Increased size for full-width impact */
+    line-height: 1.4;
+    color: #232323;
+    font-weight: 300;
+    margin-bottom: 60px;
+    /* More space before the body content */
+    border-left: 4px solid var(--secondary-color);
+    padding-left: 30px;
+    font-style: italic;
+    max-width: 100%;
+}
+
+.leadership-section .ceo-quote strong {
+    font-weight: 700;
+    color: var(--primary-color02);
+}
+
+.leadership-section .ceo-text {
+    color: #555;
+    line-height: 1.8;
+    font-size: 1rem;
+    font-weight: 300;
+}
+
+.leadership-section .ceo-text p {
+    margin-bottom: 20px;
+}
+
+.leadership-section .ceo-text p:last-child {
+    margin-bottom: 0;
+}
+
+.leadership-section .ceo-text strong {
+    font-weight: 500;
+    color: var(--primary-color02);
+}
+
+.ceo-sign {
+    margin-top: 40px;
+}
+
+.ceo-name {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: #232323;
+    margin-bottom: 5px;
+}
+
+.ceo-title {
+    font-size: 0.875rem;
+    color: #888;
+    font-weight: 300;
+}
+
+/* For using other parts of the same image if needed */
+.img-crop.part-mid img {
+    transform: translateY(-33.33%);
+}
+
+.img-crop.part-btm img {
+    transform: translateY(-66.66%);
+}
+
+.img-crop.part-btm img,
+.img-crop .part-btm img {
+    transform: translateY(-66.66%);
+}
+
+/* company - Facts Section */
+.facts-section {
+    padding: 100px 0;
+    border-top: 1px solid #eee;
+    border-bottom: 2px solid #ddd;
+    background-color: #f5f5f5;
+    margin-bottom: 0;
+}
+
+.facts-title {
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+.facts-title p {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #232323;
+    margin-bottom: 20px;
+}
+
+.title-underline {
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: var(--secondary-color);
+    margin: 0 auto;
+}
+
+.facts-grid {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.fact-item {
+    flex: 1;
+    padding: 0 20px;
+}
+
+.fact-item:not(:first-child) {
+    border-left: 1px solid #eee;
+}
+
+.fact-number {
+    font-size: 4rem;
+    font-weight: 800;
+    color: #232323;
+    line-height: 1;
+    font-family: var(--font-number);
+    margin-bottom: 15px;
+}
+
+.fact-symbol {
+    font-size: 1.875rem;
+    color: var(--secondary-color);
+    vertical-align: top;
+    font-weight: 700;
+}
+
+.fact-label {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #232323;
+    margin: 15px 0 5px;
+    font-family: var(--font-eng);
+    letter-spacing: 0.05em;
+}
+
+.fact-desc {
+    font-size: 0.875rem;
+    color: #888;
+    font-weight: 300;
+}
+
+/* company - sub-03 section (Values section) */
+.company .sub-03 {
+    background-color: #fff;
+    padding-top: 100px;
+    margin-top: 0;
+}
+
+.company .sub-02 .flex-box {
+    gap: 81px;
+}
+
+.img-box {
+    width: 847px;
+    height: 671px;
+}
+
+.img-box>img {
+    width: 100%;
+    height: 100%;
+}
+
+.company .text-box {
+    transition: all 0.6s ease-in-out;
+}
+
+.text-box>p {
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    margin-top: 25px;
+}
+
+.company .sub-03 .flex-box {
+    gap: 24px;
+    width: 100%;
+    height: 50%;
+    justify-content: space-between;
+}
+
+.company .sub-03 .flex-box>.icon-box {
+    width: 25%;
+}
+
+.icon-box .svg-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 240px;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.icon-box>p {
+    font-size: 2.5rem;
+    text-align: center;
+    font-weight: 300;
+    margin-top: 20px;
+}

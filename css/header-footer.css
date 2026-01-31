@@ -1,0 +1,324 @@
+@charset "utf-8";
+
+/* ====================
+   HEADER
+==================== */
+header {
+    width: 100%;
+    height: var(--header-height);
+    position: fixed;
+    z-index: 14;
+}
+
+.header-inner {
+    width: 100%;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(246deg, rgba(34, 40, 52, 0.35) 0%, rgba(34, 40, 52, 0.78) 49.65%, rgba(34, 40, 52, 0.35) 100%);
+    backdrop-filter: blur(11.5px);
+}
+
+.logo {
+    margin-left: var(--grid-margin);
+}
+
+.header-slogan {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+}
+
+.header-slogan .slogan-en {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff;
+    font-family: var(--font-eng);
+    letter-spacing: 0.1em;
+}
+
+@media (min-width: 1280px) {
+    .header-slogan {
+        display: block;
+    }
+}
+
+.nav-btn {
+    cursor: none;
+    position: fixed;
+    top: 38px;
+    right: var(--grid-margin);
+    z-index: 15;
+    transition: var(--transition-custom);
+}
+
+.header-links {
+    position: fixed;
+    top: 32px;
+    right: 240px;
+    z-index: 15;
+    display: flex;
+    gap: 30px;
+}
+
+.header-links a {
+    color: #fff;
+    font-size: 1.125rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--transition-custom);
+    letter-spacing: -0.02em;
+}
+
+.header-links a:hover {
+    color: var(--secondary-color);
+}
+
+.nav-btn>span {
+    display: block;
+    width: 6.25rem;
+    height: 4px;
+    margin: 4px auto;
+    background-color: #fff;
+    transition: var(--transition-custom);
+}
+
+.nav-open>span:first-child {
+    transform: translateY(4px) rotate(45deg);
+}
+
+.nav-open>span:last-child {
+    transform: translateY(-2px) rotate(-45deg);
+}
+
+#header.black .header-links a {
+    color: var(--primary-color01);
+}
+
+#header.black .nav-btn>span {
+    background-color: var(--primary-color01);
+}
+
+/* ====================
+   GNB NAVIGATION
+==================== */
+.gnb-navigation-wrapper {
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: none;
+    background: linear-gradient(246deg, rgba(34, 40, 52, 0.35) 0%, rgba(34, 40, 52, 0.78) 49.65%, rgba(34, 40, 52, 0.35) 100%);
+    backdrop-filter: blur(11.5px);
+    transition: height 0.5s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+.close-menu {
+    display: none;
+    position: fixed;
+    top: 22px;
+    right: var(--grid-margin);
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+}
+
+.close-menu>img {
+    width: 100%;
+    height: 100%;
+}
+
+.gnb-navigation-wrapper .site-map {
+    width: 100%;
+    height: 100%;
+    padding: 120px 260px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: gnb-run 0.5s linear forwards;
+}
+
+@keyframes gnb-run {
+    0% {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.gnb-navigation-wrapper>div>ul>li {
+    width: 100%;
+    padding: 2rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gnb-navigation-wrapper>div>ul>li:last-child {
+    border-bottom: none;
+}
+
+.gnb-navigation-wrapper>div>ul>li:hover {
+    border-bottom-color: #fff;
+}
+
+.gnb-navigation-wrapper>div>ul>li>a {
+    pointer-events: none;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.gnb-navigation-wrapper .gnb-2dep {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.gnb-navigation-wrapper .gnb-2dep>li a {
+    position: relative;
+    transition: all 0.3s;
+}
+
+@media(hover: hover) and (pointer: fine) {
+    .gnb-navigation-wrapper .gnb-2dep>li a:hover {
+        color: var(--secondary-color);
+    }
+
+    .gnb-navigation-wrapper .gnb-2dep>li a:hover::before {
+        width: 100%;
+    }
+}
+
+.gnb-navigation-wrapper .gnb-2dep>li a:before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -0.3rem;
+    transform: translateX(-50%);
+    height: 0.2rem;
+    background-color: var(--secondary-color);
+    transition: all 0.3s;
+}
+
+.gnb-navigation-wrapper .gnb-2dep>li:not(:last-child)::after {
+    content: "\002F";
+    margin: 0 10px;
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: 300;
+    font-size: 13px;
+}
+
+.gnb-navigation-wrapper .gnb-2dep>li span {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.gnb-navigation-wrapper .site-map.sitemap-over li:not(.on) {
+    opacity: 0.5;
+}
+
+.gnb-navigation-wrapper .site-map.sitemap-over li.on .gnb-2dep li {
+    opacity: 1;
+}
+
+.gnb-mail {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 5rem;
+}
+
+.gnb-mail>div {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.gnb-mail img {
+    width: 30px;
+    height: 30px;
+}
+
+.gnb-mail p {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 0.24px;
+}
+
+/* ====================
+   FOOTER
+==================== */
+footer {
+    width: 100%;
+    position: relative;
+    background-color: #000;
+}
+
+footer .footer-inner {
+    width: 100%;
+    margin: 0 auto;
+    padding: 50px 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+footer .footer-inner>.item:nth-child(2) {
+    grid-row: auto / span 2;
+}
+
+footer .footer-inner>address {
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 300;
+    margin-bottom: 16px;
+    margin-left: 100px;
+}
+
+footer .footer-inner>.mail {
+    display: flex;
+    gap: 20px;
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: #fff;
+    justify-self: flex-end;
+    margin-right: 87px;
+}
+
+footer .footer-inner>.mail>div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+footer .footer-inner>.copyright {
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: #7F8493;
+    margin-left: 100px;
+}
+
+footer .footer-inner>.copyright .slogan {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-eng);
+}
+
+footer .footer-inner>.copyright .slogan-ko {
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: #7F8493;
+    font-family: var(--font-main);
+}

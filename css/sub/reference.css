@@ -1,0 +1,420 @@
+@charset "utf-8";
+
+/* reference */
+.reference .sub-02 {
+    position: relative;
+}
+
+.reference .btn-wrap {
+    margin-top: 50px;
+}
+
+.reference .btn-wrap .flex-box {
+    gap: 3.125rem;
+    justify-content: center;
+}
+
+.reference button {
+    width: calc(100% / 5);
+    height: 3.75rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: 0.28px;
+    border: 1px solid var(--primary-color02);
+    cursor: pointer;
+}
+
+.reference .btn-wrap button.on {
+    background-color: var(--primary-color02);
+    color: #Fff;
+}
+
+.reference .btn-contents .content {
+    display: none;
+}
+
+@keyframes fadeUp {
+    0% {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.reference .btn-contents .content.on {
+    display: flex;
+}
+
+.reference .btn-contents .box.active {
+    color: #fff;
+    background: var(--primary-color02);
+}
+
+.reference .btn-contents .box.active img {
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(288deg) brightness(102%) contrast(102%);
+}
+
+.reference .btn-contents .box.active .keyword ul>li {
+    border: 1px solid #fff;
+    color: #fff;
+}
+
+.reference .btn-contents .box.active .system-detail ul>li::before {
+    background-color: #fff;
+}
+
+.reference .sub-02 .main-title {
+    padding-bottom: 0;
+}
+
+.reference .sub-02 .swiper-slide .sbox {
+    background: #EFF0F2;
+    box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0.05);
+}
+
+.reference .sub-02 .control-box {
+    bottom: 97px;
+}
+
+.reference .btn-contents>div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 50px;
+    margin-top: 60px;
+}
+
+/* .reference .btn-contents > div {
+    padding-left: 100px;
+} */
+
+/* reference - Case Study Section */
+.case-study-section {
+    padding: 100px 0;
+    background-color: #fff;
+    border-top: 2px solid #eee;
+    margin-top: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.case-study-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.case-study-intro {
+    text-align: center;
+    margin-bottom: 80px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.case-study-section .section-label {
+    color: var(--secondary-color);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+    font-family: var(--font-eng);
+}
+
+.case-study-headline {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #232323;
+    margin-bottom: 20px;
+    font-family: var(--font-eng);
+    letter-spacing: -0.02em;
+}
+
+.case-study-subtext {
+    font-size: 1.125rem;
+    color: #666;
+    font-weight: 300;
+    line-height: 1.6;
+}
+
+/* Featured Cases */
+.featured-cases {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto 80px;
+}
+
+.featured-case-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 40px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.featured-case-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    border-color: var(--secondary-color);
+}
+
+.featured-case-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.client-logo img {
+    height: 40px;
+    width: auto;
+}
+
+.case-category {
+    display: flex;
+    gap: 8px;
+}
+
+.category-tag {
+    display: inline-block;
+    padding: 6px 14px;
+    background-color: var(--secondary-color);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: var(--font-eng);
+}
+
+.featured-case-body {
+    flex: 1;
+}
+
+.case-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #232323;
+    margin-bottom: 30px;
+    font-family: var(--font-eng);
+    line-height: 1.3;
+}
+
+.case-story {
+    margin-bottom: 30px;
+}
+
+.story-item {
+    margin-bottom: 24px;
+}
+
+.story-item:last-child {
+    margin-bottom: 0;
+}
+
+.story-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-family: var(--font-eng);
+}
+
+.story-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #555;
+    font-weight: 300;
+}
+
+.case-metrics {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 24px;
+    padding: 24px;
+    background-color: rgba(55, 182, 233, 0.05);
+    border-radius: 8px;
+}
+
+.metric-item {
+    flex: 1;
+    text-align: center;
+}
+
+.metric-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--secondary-color);
+    line-height: 1;
+    font-family: var(--font-number);
+    margin-bottom: 8px;
+}
+
+.metric-symbol {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 400;
+}
+
+.case-tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tech-tag {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #f5f5f5;
+    color: #666;
+    font-size: 0.8125rem;
+    border-radius: 4px;
+    font-weight: 400;
+    transition: all 0.2s ease;
+}
+
+.featured-case-card:hover .tech-tag {
+    background-color: #e8f4f8;
+    color: var(--secondary-color);
+}
+
+/* Case Study Grid */
+.case-study-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.case-card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 30px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.case-card:hover {
+    border-color: var(--secondary-color);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+}
+
+.case-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.case-card-logo img {
+    height: 32px;
+    width: auto;
+}
+
+.case-card-category {
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: #f5f5f5;
+    color: #666;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: var(--font-eng);
+}
+
+.case-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #232323;
+    margin-bottom: 12px;
+    font-family: var(--font-eng);
+    line-height: 1.3;
+}
+
+.case-card-desc {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: #666;
+    font-weight: 300;
+    margin-bottom: 20px;
+    flex: 1;
+}
+
+.case-card-metric {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.card-metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    font-family: var(--font-number);
+}
+
+.card-metric-label {
+    font-size: 0.875rem;
+    color: #888;
+    font-weight: 300;
+}
+
+.reference .btn-contents .box {
+    width: 300px;
+    height: 415px;
+    padding: 20px;
+    border: 1px solid #aeb2bc;
+    position: relative;
+}
+
+.reference .swiper-slide .sbox {
+    width: 320px;
+    height: 415px;
+}
+
+.reference .control-box .swiper-btn {
+    background-image: url(/images/arrow-left-b.png);
+}
+
+.reference .control-box .swiper-btn.swiper-button-next-s {
+    background-image: url(/images/arrow-right-b.png);
+}
+
+.reference .listbox .swiper-pagination-s {
+    background: #c7cad1;
+    left: 230px;
+    bottom: -52px;
+}
+
+.reference .listbox .swiper-pagination-s .swiper-pagination-progressbar-fill {
+    background: #000;
+}
