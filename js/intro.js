@@ -55,9 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fallback: If video fails to load or play (e.g. mobile autoplay restrictions), hide after 3 seconds
     video.addEventListener('error', hideIntro);
 
-    // Ensure video plays (it's muted in HTML, so it should autoplay everywhere)
+    // [CRITICAL] Force muted for initial autoplay success
+    video.muted = true;
+    muteIcon.innerText = '🔇';
+    muteText.innerText = 'Muted (Auto)';
+
+    // Ensure video plays
     video.play().catch(e => {
-        console.log("Autoplay failed:", e);
+        console.log("Autoplay failed even with muted:", e);
         hideIntro();
     });
 });
