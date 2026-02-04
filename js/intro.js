@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const skipBtn = document.getElementById('skip-btn');
     const startGate = document.getElementById('start-gate');
     const enterBtn = document.getElementById('enter-btn');
+    const gateSkipBtn = document.getElementById('gate-skip-btn');
     const muteBtn = document.getElementById('mute-btn');
     const muteIcon = document.getElementById('mute-icon');
     const muteText = document.getElementById('mute-text');
@@ -61,6 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (muteIcon) muteIcon.innerText = '🔊';
             if (muteText) muteText.innerText = 'Sound On';
+        });
+    }
+
+    // Gate Skip Button
+    if (gateSkipBtn) {
+        gateSkipBtn.addEventListener('click', () => {
+            hideIntro();
         });
     }
 
