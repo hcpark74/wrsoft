@@ -40,11 +40,29 @@
         integrity="sha512-+LXqbM6YLduaaxq6kNcjMsQgZQUTdZp7FTaArWYFt1nxyFKlQSMdIF/WQ/VgsReERwRD8w/9H9cahFx25UDd+g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/js/include.js"></script>
+    <script src="/js/intro.js"></script>
     <script src="/js/index.js"></script>
 </head>
 
 <body>
     <div class="wrapper">
+        <!-- Intro Video Overlay (Dark Theme) -->
+        <div id="intro-overlay"
+            style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050a14; z-index: 9999; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease-out;">
+            <video id="intro-video" width="100%" height="100%" style="object-fit: cover;" playsinline autoplay>
+                <source src="/out/CompanyIntro.mp4" type="video/mp4">
+            </video>
+
+            <!-- Sound Control -->
+            <button id="mute-btn"
+                style="position: absolute; bottom: 50px; left: 50px; padding: 10px 15px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; cursor: pointer; z-index: 10000; font-family: 'Inter', sans-serif; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 8px;">
+                <span id="mute-icon">🔊</span> <span id="mute-text">Sound On</span>
+            </button>
+
+            <button id="skip-btn"
+                style="position: absolute; bottom: 50px; right: 50px; padding: 10px 20px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; cursor: pointer; z-index: 10000; font-family: 'Inter', sans-serif; backdrop-filter: blur(5px);">SKIP</button>
+        </div>
+
         <header id="header" data-include="/components/header.html"></header>
 
         <main id="fullpage">
@@ -1115,6 +1133,11 @@
 
         <div data-include="/components/top-btn.html"></div>
     </div>
+
+    <!-- Flowise AI 챗봇 위젯 -->
+    <!--
+    <script type="module" src="/js/chatbot.js"></script>
+    -->
 </body>
 
 </html>

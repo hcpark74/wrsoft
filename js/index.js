@@ -143,9 +143,19 @@ document.addEventListener("DOMContentLoaded", function () {
 		effect = "fade"
 	}
 	var main_visual_progress = null;
-	setTimeout(function () {
-		main_visual_swiper();
-	}, 100);
+	const startMainVisual = () => {
+		setTimeout(function () {
+			main_visual_swiper();
+		}, 100);
+	};
+
+	if (document.getElementById('intro-overlay')) {
+		window.addEventListener('introComplete', startMainVisual);
+		// Fallback in case intro.js fails or event is missed
+		setTimeout(startMainVisual, 5000);
+	} else {
+		startMainVisual();
+	}
 
 	let swiper;
 
