@@ -4,6 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('intro-overlay');
     const video = document.getElementById('intro-video');
     const skipBtn = document.getElementById('skip-btn');
+    const startGate = document.getElementById('start-gate');
+    const enterBtn = document.getElementById('enter-btn');
+    const muteBtn = document.getElementById('mute-btn');
+    const muteIcon = document.getElementById('mute-icon');
+    const muteText = document.getElementById('mute-text');
 
     // Pause main page animations initially
     pauseMainAnimations();
@@ -12,10 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
         startMainAnimations();
         return;
     }
-
-    const muteBtn = document.getElementById('mute-btn');
-    const muteIcon = document.getElementById('mute-icon');
-    const muteText = document.getElementById('mute-text');
 
     // Function to hide overlay
     const hideIntro = () => {
@@ -38,6 +39,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Enter Button (Start Experience)
+    if (enterBtn) {
+        enterBtn.addEventListener('click', () => {
+            // User interaction happened -> sound is allowed
+            video.muted = false;
+            video.play().catch(e => {
+                console.log("Play failed after interaction:", e);
+                // Last resort fallback
+                video.muted = true;
+                video.play();
+            });
+
+            // Fade out gate
+            if (startGate) {
+                startGate.style.opacity = '0';
+                setTimeout(() => {
+                    startGate.style.display = 'none';
+                }, 500);
+            }
+
+            if (muteIcon) muteIcon.innerText = '🔊';
+            if (muteText) muteText.innerText = 'Sound On';
+        });
+    }
+
     // Mute/Unmute toggle
     if (muteBtn) {
         muteBtn.addEventListener('click', () => {
@@ -52,19 +78,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fallback: If video fails to load or play (e.g. mobile autoplay restrictions), hide after 3 seconds
+    // Smart Autoplay Logic: Try unmuted play, if failed show gate
+    const trySmartAutoPlay = () => {
+        video.muted = false; // Target: sound on
+        video.play()
+            .then(() => {
+                // Success! Browser allowed it.
+                if (muteIcon) muteIcon.innerText = '🔊';
+                if (muteText) muteText.innerText = 'Sound On';
+            })
+            .catch(err => {
+                // Fail! Browser blocked it. Show gate for interaction.
+                console.log("Autoplay with sound blocked. Showing interaction gate.");
+                if (startGate) startGate.style.display = 'flex';
+            });
+    };
+
+    // Execute smart autoplay attempt
+    trySmartAutoPlay();
+
+    // Fallback: If video fails to load
     video.addEventListener('error', hideIntro);
-
-    // [CRITICAL] Force muted for initial autoplay success
-    video.muted = true;
-    muteIcon.innerText = '🔇';
-    muteText.innerText = 'Muted (Auto)';
-
-    // Ensure video plays
-    video.play().catch(e => {
-        console.log("Autoplay failed even with muted:", e);
-        hideIntro();
-    });
 });
 
 function pauseMainAnimations() {
