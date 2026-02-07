@@ -7,7 +7,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 7777;
+    z-index: 10002;
     opacity: 0;
     pointer-events: none;
 }

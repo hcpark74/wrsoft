@@ -63,6 +63,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (muteIcon) muteIcon.innerText = '🔊';
             if (muteText) muteText.innerText = 'Sound On';
         });
+
+        // Move custom cursor to this button on load
+        const customCursor = document.querySelector('#custom-cursor');
+        if (customCursor) {
+            // Wait for layout
+            setTimeout(() => {
+                const btnRect = enterBtn.getBoundingClientRect();
+                const btnX = btnRect.left + btnRect.width / 2;
+                const btnY = btnRect.top + btnRect.height / 2;
+
+                gsap.to(customCursor, {
+                    opacity: 1,
+                    x: btnX,
+                    y: btnY,
+                    duration: 1.2,
+                    ease: "power3.out",
+                    delay: 0.5
+                });
+            }, 100);
+        }
     }
 
     // Gate Skip Button
