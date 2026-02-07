@@ -173,33 +173,19 @@ br.m-br {
 
 /* company - Who We Are Section */
 .who-we-are-section {
-    padding: 100px 0;
+    padding: 100px 0 30px;
     background-color: #fff;
+    text-align: center;
 }
 
 .who-we-are-flex {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 80px;
-    max-width: 1200px;
+    display: block;
+    max-width: 900px;
     margin: 0 auto;
 }
 
 .who-we-are-content {
-    flex: 1;
-}
-
-.who-we-are-img {
-    flex: 0 0 540px;
-    display: block;
-}
-
-.who-we-are-img img {
     width: 100%;
-    height: auto;
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 .who-we-are-section .section-label {
@@ -207,24 +193,33 @@ br.m-br {
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     font-size: 0.875rem;
     font-family: var(--font-eng);
 }
 
 .who-we-are-section .main-headline {
-    font-size: 2.625rem;
+    font-size: 3rem;
     line-height: 1.3;
     font-weight: 700;
     color: #232323;
     margin-bottom: 40px;
     font-family: var(--font-eng);
+    word-break: keep-all;
 }
 
 .who-we-are-section .headline-sub {
+    display: block;
+    font-size: 1.375rem;
     color: #666;
     font-weight: 400;
     font-family: var(--font-main);
+    margin-top: 10px;
+}
+
+.who-we-are-section .sub-description {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .who-we-are-section .sub-description p {
@@ -349,83 +344,6 @@ br.m-br {
     font-weight: 300;
 }
 
-/* company - Facts Section */
-.facts-section {
-    padding: 100px 0;
-    border-top: 1px solid #eee;
-    border-bottom: 2px solid #ddd;
-    background-color: #f5f5f5;
-    margin-bottom: 0;
-}
-
-.facts-title {
-    margin-bottom: 60px;
-    text-align: center;
-}
-
-.facts-title p {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #232323;
-    margin-bottom: 20px;
-}
-
-.title-underline {
-    display: block;
-    width: 60px;
-    height: 3px;
-    background: var(--secondary-color);
-    margin: 0 auto;
-}
-
-.facts-grid {
-    display: flex;
-    justify-content: space-between;
-    text-align: center;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.fact-item {
-    flex: 1;
-    padding: 0 20px;
-}
-
-.fact-item:not(:first-child) {
-    border-left: 1px solid #eee;
-}
-
-.fact-number {
-    font-size: 4rem;
-    font-weight: 800;
-    color: #232323;
-    line-height: 1;
-    font-family: var(--font-number);
-    margin-bottom: 15px;
-}
-
-.fact-symbol {
-    font-size: 1.875rem;
-    color: var(--secondary-color);
-    vertical-align: top;
-    font-weight: 700;
-}
-
-.fact-label {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #232323;
-    margin: 15px 0 5px;
-    font-family: var(--font-eng);
-    letter-spacing: 0.05em;
-}
-
-.fact-desc {
-    font-size: 0.875rem;
-    color: #888;
-    font-weight: 300;
-}
-
 /* company - sub-03 section (Values section) */
 .company .sub-03 {
     background-color: #fff;
@@ -487,6 +405,27 @@ br.m-br {
     margin-top: 20px;
 }
 
+
+/* company - Webtoon Section */
+.webtoon-section {
+    padding: 0 0 100px;
+    text-align: center;
+    background-color: #fff;
+}
+
+.webtoon-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.webtoon-wrap img {
+    width: 100%;
+    height: auto;
+    display: block;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
 /* ====================
    TABLET VERSION
 ==================== */
@@ -546,7 +485,7 @@ br.m-br {
 
     /* company - Who We Are, Leadership, Facts responsive */
     .who-we-are-section {
-        padding: 60px 0;
+        padding: 60px 0 20px;
     }
 
     .who-we-are-section .main-headline {
@@ -584,40 +523,7 @@ br.m-br {
         margin: 0 auto;
     }
 
-    .facts-section {
-        padding: 60px 0;
-        border-bottom: 2px solid #ddd;
-    }
 
-    .facts-title p {
-        font-size: 1.75rem;
-    }
-
-    .facts-grid {
-        flex-direction: column;
-        gap: 40px;
-        padding: 0 20px;
-    }
-
-    .fact-item {
-        padding: 0;
-        border-left: none;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 40px;
-    }
-
-    .fact-item:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-
-    .fact-number {
-        font-size: 3rem;
-    }
-
-    .fact-symbol {
-        font-size: 1.5rem;
-    }
 
     .company section.sub-03 {
         height: auto;
@@ -635,6 +541,10 @@ br.m-br {
 
     .company .sub-03 .flex-box {
         gap: 0;
+    }
+
+    .webtoon-section {
+        padding: 0 0 60px;
     }
 }
 
@@ -709,7 +619,7 @@ br.m-br {
 
     /* company - Who We Are, Leadership, Facts mobile responsive */
     .who-we-are-section {
-        padding: 3.75rem 0;
+        padding: 3.75rem 0 1.5rem;
     }
 
     .who-we-are-section .section-label {
@@ -784,60 +694,7 @@ br.m-br {
         font-size: 0.75rem;
     }
 
-    .facts-section {
-        padding: 3.75rem 0;
-        border-bottom: 2px solid #ddd;
-    }
 
-    .facts-title {
-        margin-bottom: 40px;
-    }
-
-    .facts-title p {
-        font-size: 1.25rem;
-        margin-bottom: 15px;
-    }
-
-    .title-underline {
-        width: 40px;
-        height: 2px;
-    }
-
-    .facts-grid {
-        flex-direction: column;
-        gap: 30px;
-        padding: 0 16px;
-    }
-
-    .fact-item {
-        padding: 0;
-        border-left: none;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 30px;
-    }
-
-    .fact-item:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-
-    .fact-number {
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-    }
-
-    .fact-symbol {
-        font-size: 1.25rem;
-    }
-
-    .fact-label {
-        font-size: 1rem;
-        margin: 10px 0 5px;
-    }
-
-    .fact-desc {
-        font-size: 0.75rem;
-    }
 
     .company section.sub-03 {
         padding-top: 3.75rem;
@@ -871,5 +728,9 @@ br.m-br {
     .icon-box>p {
         font-size: 1rem;
         margin-top: 10px;
+    }
+
+    .webtoon-section {
+        padding: 0 0 3.75rem;
     }
 }
