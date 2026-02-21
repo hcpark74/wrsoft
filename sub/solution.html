@@ -53,12 +53,15 @@
                 <div class="sub-gnb">
                     <div class="sub-gnb-inner">
                         <div class="container">
-                            <ul class="gnb-two">
+                            <ul class="gnb-three">
                                 <li>
                                     <a href="./business.html">주요사업</a>
                                 </li>
                                 <li class="on">
                                     <a href="./solution.html">솔루션</a>
+                                </li>
+                                <li>
+                                    <a href="./solution.html#rag">AI RAG 플랫폼</a>
                                 </li>
                             </ul>
                         </div>
@@ -90,6 +93,10 @@
                                 <button id="point-aiBtn" onclick="javascript:changeSolution('point-ai');">
                                     <p>Fit-pointAI</p>
                                     <span>데이터 분석 AI</span>
+                                </button>
+                                <button id="ragBtn" onclick="javascript:changeSolution('rag');">
+                                    <p>RAG System</p>
+                                    <span>AI 문서 검색 플랫폼</span>
                                 </button>
                             </div>
                         </div>
@@ -241,6 +248,51 @@
                                             <p>추천 데이터 정확도를<br class="t-br" /><br class="m-br" /> 90%이상까지 검증</p>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- RAG System 탭 콘텐츠 -->
+                            <div class="bottom-content rag" id="rag">
+                                <div class="second-title">
+                                    <p>사내 문서를 AI가 이해하고<br class="m-br" /> 답변하는 <span>RAG System</span></p>
+                                    <p>키워드 검색을 넘어, 자연어로 질문하면 AI가 근거 문서와 함께 즉시 답변</p>
+                                </div>
+
+                                <div class="flex-box">
+                                    <div class="flex-box btm-item">
+                                        <div class="img-wrap">
+                                            <img src="/images/icon-solution01.png" alt="하이브리드_검색">
+                                        </div>
+                                        <div class="text-wrap">
+                                            <p>하이브리드 검색</p>
+                                            <p>벡터 + 키워드 검색을<br class="t-br" /><br class="m-br" /> RRF 알고리즘으로 결합</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex-box btm-item">
+                                        <div class="img-wrap">
+                                            <img src="/images/icon-solution04.png" alt="실시간_스트리밍">
+                                        </div>
+                                        <div class="text-wrap">
+                                            <p>실시간 SSE 스트리밍</p>
+                                            <p>답변이 생성되는 즉시<br class="t-br" /><br class="m-br" /> 화면에 토큰 단위 출력</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex-box btm-item">
+                                        <div class="img-wrap">
+                                            <img src="/images/icon-solution10.png" alt="Text-to-SQL">
+                                        </div>
+                                        <div class="text-wrap">
+                                            <p>Text-to-SQL</p>
+                                            <p>자연어 질문을 SQL로<br class="t-br" /><br class="m-br" /> 자동 변환하여 수치 추출</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="rag-cta">
+                                    <a href="https://wrsoft77-netizen.github.io/oo-consulting.github.io/#overview"
+                                        target="_blank" class="rag-cta-btn">도입 제안서 보기</a>
+                                    <a href="https://wrsoft77-netizen.github.io/oo-consulting.github.io/architecture.html#architecture"
+                                        target="_blank" class="rag-cta-btn secondary">시스템 아키텍처 보기</a>
                                 </div>
                             </div>
                         </div>
