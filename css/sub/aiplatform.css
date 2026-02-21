@@ -1,0 +1,1038 @@
+@charset "utf-8";
+@import url('../reset.css');
+@import url('../style.css');
+
+/* =============================================
+   COMMON SUB-PAGE STYLES (solution.css 동일)
+============================================= */
+main section.sub-01 {
+    width: 100%;
+    height: 100vh;
+}
+
+main section .screen {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: 0;
+}
+
+.visual-img-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.visual-img-icon .sub-img {
+    width: 100%;
+    height: 100%;
+    background: url(/images/sub-bg.png) no-repeat center / cover;
+    transform: scale(1.08, 1.08);
+    animation: image-zoom-out 6s 0s forwards;
+}
+
+.visual-img-icon .sub-img-ai {
+    background-image: url(/images/sub-bg02.png);
+}
+
+.sub-title {
+    color: #fff;
+    position: absolute;
+    bottom: 172px;
+    left: 100px;
+}
+
+.sub-title>* {
+    transform: translateY(30px);
+    transition: all 0.8s ease-in-out;
+    transition-property: transform, opacity;
+}
+
+.sub-title>p {
+    font-size: 2rem;
+    font-weight: 400;
+    transition-delay: 0.2s;
+}
+
+.sub-title>h2 {
+    font-family: var(--font-eng);
+    font-weight: 500;
+    transition-delay: 0.5s;
+    margin-top: 12px;
+}
+
+/* sub-gnb */
+.sub-gnb {
+    width: 100%;
+    height: 72px;
+    z-index: 3;
+    position: absolute;
+    bottom: 0;
+}
+
+.sub-gnb-inner {
+    width: 100%;
+    height: 72px;
+    border-top: 2px solid #9499A5;
+    background: transparent;
+    transition: all 0.4s ease-in-out;
+}
+
+.sub-gnb-inner ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+}
+
+.sub-gnb-inner ul>li {
+    width: 25%;
+}
+
+.sub-gnb-inner ul.gnb-two>li {
+    width: 50%;
+}
+
+.sub-gnb-inner ul.gnb-three>li {
+    width: 33.333%;
+}
+
+.sub-gnb-inner li>a:hover,
+.sub-gnb-inner li.on>a {
+    color: #fff;
+}
+
+.sub-gnb-inner li>a:hover:before,
+.sub-gnb-inner li.on>a:before {
+    width: 100%;
+    margin-left: -50%;
+}
+
+.sub-gnb-inner li>a:before {
+    content: "";
+    width: 0;
+    height: 3px;
+    background: #fff;
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transition: all 0.4s ease-in-out;
+}
+
+.sub-gnb-inner li>a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    height: 72px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #9499A5;
+    cursor: pointer;
+    transition: all 0.4s ease-in-out;
+}
+
+.main-title {
+    padding: 6.25rem 0;
+}
+
+.main-title>p {
+    font-size: 3.125rem;
+    font-weight: 500;
+    color: #000;
+    text-align: center;
+}
+
+.main-title span {
+    color: var(--secondary-color);
+}
+
+/* =============================================
+   공통 섹션 타이틀
+============================================= */
+.aiplatform section {
+    width: 100%;
+    padding-bottom: 120px;
+}
+
+.aiplatform .sub-02 {
+    padding-top: 0;
+}
+
+.section-title {
+    margin-bottom: 64px;
+}
+
+.section-title.center {
+    text-align: center;
+}
+
+.section-title .sub-label {
+    font-family: var(--font-eng);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--secondary-color);
+    margin-bottom: 12px;
+    display: block;
+}
+
+.section-title h3 {
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: var(--primary-color01);
+    margin-bottom: 16px;
+}
+
+.section-title .sub-desc {
+    font-size: 1.125rem;
+    font-weight: 300;
+    color: #7f8493;
+    line-height: 1.7;
+}
+
+/* =============================================
+   SECTION 2: 왜 RAG인가
+============================================= */
+.ai-why {
+    background-color: #f8f9fb;
+}
+
+.ai-why .main-title {
+    padding: 6.25rem 0 4rem;
+}
+
+.why-grid {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 0;
+}
+
+.why-card {
+    flex: 1;
+    padding: 48px 40px;
+    border: 1px solid #e0e3ea;
+    background: #fff;
+    border-radius: 2px;
+}
+
+.why-card.problem {
+    border-right: none;
+}
+
+.why-card.solution {
+    border-left: none;
+    background: var(--primary-color01);
+}
+
+.why-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.why-card.problem .why-card-header {
+    border-bottom-color: #e0e3ea;
+}
+
+.why-icon {
+    font-size: 1.75rem;
+}
+
+.why-card-header h3 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--primary-color01);
+}
+
+.why-card.solution .why-card-header h3 {
+    color: #fff;
+}
+
+.why-list {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.why-list li {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.why-emoji {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.why-list strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary-color01);
+    margin-bottom: 4px;
+}
+
+.why-card.solution .why-list strong {
+    color: #fff;
+}
+
+.why-list p {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: #7f8493;
+    line-height: 1.6;
+}
+
+.why-card.solution .why-list p {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.why-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    flex-shrink: 0;
+    background: var(--secondary-color);
+}
+
+.arrow-icon {
+    font-size: 2rem;
+    color: #fff;
+}
+
+.arrow-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    writing-mode: vertical-rl;
+    margin-top: 12px;
+    letter-spacing: 0.15em;
+}
+
+/* =============================================
+   SECTION 3: 도입 효과
+============================================= */
+.ai-benefits {
+    background: #fff;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.benefit-card {
+    padding: 40px 32px;
+    border: 1px solid #e0e3ea;
+    transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(55, 182, 233, 0.12);
+}
+
+.benefit-icon {
+    font-size: 2.25rem;
+    margin-bottom: 20px;
+}
+
+.benefit-card h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color01);
+    margin-bottom: 12px;
+}
+
+.benefit-card p {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: #7f8493;
+    line-height: 1.7;
+}
+
+/* =============================================
+   SECTION 4: 주요 기능
+============================================= */
+.ai-features {
+    background-color: var(--primary-color01);
+}
+
+.ai-features .section-title h3 {
+    color: #fff;
+}
+
+.ai-features .section-title .sub-label {
+    color: var(--secondary-color);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feature-item {
+    padding: 44px 36px;
+    background: var(--primary-color01);
+    transition: background 0.3s ease;
+}
+
+.feature-item:hover {
+    background: var(--primary-color02);
+}
+
+.feature-num {
+    font-family: var(--font-eng);
+    font-size: 3rem;
+    font-weight: 700;
+    color: rgba(55, 182, 233, 0.25);
+    line-height: 1;
+    margin-bottom: 16px;
+}
+
+.feature-item h4 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.feature-item p {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.7;
+}
+
+/* =============================================
+   SECTION 5: 시스템 아키텍처
+============================================= */
+.ai-architecture {
+    background: #f8f9fb;
+}
+
+.arch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 60px;
+}
+
+.arch-card {
+    padding: 36px 28px;
+    background: #fff;
+    border: 1px solid #e0e3ea;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.arch-card.highlight {
+    border-color: var(--secondary-color);
+}
+
+.arch-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.arch-icon {
+    font-size: 2rem;
+    margin-bottom: 16px;
+}
+
+.arch-card h4 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--primary-color01);
+    margin-bottom: 10px;
+}
+
+.arch-card p {
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: #7f8493;
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+
+.arch-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(55, 182, 233, 0.1);
+    color: var(--secondary-color);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+.tech-stack {
+    text-align: center;
+}
+
+.tech-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #7f8493;
+    margin-bottom: 16px;
+    letter-spacing: 0.1em;
+}
+
+.tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.tech-tags span {
+    padding: 6px 18px;
+    border: 1px solid #e0e3ea;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--primary-color01);
+    background: #fff;
+}
+
+/* =============================================
+   SECTION 6: QUICK PoC
+============================================= */
+.ai-poc {
+    background: linear-gradient(135deg, var(--primary-color01) 0%, #2a3548 100%);
+    padding-bottom: 120px;
+}
+
+.ai-poc .container {
+    height: auto;
+}
+
+.poc-inner {
+    display: flex;
+    gap: 80px;
+    align-items: flex-start;
+    padding: 80px 0;
+}
+
+.poc-text {
+    flex: 1;
+}
+
+.poc-text .sub-label {
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.poc-text h3 {
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.poc-text>p {
+    font-size: 1.125rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.8;
+    margin-bottom: 40px;
+}
+
+.poc-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.poc-steps li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 1rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.poc-steps li span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.poc-steps code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-family: var(--font-eng);
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+}
+
+.poc-cta {
+    flex: 1;
+}
+
+.poc-cta>p:first-child {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+}
+
+.cta-desc {
+    font-size: 1rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.8;
+    margin-bottom: 36px;
+}
+
+.cta-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 320px;
+}
+
+.cta-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.cta-btn.primary {
+    background: var(--secondary-color);
+    color: #fff;
+}
+
+.cta-btn.primary:hover {
+    background: #2aa0cc;
+}
+
+.cta-btn.secondary {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.cta-btn.secondary:hover {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+/* =============================================
+   SECTION 7: 도입 문의
+============================================= */
+.ai-inquiry-section {
+    padding: 100px 0 120px;
+    background-color: #f8f9fa;
+}
+
+.ai-inquiry-section .inquiry-intro {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.ai-inquiry-label {
+    font-family: var(--font-eng);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--secondary-color);
+    margin-bottom: 12px;
+}
+
+.inquiry-intro h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+}
+
+.inquiry-intro p {
+    font-size: 1.125rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+.inquiry-form-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 60px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.04);
+    border: 1px solid #eee;
+}
+
+.recruit-form .form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.recruit-form .form-row .form-group {
+    flex: 1;
+}
+
+.recruit-form .form-group {
+    margin-bottom: 30px;
+}
+
+.recruit-form label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 12px;
+}
+
+.recruit-form label span.required {
+    color: #e74c3c;
+    margin-left: 4px;
+}
+
+.recruit-form input[type="text"],
+.recruit-form input[type="email"],
+.recruit-form textarea {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    font-family: 'Pretendard', sans-serif;
+    transition: all 0.3s;
+    box-sizing: border-box;
+    background-color: #fcfcfc;
+}
+
+.recruit-form input:focus,
+.recruit-form textarea:focus {
+    border-color: var(--secondary-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(55, 182, 233, 0.1);
+    outline: none;
+}
+
+.recruit-form input::placeholder,
+.recruit-form textarea::placeholder {
+    color: #aaa;
+}
+
+.recruit-form textarea {
+    height: 180px;
+    resize: none;
+    line-height: 1.6;
+}
+
+.recruit-form .submit-btn-wrap {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.recruit-form button[type="submit"] {
+    width: 100%;
+    background-color: var(--secondary-color);
+    color: #fff;
+    border: none;
+    padding: 20px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 20px rgba(55, 182, 233, 0.2);
+}
+
+.recruit-form button[type="submit"]:hover {
+    background-color: #279bc9;
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px rgba(55, 182, 233, 0.3);
+}
+
+/* =============================================
+   ANIMATIONS
+============================================= */
+@keyframes image-zoom-out {
+    from {
+        transform: scale(1.08, 1.08);
+    }
+
+    to {
+        transform: scale(1.0, 1.0);
+    }
+}
+
+br.pc-br {
+    display: block;
+}
+
+br.t-br,
+br.m-br {
+    display: none;
+}
+
+/* =============================================
+   TABLET
+============================================= */
+@media (min-width:769px) and (max-width:1024px) {
+    .container {
+        width: calc(100vw - 40px);
+    }
+
+    .main-title {
+        padding: 6.25rem 0 5rem 0;
+    }
+
+    .main-title>p {
+        font-size: 2rem;
+    }
+
+    .sub-title {
+        left: 20px;
+    }
+
+    .sub-title>h2 {
+        font-size: 3.75rem;
+    }
+
+    br.t-br {
+        display: block;
+    }
+
+    br.pc-br,
+    br.m-br {
+        display: none;
+    }
+
+    .benefits-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .arch-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ai-inquiry-section {
+        padding: 80px 0 100px;
+    }
+
+    .inquiry-intro h3 {
+        font-size: 2rem;
+    }
+
+    .why-grid {
+        flex-direction: column;
+    }
+
+    .why-card.problem {
+        border-right: 1px solid #e0e3ea;
+        border-bottom: none;
+    }
+
+    .why-card.solution {
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .why-arrow {
+        width: 100%;
+        height: 60px;
+        flex-direction: row;
+    }
+
+    .arrow-label {
+        writing-mode: horizontal-tb;
+        margin-top: 0;
+        margin-left: 12px;
+    }
+
+    .section-title h3 {
+        font-size: 2rem;
+    }
+}
+
+/* =============================================
+   MOBILE
+============================================= */
+@media (max-width:768px) {
+    .container {
+        width: calc(100vw - 32px);
+    }
+
+    .sub-title {
+        left: 16px;
+    }
+
+    .sub-title>h2 {
+        font-size: 1.75rem;
+    }
+
+    .sub-title>p {
+        font-size: 1rem;
+    }
+
+    .sub-gnb-inner li>a {
+        font-size: 0.875rem;
+        font-weight: 300;
+    }
+
+    .main-title {
+        padding: 3.75rem 0 2rem;
+    }
+
+    .main-title>p {
+        font-size: 1.25rem;
+    }
+
+    br.pc-br,
+    br.t-br {
+        display: none;
+    }
+
+    br.m-br {
+        display: block;
+    }
+
+    .section-title h3 {
+        font-size: 1.5rem;
+    }
+
+    .section-title .sub-desc {
+        font-size: 0.9rem;
+    }
+
+    .why-grid {
+        flex-direction: column;
+    }
+
+    .why-card {
+        padding: 32px 24px;
+    }
+
+    .why-card.problem {
+        border-right: 1px solid #e0e3ea;
+        border-bottom: none;
+    }
+
+    .why-arrow {
+        width: 100%;
+        height: 50px;
+        flex-direction: row;
+    }
+
+    .arrow-label {
+        writing-mode: horizontal-tb;
+        margin-top: 0;
+        margin-left: 10px;
+    }
+
+    .benefits-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .benefit-card {
+        padding: 28px 24px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-item {
+        padding: 32px 24px;
+    }
+
+    .arch-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .arch-card {
+        padding: 28px 24px;
+    }
+
+    .ai-inquiry-section {
+        padding: 60px 0 80px;
+    }
+
+    .inquiry-intro h3 {
+        font-size: 1.5rem;
+    }
+
+    .inquiry-form-wrap {
+        padding: 40px 24px;
+        border-radius: 12px;
+    }
+
+    .recruit-form .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .recruit-form button[type="submit"] {
+        padding: 16px;
+        font-size: 1rem;
+    }
+
+    .aiplatform .sub-02 {
+        padding-bottom: 60px;
+    }
+
+    .aiplatform section {
+        padding-bottom: 80px;
+    }
+}

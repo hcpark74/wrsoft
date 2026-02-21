@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="우리소프트 AI 플랫폼 - 사내 문서를 AI가 이해하고 답변하는 RAG 시스템 도입 제안">
+    <title>AI 플랫폼 - 우리소프트 | Solid Roots, Smart Future</title>
+    <link rel="stylesheet" href="/css/sub/aiplatform.css">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="/css/animate.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pretendard/1.3.9/static/pretendard.css"
+        integrity="sha512-NzqTHTrO48HsIamogmIaVhTXoSgRF24Cn+ynrNYrFuKrY0AdDbmcNieiOHsQARS/r0Gax9VwV3/rVMHs3ipUlg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/inter-ui/4.1.0/inter.css"
+        integrity="sha512-hijzqbP8sLpfqc1R7Sn4uta4OW5x4KQ5jBY3gPgxOHVZnDX/xzfgMLKZye+qM+kIGjE8YAUeeKWcnwiTx3kK7g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/noframework.waypoints.min.js"
+        integrity="sha512-fHXRw0CXruAoINU11+hgqYvY/PcsOWzmj0QmcSOtjlJcqITbPyypc8cYpidjPurWpCnlB8VKfRwx6PIpASCUkQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollTrigger/1.0.6/ScrollTrigger.min.js"
+        integrity="sha512-+LXqbM6YLduaaxq6kNcjMsQgZQUTdZp7FTaArWYFt1nxyFKlQSMdIF/WQ/VgsReERwRD8w/9H9cahFx25UDd+g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/smoothscroll/1.5.1/SmoothScroll.min.js"
+        integrity="sha512-BkMKSo7sGBeDmtIyZoyInJbrI/XqQ1ez6SZotOL0e+iT6tzOjBmtMpWWPUVbcdqLbaukREItSDV2aohX+9gBlw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/js/include.js"></script>
+    <script src="/js/sub-index.js"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <header id="header" data-include="/components/header.html"></header>
+
+        <main class="aiplatform">
+
+            <!-- ===================== SECTION 1: 히어로 ===================== -->
+            <section class="sub-01">
+                <div class="screen"></div>
+                <div class="visual-img-icon">
+                    <div class="sub-img sub-img-ai"></div>
+                </div>
+
+                <div class="sub-title">
+                    <p>AI 플랫폼</p>
+                    <h2>AI Solution</h2>
+                </div>
+
+                <div class="sub-gnb">
+                    <div class="sub-gnb-inner">
+                        <div class="container">
+                            <ul class="gnb-three">
+                                <li>
+                                    <a href="./business.html">주요사업</a>
+                                </li>
+                                <li>
+                                    <a href="./solution.html">솔루션</a>
+                                </li>
+                                <li class="on">
+                                    <a href="./aiplatform.html">AI 플랫폼</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== SECTION 2: 왜 RAG인가 ===================== -->
+            <section class="sub-02 ai-why">
+                <div class="container">
+                    <div class="main-title" id="btnTop">
+                        <p><span>WOORISOFT</span>의 AI 문서 검색 플랫폼</p>
+                    </div>
+
+                    <div class="why-grid">
+                        <!-- 기존 한계 -->
+                        <div class="why-card problem">
+                            <div class="why-card-header">
+                                <span class="why-icon">❌</span>
+                                <h3>기존 키워드 검색의 한계</h3>
+                            </div>
+                            <ul class="why-list">
+                                <li>
+                                    <span class="why-emoji">😓</span>
+                                    <div>
+                                        <strong>정확한 단어를 몰라야 검색 가능</strong>
+                                        <p>"그... 작년에 했던 프로젝트 이름이 뭐지?" — 검색 실패</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="why-emoji">📄</span>
+                                    <div>
+                                        <strong>수십 개의 문서를 일일이 열람</strong>
+                                        <p>검색된 20개 첨부파일을 하나씩 열어서 내용 확인</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="why-emoji">🧩</span>
+                                    <div>
+                                        <strong>정보의 파편화</strong>
+                                        <p>규정과 지침이 여러 문서에 흩어져 있어 종합적 판단 불가</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- 화살표 -->
+                        <div class="why-arrow">
+                            <div class="arrow-icon">→</div>
+                            <p class="arrow-label">RAG 전환</p>
+                        </div>
+
+                        <!-- RAG 해결책 -->
+                        <div class="why-card solution">
+                            <div class="why-card-header">
+                                <span class="why-icon">⭕</span>
+                                <h3>RAG 시스템의 해결책</h3>
+                            </div>
+                            <ul class="why-list">
+                                <li>
+                                    <span class="why-emoji">🗣️</span>
+                                    <div>
+                                        <strong>사람에게 묻듯이 자연어로 질문</strong>
+                                        <p>"작년 금융 프로젝트 이슈 사항 요약해줘" — 의도 파악 성공</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="why-emoji">💡</span>
+                                    <div>
+                                        <strong>핵심 내용만 즉시 요약 답변</strong>
+                                        <p>문서를 열 필요 없이 AI가 내용을 읽고 3줄로 요약</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="why-emoji">🔗</span>
+                                    <div>
+                                        <strong>근거 문서 자동 제시</strong>
+                                        <p>답변 근거가 되는 페이지를 바로 링크로 제공하여 신뢰도 확보</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== SECTION 3: 도입 효과 ===================== -->
+            <section class="sub-03 ai-benefits">
+                <div class="container">
+                    <div class="section-title center">
+                        <p class="sub-label">BENEFITS</p>
+                        <h3>조직에 어떤 변화가 생기나요?</h3>
+                        <p class="sub-desc">단순한 기술 도입이 아닙니다. 일하는 방식을 혁신하고 조직의 지식 자산을 보호합니다.</p>
+                    </div>
+
+                    <div class="benefits-grid">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">⚡</div>
+                            <h4>업무 생산성 극대화</h4>
+                            <p>반복 질문에 AI가 즉답하여<br> 핵심 업무 집중 시간 확보</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">🏛️</div>
+                            <h4>지식 자산의 영구화</h4>
+                            <p>퇴직/이직으로 사라지는 노하우를<br> AI 지식베이스에 영구 보존</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">🎯</div>
+                            <h4>정확한 의사결정 지원</h4>
+                            <p>근거 문서 기반 AI 답변으로<br> 오판 리스크 최소화</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">🔄</div>
+                            <h4>부서 간 사일로 해소</h4>
+                            <p>전사 문서를 통합 검색하여<br> 부서 간 정보 격차 제거</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">🔒</div>
+                            <h4>완벽한 보안 환경</h4>
+                            <p>외부 API 없는 온프레미스 LLM으로<br> 기밀문서 100% 내부 처리</p>
+                        </div>
+                        <div class="benefit-card">
+                            <div class="benefit-icon">🎓</div>
+                            <h4>교육 및 온보딩 혁신</h4>
+                            <p>신입사원의 반복 질문을 AI가<br> 24시간 자동 응답·온보딩 50% 단축</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== SECTION 4: 주요 기능 ===================== -->
+            <section class="sub-04 ai-features">
+                <div class="container">
+                    <div class="section-title center">
+                        <p class="sub-label">KEY FEATURES</p>
+                        <h3>주요 기능 상세</h3>
+                    </div>
+
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <div class="feature-num">01</div>
+                            <h4>하이브리드 검색 + 재순위화</h4>
+                            <p>pgvector 벡터 검색과 tsvector 키워드 검색을 RRF 알고리즘으로 결합하고 Cross-Encoder로 최종 순위를 조정합니다.</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-num">02</div>
+                            <h4>SSE 실시간 스트리밍</h4>
+                            <p>Server-Sent Events 기반 토큰 스트리밍으로 답변이 생성되는 즉시 화면에 표시 — 체감 속도 50% 이상 개선.</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-num">03</div>
+                            <h4>Text-to-SQL 분석</h4>
+                            <p>"지난달 A부서 매출 얼마야?" 자연어 질문을 SQL로 자동 변환하여 DB에서 정확한 수치를 추출합니다.</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-num">04</div>
+                            <h4>출처 인용 정보</h4>
+                            <p>응답과 함께 참조된 문서의 출처 정보를 제공하여 답변 신뢰도를 높입니다.</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-num">05</div>
+                            <h4>한국어 OCR (PaddleOCR)</h4>
+                            <p>PaddleOCR 기반 한국어 OCR 93~95% 정확도, GPU 가속으로 PDF·이미지 내 텍스트를 자동 추출합니다.</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-num">06</div>
+                            <h4>AI 운영 에이전트</h4>
+                            <p>"지금 서버 상태 어때?" — AI 에이전트가 로그를 분석하고 장애 조치까지 제안하는 대화형 운영 환경입니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== SECTION 5: 시스템 아키텍처 ===================== -->
+            <section class="sub-05 ai-architecture">
+                <div class="container">
+                    <div class="section-title center">
+                        <p class="sub-label">ARCHITECTURE</p>
+                        <h3>컨테이너 기반 운영 아키텍처</h3>
+                        <p class="sub-desc">3계층 구조로 설계된 Docker 6개 컨테이너 — All-in-One 패키지로 신속 설치 완료</p>
+                    </div>
+
+                    <div class="arch-grid">
+                        <div class="arch-card">
+                            <div class="arch-icon">🖥️</div>
+                            <h4>Tomcat UI</h4>
+                            <p>정적 리소스 서빙 및 REST API 호출을 통한 사용자 인터페이스 제공</p>
+                        </div>
+                        <div class="arch-card highlight">
+                            <div class="arch-icon">⚙️</div>
+                            <h4>FastAPI + LlamaIndex</h4>
+                            <p>질의 처리, 인제스트 관리, 설정 API를 제공하는 고성능 비동기 백엔드</p>
+                            <span class="arch-tag">Python 3.10 / CUDA 12.1</span>
+                        </div>
+                        <div class="arch-card highlight">
+                            <div class="arch-icon">🗄️</div>
+                            <h4>PostgreSQL + pgvector</h4>
+                            <p>벡터·키워드·메타데이터를 통합 저장하고 하이브리드 검색을 수행하는 통합 DB</p>
+                            <span class="arch-tag">pgvector:pg16</span>
+                        </div>
+                        <div class="arch-card">
+                            <div class="arch-icon">⚡</div>
+                            <h4>Redis</h4>
+                            <p>비동기 인제스트 작업 상태 관리 및 고속 캐시 처리</p>
+                            <span class="arch-tag">Cache &amp; Queue</span>
+                        </div>
+                        <div class="arch-card highlight">
+                            <div class="arch-icon">🤖</div>
+                            <h4>Ollama LLM</h4>
+                            <p>로컬 환경에서 실행되는 대규모 언어 모델 추론 엔진 — 완전 오프라인 지원</p>
+                            <span class="arch-tag">qwen2.5:3b / 완전 온프레미스</span>
+                        </div>
+                        <div class="arch-card">
+                            <div class="arch-icon">📷</div>
+                            <h4>PaddleOCR</h4>
+                            <p>PaddleOCR 기반 한국어 OCR 마이크로서비스 (93~95% 정확도, GPU 가속)</p>
+                            <span class="arch-tag">CUDA 11.8</span>
+                        </div>
+                    </div>
+
+                    <!-- 기술 스택 태그 -->
+                    <div class="tech-stack">
+                        <p class="tech-label">지원 파일 형식</p>
+                        <div class="tech-tags">
+                            <span>PDF</span><span>DOCX</span><span>Excel</span>
+                            <span>HWP / HWPX</span><span>TXT</span><span>Markdown</span>
+                            <span>Python</span><span>JS / TS</span><span>Java</span><span>Go</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== SECTION 6: QUICK PoC ===================== -->
+            <section class="sub-06 ai-poc">
+                <div class="container">
+                    <div class="poc-inner">
+                        <div class="poc-text">
+                            <p class="sub-label">QUICK PoC</p>
+                            <h3>6시간 내 빠른 PoC 실행</h3>
+                            <p>고객의 일부 문서만으로도 약 6시간 내에<br> PoC 환경 구축 및 기술 검증이 가능합니다.</p>
+                            <ol class="poc-steps">
+                                <li><span>01</span> <code>.env</code> 파일 설정 — 환경 변수 구성</li>
+                                <li><span>02</span> <code>docker compose up</code> — 전체 서비스 시작</li>
+                                <li><span>03</span> <code>http://localhost:8080/</code> — UI 접속 확인</li>
+                            </ol>
+                        </div>
+                        <div class="poc-cta">
+                            <p>빠른 검토가 필요하신가요?</p>
+                            <p class="cta-desc">기술 문서와 제안서를 통해 상세 내용을 확인하실 수 있습니다.</p>
+                            <div class="cta-btns">
+                                <a href="https://wrsoft77-netizen.github.io/oo-consulting.github.io/#overview"
+                                    target="_blank" class="cta-btn primary">도입 제안서 보기</a>
+                                <a href="https://wrsoft77-netizen.github.io/oo-consulting.github.io/architecture.html#architecture"
+                                    target="_blank" class="cta-btn secondary">시스템 아키텍처 보기</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== SECTION 7: 도입 문의 ===================== -->
+            <section class="sub-07 ai-inquiry-section">
+                <div class="container">
+                    <div class="inquiry-intro" data-scroll="fade-up">
+                        <p class="ai-inquiry-label">CONTACT</p>
+                        <h3>상세 도입 문의</h3>
+                        <p>AI 플랫폼 도입과 관련하여 궁금한 점이 있다면 언제든 문의해주세요.<br class="m-br"> 담당자가 확인 후 신속하게 답변해 드리겠습니다.</p>
+                    </div>
+                    <div class="inquiry-form-wrap" data-scroll="fade-up" data-scroll-delay="100">
+                        <form action="https://formspree.io/f/xaqdpevd" method="POST" class="recruit-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="ai-name">담당자 이름<span class="required">*</span></label>
+                                    <input type="text" name="name" id="ai-name" placeholder="성함을 입력해주세요" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ai-company">회사명<span class="required">*</span></label>
+                                    <input type="text" name="company" id="ai-company" placeholder="소속 회사명을 입력해주세요"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ai-email">이메일<span class="required">*</span></label>
+                                <input type="email" name="email" id="ai-email" placeholder="답변 받으실 이메일 주소를 입력해주세요"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ai-message">문의내용<span class="required">*</span></label>
+                                <textarea name="message" id="ai-message"
+                                    placeholder="궁금하신 내용을 자유롭게 작성해주세요. (도입 일정, 예산, 기술 사양 등)" required></textarea>
+                            </div>
+
+                            <div class="submit-btn-wrap">
+                                <button type="submit">문의하기</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+
+        </main>
+
+        <footer data-include="/components/footer.html"></footer>
+
+        <div class="curser-wrap" id="custom-cursor">
+            <div class="curser-inner">
+                <div class="cursor"></div><i></i>
+            </div>
+        </div>
+
+        <div data-include="/components/top-btn.html"></div>
+    </div>
+</body>
+
+</html>
