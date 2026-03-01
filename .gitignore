@@ -1,0 +1,58 @@
+# OS system files
+.DS_Store
+Thumbs.db
+*.swp
+
+# Node dependencies
+node_modules/
+
+# Docker / Database data
+flowise_data/
+
+# Build outputs
+dist/
+build/
+out/
+target/
+bin/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# AI Agent & IDE directories
+.gemini/
+.cursor/
+.idea/
+.vscode/
+.agent/
+.agents/
+*.sublime-project
+*.sublime-workspace
+
+# Java & Gradle
+.gradle/
+*.class
+*.jar
+*.war
+*.ear
+.settings/
+.classpath
+.project
+
+# Video project
+video/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
