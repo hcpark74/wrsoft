@@ -1166,10 +1166,13 @@
             background: linear-gradient(135deg, #38bdf8, #818cf8);
             color: #fff;
             border: none;
-            border-radius: 50px;
-            padding: 14px 22px;
-            font-size: 0.95rem;
-            font-weight: 600;
+            border-radius: 50%;
+            padding: 0;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -1182,13 +1185,15 @@
         }
 
         .ai-chat-fab-img {
-            width: 26px;
-            height: 26px;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 2px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .ai-chat-fab:hover .ai-chat-fab-img {
+            transform: scale(1.05);
         }
 
         /* ── AI 챗봇 컨테이너 (iframe 모달) ── */
@@ -1242,8 +1247,7 @@
 
     <!-- 플로팅 버튼 (FAB) -->
     <button onclick="toggleAiChat()" class="ai-chat-fab" title="AI Chatbot">
-        <img src="/images/chatbot.png" alt="Chatbot" class="ai-chat-fab-img">
-        Chatbot
+        <img src="/images/chatbotico.png" alt="Chatbot" class="ai-chat-fab-img">
     </button>
 
     <script>

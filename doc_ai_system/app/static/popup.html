@@ -69,9 +69,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--accent);
+        }
+
+        .header-logo {
+            height: 22px;
+            /* 헤더 높이에 맞춘 로고 크기 */
+            width: auto;
+            object-fit: contain;
         }
 
         .model-tag {
@@ -365,7 +369,9 @@
     <ul id="document-list"></ul>
     <div class="popup-wrap">
         <header class="popup-header">
-            <div class="popup-title"><i class="fas fa-brain"></i> Doc Intel <span class="model-tag">Gemini Flash</span>
+            <div class="popup-title">
+                <img src="/images/logo.png" alt="우리소프트" class="header-logo">
+                <span class="model-tag">Gemini</span>
             </div>
             <div class="header-actions">
                 <div class="status-dot" id="status-dot"></div>
