@@ -1181,30 +1181,93 @@
             box-shadow: 0 12px 32px rgba(56, 189, 248, 0.55);
         }
 
-        .ai-chat-fab svg {
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
+        .ai-chat-fab-img {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
-    </style>
-    <button onclick="openAiChat()" class="ai-chat-fab" title="AI 문서 어시스턴트 열기">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
-        AI 어시스턴트
-    </button>
-    <script>
-        let _aiChatWin = null;
-        function openAiChat() {
-            const url = '/chatbot';
-            const opts = 'width=380,height=600,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no';
-            if (_aiChatWin && !_aiChatWin.closed) {
-                _aiChatWin.focus();
-            } else {
-                _aiChatWin = window.open(url, 'docIntelChat', opts);
+
+        /* ── AI 챗봇 컨테이너 (iframe 모달) ── */
+        .ai-chat-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 380px;
+            height: 600px;
+            background: #0f172a;
+            border-radius: 20px;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform-origin: bottom right;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            opacity: 0;
+            transform: scale(0);
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ai-chat-container.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .ai-chat-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 모바일 대응 */
+        @media (max-width: 480px) {
+            .ai-chat-container {
+                width: calc(100% - 40px);
+                height: 70vh;
+                bottom: 80px;
             }
         }
+    </style>
+
+    <!-- AI 챗봇 플로팅 컨테이너 -->
+    <div id="aiChatContainer" class="ai-chat-container">
+        <iframe src="about:blank" id="aiChatIframe" class="ai-chat-iframe"></iframe>
+    </div>
+
+    <!-- 플로팅 버튼 (FAB) -->
+    <button onclick="toggleAiChat()" class="ai-chat-fab" title="AI Chatbot">
+        <img src="/images/chatbot.png" alt="Chatbot" class="ai-chat-fab-img">
+        Chatbot
+    </button>
+
+    <script>
+        function toggleAiChat() {
+            const container = document.getElementById('aiChatContainer');
+            const iframe = document.getElementById('aiChatIframe');
+
+            if (container.classList.contains('active')) {
+                container.classList.remove('active');
+            } else {
+                // 처음 열 때만 src 설정 (리소스 절약)
+                if (iframe.src === 'about:blank' || iframe.src === window.location.href) {
+                    iframe.src = '/chatbot';
+                }
+                container.classList.add('active');
+            }
+        }
+
+        // 팝업 내부에서 닫기 요청 시 처리 (postMessage 등 확장 가능)
+        window.addEventListener('message', (event) => {
+            if (event.data === 'closeChatbot') {
+                document.getElementById('aiChatContainer').classList.remove('active');
+            }
+        });
     </script>
 </body>
 

@@ -370,6 +370,7 @@
             <div class="header-actions">
                 <div class="status-dot" id="status-dot"></div>
                 <button id="clear-btn" class="icon-btn" title="초기화"><i class="fas fa-rotate-left"></i></button>
+                <button onclick="closePopup()" class="icon-btn" title="닫기"><i class="fas fa-times"></i></button>
             </div>
         </header>
 
@@ -401,6 +402,10 @@
         const chatMessages = document.getElementById('chat-messages');
         const badge = document.getElementById('status-badge');
         const dot = document.getElementById('status-dot');
+
+        function closePopup() {
+            window.parent.postMessage('closeChatbot', '*');
+        }
 
         if (badge && dot) {
             new MutationObserver(() => {
