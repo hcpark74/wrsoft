@@ -1,0 +1,212 @@
+/* ===== User Page Overrides & Extensions ===== */
+
+/* 사용자 배지 */
+.sidebar header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.user-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 5px 12px;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+/* 섹션 설명 텍스트 */
+.section-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: -10px;
+    margin-bottom: 14px;
+    line-height: 1.5;
+}
+
+/* 사이드바 하단 모델 정보 */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--glass);
+}
+
+.model-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.model-info i {
+    color: var(--accent);
+    font-size: 0.9rem;
+}
+
+/* 채팅 헤더 레이아웃 */
+.chat-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.subtext {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* 초기화 버튼 */
+.clear-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--glass);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* 웰컴 스크린 */
+.welcome-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    padding: 60px 40px;
+    animation: fadeIn 0.5s ease;
+}
+
+.welcome-icon {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(129, 140, 248, 0.15));
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: var(--accent);
+    margin-bottom: 24px;
+}
+
+.welcome-screen h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.welcome-screen p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    max-width: 380px;
+    line-height: 1.6;
+}
+
+/* 추천 질문 칩 */
+.suggestion-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--glass);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    padding: 10px 18px;
+    border-radius: 24px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.chip:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.35);
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.chip i {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* 입력창 힌트 */
+.input-hint {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    margin-top: 10px;
+    opacity: 0.7;
+}
+
+/* 상태 배지 - 처리 중 */
+.status-badge.processing {
+    color: #fbbf24;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* 빈 문서 목록 */
+.doc-list .empty-state {
+    text-align: center;
+    padding: 24px 12px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.doc-list .empty-state i {
+    display: block;
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    opacity: 0.4;
+}
+
+/* 선택된 문서 강조 */
+.doc-item.active {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+/* 로딩 아이템 */
+.doc-list .loading {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

@@ -253,7 +253,19 @@ export default {
       return errorResponse("알 수 없는 API 경로입니다.", 404, origin);
     }
 
-    // 정적 파일: Cloudflare Pages Assets로 위임
+    // ── 페이지 라우팅 ──
+    const pageRoutes = {
+      "/chat": "/doc_ai_system/app/static/chat.html",   // 사용자 전용
+      "/admin": "/doc_ai_system/app/static/index.html",  // 관리자 전용
+    };
+
+    const staticPath = pageRoutes[url.pathname];
+    if (staticPath) {
+      const assetUrl = new URL(staticPath, url.origin);
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    }
+
+    // 그 외 정적 파일: Cloudflare Pages Assets로 위임
     return env.ASSETS.fetch(request);
   },
 };
