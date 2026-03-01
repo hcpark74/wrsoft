@@ -257,6 +257,7 @@ export default {
     const pageRoutes = {
       "/chat": "/doc_ai_system/app/static/chat.html",   // 사용자 전용
       "/admin": "/doc_ai_system/app/static/index.html",  // 관리자 전용
+      "/chatbot": "/doc_ai_system/app/static/popup.html", // 챗봇 전용
     };
 
     const staticPath = pageRoutes[url.pathname];

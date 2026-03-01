@@ -1187,13 +1187,25 @@
             flex-shrink: 0;
         }
     </style>
-    <a href="/chat" class="ai-chat-fab" title="AI 문서 어시스턴트 열기">
+    <button onclick="openAiChat()" class="ai-chat-fab" title="AI 문서 어시스턴트 열기">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         </svg>
         AI 어시스턴트
-    </a>
+    </button>
+    <script>
+        let _aiChatWin = null;
+        function openAiChat() {
+            const url = '/chatbot';
+            const opts = 'width=380,height=600,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no';
+            if (_aiChatWin && !_aiChatWin.closed) {
+                _aiChatWin.focus();
+            } else {
+                _aiChatWin = window.open(url, 'docIntelChat', opts);
+            }
+        }
+    </script>
 </body>
 
 </html>
