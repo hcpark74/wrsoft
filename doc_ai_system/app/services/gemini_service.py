@@ -7,103 +7,141 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# File Search 공식 지원 모델 (File_Search.md 참조)
+FILE_SEARCH_MODEL = "gemini-2.5-flash-lite"
+
+
 class GeminiService:
     def __init__(self):
-        # google-genai 1.x SDK 클라이언트: 안정성을 위해 기본 v1 사용
         api_key = os.getenv("GOOGLE_API_KEY")
         self.client = genai.Client(api_key=api_key)
-        
-        # 가용 모델 목록을 서버 시작 시점에 출력하여 404 원인을 파악합니다.
+        self._store_name = None  # FileSearchStore name 캐시
+
+    def create_corpus(self, display_name: str) -> str:
+        """File Search Store 생성. 이미 존재하면 첫 번째 스토어 재사용."""
         try:
-            models = self.client.models.list()
-            print("--- Available Models (Detailed) ---")
-            for m in models:
-                print(f"- {getattr(m, 'name', 'N/A')} // {getattr(m, 'supported_methods', 'N/A')}")
+            stores = list(self.client.file_search_stores.list())
+            if stores:
+                self._store_name = stores[0].name
+                print(f"Reusing File Search Store: {self._store_name}")
+                return self._store_name
+
+            store = self.client.file_search_stores.create(
+                config={"display_name": display_name}
+            )
+            self._store_name = store.name
+            print(f"Created File Search Store: {self._store_name}")
+            return self._store_name
         except Exception as e:
-            print(f"Error listing models: {e}")
-        
-    def create_corpus(self, display_name: str):
-        """
-        참고: Semantic Retrieval API는 현재 v1beta에서 지원되나 SDK 접근 방식이 다를 수 있음.
-        여기서는 최신 1.x SDK의 File API 기반 RAG로 전환하여 안정성 확보.
-        """
-        return "default_corpus" # placeholder
+            print(f"Error creating File Search Store: {e}")
+            return None
 
     def upload_file_to_corpus(self, corpus_name: str, file_path: str, display_name: str):
-        """File API를 사용하여 파일 업로드 후 ACTIVE 상태가 될 때까지 대기"""
+        """
+        파일을 File Search Store에 직접 업로드하고 인덱싱 완료까지 대기.
+        File_Search.md: uploadToFileSearchStore API 사용.
+        """
         try:
-            mime_type, _ = mimetypes.guess_type(file_path)
-            if not mime_type:
-                mime_type = "application/octet-stream"
-
-            print(f"Uploading {display_name}...")
-            # 최신 google-genai SDK는 'file' 인자 혹은 'path' 인자를 사용합니다.
-            # 에러 발생 시를 대비하여 대체 방식(file 객체 전달)을 적용합니다.
-            with open(file_path, 'rb') as f:
-                uploaded_file = self.client.files.upload(
-                    file=f,
-                    config=types.UploadFileConfig(
-                        display_name=display_name,
-                        mime_type=mime_type
-                    )
-                )
-
-            # 파일이 처리될 때까지 대기 (Gemini API 필수 과정)
-            while uploaded_file.state.name == "PROCESSING":
-                print(f"File {display_name} is processing...")
-                time.sleep(2)
-                uploaded_file = self.client.files.get(name=uploaded_file.name)
-
-            if uploaded_file.state.name == "FAILED":
-                print(f"File {display_name} failed to process.")
+            store_name = corpus_name or self._store_name
+            if not store_name:
+                print("No File Search Store available")
                 return None
-            
-            print(f"File {display_name} is now ACTIVE.")
-            return uploaded_file
+
+            print(f"Uploading '{display_name}' to File Search Store...")
+            operation = self.client.file_search_stores.upload_to_file_search_store(
+                file=file_path,
+                file_search_store_name=store_name,
+                config={"display_name": display_name},
+            )
+
+            # 비동기 인덱싱 작업 완료 대기
+            while not operation.done:
+                print(f"Indexing '{display_name}'...")
+                time.sleep(5)
+                operation = self.client.operations.get(operation)
+
+            print(f"'{display_name}' indexed successfully.")
+            return operation
         except Exception as e:
             print(f"Error uploading file: {e}")
             return None
 
     def list_documents(self, corpus_name: str):
-        """파일 목록 조회"""
+        """File Search Store 내 문서 목록 조회"""
         try:
-            docs = self.client.files.list()
+            store_name = corpus_name or self._store_name
+            if not store_name:
+                return []
+            docs = self.client.file_search_stores.documents.list(parent=store_name)
             return list(docs)
         except Exception as e:
             print(f"Error listing documents: {e}")
             return []
 
-    def ask_chatbot(self, query: str, model_id: str = "gemini-2.0-flash-lite"):
-        """ ACTIVE 상태인 파일들을 참조하여 답변 생성 """
+    def ask_chatbot(self, query: str, model_id: str = FILE_SEARCH_MODEL):
+        """File Search Tool을 사용한 RAG 답변 생성 (non-streaming)"""
         try:
-            files = [f for f in self.client.files.list() if f.state.name == "ACTIVE"]
-            contents = [types.Part.from_uri(file_uri=f.uri, mime_type=f.mime_type) for f in files]
-            contents.append(types.Part.from_text(text=query))
+            store_name = self._store_name
+            if not store_name:
+                raise Exception("File Search Store가 초기화되지 않았습니다.")
 
-            response = self.client.models.generate_content(model=model_id, contents=contents)
+            response = self.client.models.generate_content(
+                model=model_id,
+                contents=query,
+                config=types.GenerateContentConfig(
+                    tools=[
+                        types.Tool(
+                            file_search=types.FileSearch(
+                                file_search_store_names=[store_name]
+                            )
+                        )
+                    ]
+                ),
+            )
             return response
         except Exception as e:
             self._handle_error(e, model_id)
 
-    def ask_chatbot_stream(self, query: str, model_id: str = "gemini-2.0-flash-lite"):
-        """ 스트리밍 방식으로 답변 생성 """
-        try:
-            files = [f for f in self.client.files.list() if f.state.name == "ACTIVE"]
-            contents = [types.Part.from_uri(file_uri=f.uri, mime_type=f.mime_type) for f in files]
-            contents.append(types.Part.from_text(text=query))
+    def ask_chatbot_stream(self, query: str, model_id: str = FILE_SEARCH_MODEL):
+        """File Search Tool 스트리밍 답변. 503 시 지수 백오프로 최대 3회 재시도."""
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                store_name = self._store_name
+                if not store_name:
+                    raise Exception("File Search Store가 초기화되지 않았습니다.")
 
-            return self.client.models.generate_content_stream(model=model_id, contents=contents)
-        except Exception as e:
-            self._handle_error(e, model_id)
+                return self.client.models.generate_content_stream(
+                    model=model_id,
+                    contents=query,
+                    config=types.GenerateContentConfig(
+                        tools=[
+                            types.Tool(
+                                file_search=types.FileSearch(
+                                    file_search_store_names=[store_name]
+                                )
+                            )
+                        ]
+                    ),
+                )
+            except Exception as e:
+                error_msg = str(e)
+                if ("503" in error_msg or "UNAVAILABLE" in error_msg) and attempt < max_retries - 1:
+                    wait = 2 ** attempt  # 1s → 2s → 4s
+                    print(f"503 UNAVAILABLE, {wait}s 후 재시도 ({attempt + 1}/{max_retries - 1})...")
+                    time.sleep(wait)
+                    continue
+                self._handle_error(e, model_id)
 
     def _handle_error(self, e, model_id):
         error_msg = str(e)
         if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
-            friendly_msg = "현재 사용 중인 Gemini 모델의 무료 호출 한도(Quota)를 초과했습니다. 잠시 후 다시 시도해 주세요."
-            raise Exception(friendly_msg)
+            raise Exception("현재 사용 중인 Gemini 모델의 무료 호출 한도(Quota)를 초과했습니다. 잠시 후 다시 시도해 주세요.")
+        elif "503" in error_msg or "UNAVAILABLE" in error_msg:
+            raise Exception("죄송합니다. 현재 Gemini 서버에 부하가 집중되고 있습니다. 잠시 후 다시 시도해 주세요.")
         elif "404" in error_msg or "NOT_FOUND" in error_msg:
-            friendly_msg = f"모델({model_id})을 찾을 수 없습니다."
-            raise Exception(friendly_msg)
+            raise Exception(f"모델({model_id})을 찾을 수 없거나 File Search를 지원하지 않습니다.")
         raise e
+
 
 gemini_service = GeminiService()

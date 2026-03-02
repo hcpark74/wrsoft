@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  flowise:
+    image: flowiseai/flowise:latest
+    container_name: flowise
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      # [보안] 관리자 페이지 접속을 위한 아이디/비밀번호 설정 (필수 권장)
+      - FLOWISE_USERNAME=admin
+      - FLOWISE_PASSWORD=wrsoft#0521
+      # [데이터] 컨테이너 재시작 시에도 데이터가 유지되도록 경로 지정
+      - DATABASE_PATH=/root/.flowise
+      - APIKEY_PATH=/root/.flowise
+      - SECRETKEY_PATH=/root/.flowise
+      - LOG_PATH=/root/.flowise/logs
+      # [CORS] 웹사이트 도메인에서 챗봇 위젯 접근 허용
+      - CORS_ORIGINS=*
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./flowise_data:/root/.flowise
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    entrypoint: /bin/sh -c "sleep 3; flowise start"

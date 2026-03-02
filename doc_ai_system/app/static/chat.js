@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusBadge = document.getElementById('status-badge');
 
     // FIXED_MODEL은 chat.html에서 전역으로 주입됨
-    const MODEL_ID = typeof FIXED_MODEL !== 'undefined' ? FIXED_MODEL : 'gemini-flash-latest';
+    const MODEL_ID = typeof FIXED_MODEL !== 'undefined' ? FIXED_MODEL : 'gemini-1.5-flash';
 
     let welcomeScreen = chatMessages.querySelector('.welcome-screen');
     let isProcessing = false;
@@ -114,11 +114,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const aiMsgDiv = appendMessage('ai', '');
             const contentDiv = aiMsgDiv.querySelector('.ai-message-content');
             let fullText = '';
+            let streamError = null;
 
             const reader = resp.body.getReader();
             const decoder = new TextDecoder();
 
-            while (true) {
+            // 스트리밍 루프: 서버로부터 SSE 청크를 순서대로 읽음
+            outer: while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
 
@@ -126,28 +128,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lines = chunk.split('\n');
 
                 for (const line of lines) {
-                    if (line.trim().startsWith('data: ')) {
-                        try {
-                            const jsonStr = line.trim().slice(6);
-                            const data = JSON.parse(jsonStr);
+                    if (!line.trim().startsWith('data: ')) continue;
 
-                            if (data.error) throw new Error(data.error);
-                            if (data.text) {
-                                fullText += data.text;
-                                // 마크다운 변환 및 업데이트
-                                if (typeof marked !== 'undefined') {
-                                    contentDiv.innerHTML = marked.parse(fullText);
-                                } else {
-                                    contentDiv.textContent = fullText;
-                                }
-                                chatMessages.scrollTo({ top: chatMessages.scrollHeight });
-                            }
-                        } catch (e) {
-                            console.warn('데이터 파싱 오류:', e);
+                    let data;
+                    try {
+                        data = JSON.parse(line.trim().slice(6));
+                    } catch (parseErr) {
+                        // JSON 파싱 실패한 라인은 무시
+                        continue;
+                    }
+
+                    // 서버 에러 이벤트: 루프를 즉시 탈출해 바깥 catch로 전달
+                    if (data.error) {
+                        streamError = new Error(data.error);
+                        break outer;
+                    }
+
+                    if (data.text) {
+                        fullText += data.text;
+                        if (typeof marked !== 'undefined') {
+                            contentDiv.innerHTML = marked.parse(fullText);
+                        } else {
+                            contentDiv.textContent = fullText;
                         }
+                        chatMessages.scrollTo({ top: chatMessages.scrollHeight });
                     }
                 }
             }
+
+            // 스트리밍 중 에러가 발생했으면 바깥 catch(err)로 전파
+            if (streamError) throw streamError;
             setStatus('ready', '준비됨');
         } catch (err) {
             console.error('Chat error:', err);

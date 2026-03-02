@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="우리소프트 AI 챗봇 - 궁금하신 사항을 물어보세요">
+    <title>우리소프트 AI 챗봇</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+            overflow: hidden;
+            /* 스크롤 방지 */
+        }
+
+        flowise-fullchatbot {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <flowise-fullchatbot></flowise-fullchatbot>
+
+    <script type="module">
+        import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed@latest/dist/web.js"
+        Chatbot.initFull({
+            chatflowid: "aa3e89a1-00ad-4360-aa41-400d7cefc7a3",
+            apiHost: "http://127.0.0.1:3000",
+            theme: {
+                chatWindow: {
+                    welcomeMessage: "안녕하세요! 우리소프트 AI 어시스턴트입니다. 무엇을 도와드릴까요?",
+                    backgroundColor: "#ffffff",
+                    fontSize: 16,
+                    poweredByTextColor: "#303235",
+                    botMessage: {
+                        backgroundColor: "#f7f8ff",
+                        textColor: "#303235",
+                        showAvatar: true,
+                        avatarSrc: "/images/logo.png",
+                    },
+                    userMessage: {
+                        backgroundColor: "#0066cc",
+                        textColor: "#ffffff",
+                        showAvatar: true,
+                    },
+                    textInput: {
+                        placeholder: "메시지를 입력하세요...",
+                        backgroundColor: "#ffffff",
+                        textColor: "#303235",
+                        sendButtonColor: "#0066cc",
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

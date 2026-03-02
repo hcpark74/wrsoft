@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+import asyncio
 import shutil
 import os
 import json
@@ -12,6 +13,18 @@ app = FastAPI(title="Gemini File Search AI System")
 if not os.path.exists("app/static"):
     os.makedirs("app/static")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+# 상위 디렉토리의 images 폴더 서빙 (logo.png, chatbot.png 등)
+# __file__ = .../wrsoft/doc_ai_system/app/main.py
+# dirname×3 → wrsoft/
+IMAGES_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "images"
+)
+if os.path.exists(IMAGES_DIR):
+    app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
+else:
+    print(f"[WARN] images 폴더를 찾을 수 없습니다: {IMAGES_DIR}")
 
 # 테스트용 고정 Corpus 이름 (실제로는 DB에서 관리 권장)
 DEFAULT_CORPUS_NAME = None
@@ -51,20 +64,41 @@ async def upload_document(display_name: str = Form(...), file: UploadFile = File
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
-@app.get("/files")
+@app.get("/api/files")
 async def list_files():
     docs = gemini_service.list_documents(None)
-    return [{"name": d.uri, "display_name": d.display_name} for d in docs]
+    # FileSearchDocument: name, display_name 필드
+    return [{"name": getattr(d, 'name', ''), "display_name": getattr(d, 'display_name', d.name)} for d in docs]
 
-@app.get("/chat")
-async def chat(query: str, model_id: str = "gemini-2.0-flash-lite"):
-    def generate():
+@app.get("/api/chat")
+async def chat(query: str, model_id: str = "gemini-2.5-flash-lite"):
+    async def generate():
+        loop = asyncio.get_event_loop()
         try:
-            # ask_chatbot_stream은 generator를 반환함
-            for chunk in gemini_service.ask_chatbot_stream(query=query, model_id=model_id):
+            # sync SDK 초기화를 스레드풀에서 실행 (이벤트 루프 블로킹 방지)
+            stream = await loop.run_in_executor(
+                None,
+                lambda: gemini_service.ask_chatbot_stream(query=query, model_id=model_id)
+            )
+            if stream is None:
+                yield f"data: {json.dumps({'error': '스트림을 시작할 수 없습니다.'}, ensure_ascii=False)}\n\n"
+                return
+
+            # sentinel 패턴: next()의 StopIteration이 asyncio Future 안에서
+            # RuntimeError로 변환되는 PEP 479 문제를 방지
+            _DONE = object()
+            it = iter(stream)
+            while True:
+                chunk = await loop.run_in_executor(None, next, it, _DONE)
+                if chunk is _DONE:
+                    break
                 if chunk.text:
                     yield f"data: {json.dumps({'text': chunk.text}, ensure_ascii=False)}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)}, ensure_ascii=False)}\n\n"
 
-    return StreamingResponse(generate(), media_type="text/event-stream")
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"}
+    )

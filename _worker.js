@@ -70,9 +70,9 @@ async function handleChat(request, env, url, origin) {
     }));
     parts.push({ text: query });
 
-    // 3. Gemini generateContent 호출
+    // 3. Gemini generateContent 호출 (Streaming)
     const genResp = await fetch(
-      `${GEMINI_BASE}/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      `${GEMINI_BASE}/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -82,17 +82,56 @@ async function handleChat(request, env, url, origin) {
 
     if (!genResp.ok) {
       const errData = await genResp.json();
-      const msg = errData?.error?.message || "Gemini API 오류";
-      const status = genResp.status === 429 ? 429 : 502;
-      return errorResponse(msg, status, origin);
+      return errorResponse(errData?.error?.message || "Gemini API 오류", 502, origin);
     }
 
-    const genData = await genResp.json();
-    const answer =
-      genData?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "답변을 가져올 수 없습니다.";
+    // Transform stream to extract text from Gemini SSE format to our app format
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const reader = genResp.body.getReader();
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
 
-    return jsonResponse({ query, answer, citations: [] }, 200, origin);
+    (async () => {
+      let buffer = '';
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (line.trim().startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.trim().slice(6));
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                  const sseData = `data: ${JSON.stringify({ text })}\n\n`;
+                  await writer.write(encoder.encode(sseData));
+                }
+              } catch (e) { }
+            }
+          }
+        }
+      } catch (err) {
+        const errData = `data: ${JSON.stringify({ error: err.message })}\n\n`;
+        await writer.write(encoder.encode(errData));
+      } finally {
+        await writer.close();
+      }
+    })();
+
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        ...corsHeaders(origin),
+      },
+    });
   } catch (err) {
     return errorResponse(`내부 오류: ${err.message}`, 500, origin);
   }
