@@ -106,19 +106,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const resp = await fetch(`/api/chat?query=${encodeURIComponent(text)}&model=${MODEL_ID}`);
-            const data = await resp.json();
-
-            if (!resp.ok) {
-                throw new Error(data.error || '답변 생성 중 오류가 발생했습니다.');
-            }
+            if (!resp.ok) throw new Error('서버 응답 오류가 발생했습니다.');
 
             loadingMsg.remove();
-            appendMessage('ai', data.answer, data.citations);
+
+            // 스트리밍을 위한 빈 AI 메시지 버블 생성
+            const aiMsgDiv = appendMessage('ai', '');
+            const contentDiv = aiMsgDiv.querySelector('.ai-message-content');
+            let fullText = '';
+
+            const reader = resp.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.trim().startsWith('data: ')) {
+                        try {
+                            const jsonStr = line.trim().slice(6);
+                            const data = JSON.parse(jsonStr);
+
+                            if (data.error) throw new Error(data.error);
+                            if (data.text) {
+                                fullText += data.text;
+                                // 마크다운 변환 및 업데이트
+                                if (typeof marked !== 'undefined') {
+                                    contentDiv.innerHTML = marked.parse(fullText);
+                                } else {
+                                    contentDiv.textContent = fullText;
+                                }
+                                chatMessages.scrollTo({ top: chatMessages.scrollHeight });
+                            }
+                        } catch (e) {
+                            console.warn('데이터 파싱 오류:', e);
+                        }
+                    }
+                }
+            }
             setStatus('ready', '준비됨');
         } catch (err) {
             console.error('Chat error:', err);
-            loadingMsg.classList.add('error-message');
-            loadingMsg.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${err.message}`;
+            if (loadingMsg) loadingMsg.remove();
+            const errorDiv = appendMessage('ai', `오류: ${err.message}`);
+            errorDiv.classList.add('error-message');
             setStatus('ready', '준비됨');
         } finally {
             isProcessing = false;

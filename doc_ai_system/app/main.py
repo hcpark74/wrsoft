@@ -1,8 +1,9 @@
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 import shutil
 import os
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
+import json
 from app.services.gemini_service import gemini_service
 
 app = FastAPI(title="Gemini File Search AI System")
@@ -57,16 +58,13 @@ async def list_files():
 
 @app.get("/chat")
 async def chat(query: str, model_id: str = "gemini-2.0-flash-lite"):
-    try:
-        response = gemini_service.ask_chatbot(
-            corpus_name=None,
-            query=query,
-            model_id=model_id
-        )
-        return {
-            "query": query,
-            "answer": response.text,
-            "citations": []
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    def generate():
+        try:
+            # ask_chatbot_stream은 generator를 반환함
+            for chunk in gemini_service.ask_chatbot_stream(query=query, model_id=model_id):
+                if chunk.text:
+                    yield f"data: {json.dumps({'text': chunk.text}, ensure_ascii=False)}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")

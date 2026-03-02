@@ -73,38 +73,37 @@ class GeminiService:
             print(f"Error listing documents: {e}")
             return []
 
-    def ask_chatbot(self, corpus_name: str, query: str, model_id: str = "gemini-2.0-flash-lite"):
+    def ask_chatbot(self, query: str, model_id: str = "gemini-2.0-flash-lite"):
         """ ACTIVE 상태인 파일들을 참조하여 답변 생성 """
         try:
-            # 1. ACTIVE 상태인 파일 목록만 가져오기
             files = [f for f in self.client.files.list() if f.state.name == "ACTIVE"]
-            
-            # 2. Part 객체를 사용하여 컨텍스트 구성
-            contents = []
-            for f in files:
-                contents.append(types.Part.from_uri(file_uri=f.uri, mime_type=f.mime_type))
-            
-            # 3. 사용자 질문 추가
+            contents = [types.Part.from_uri(file_uri=f.uri, mime_type=f.mime_type) for f in files]
             contents.append(types.Part.from_text(text=query))
 
-            # 4. 모델 호출 (Long Context 활용)
-            # 수백 개 이상의 파일이 아니므로 별도의 file_search 툴 없이도 잘 작동합니다.
-            response = self.client.models.generate_content(
-                model=model_id,
-                contents=contents
-            )
+            response = self.client.models.generate_content(model=model_id, contents=contents)
             return response
         except Exception as e:
-            error_msg = str(e)
-            if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
-                friendly_msg = "현재 사용 중인 Gemini 모델의 무료 호출 한도(Quota)를 초과했습니다. 약 1~2분 후 다시 시도하시거나, 상단 드롭다운에서 다른 모델(예: 1.5 Flash)을 선택해 보세요."
-                print(f"Quota Error: {friendly_msg}")
-                raise Exception(friendly_msg)
-            elif "404" in error_msg or "NOT_FOUND" in error_msg:
-                friendly_msg = f"선택하신 모델({model_id})을 현재 환경에서 사용할 수 없습니다. 다른 모델을 선택해 주세요."
-                raise Exception(friendly_msg)
-            
-            print(f"Error in chatbot: {e}")
-            raise e
+            self._handle_error(e, model_id)
+
+    def ask_chatbot_stream(self, query: str, model_id: str = "gemini-2.0-flash-lite"):
+        """ 스트리밍 방식으로 답변 생성 """
+        try:
+            files = [f for f in self.client.files.list() if f.state.name == "ACTIVE"]
+            contents = [types.Part.from_uri(file_uri=f.uri, mime_type=f.mime_type) for f in files]
+            contents.append(types.Part.from_text(text=query))
+
+            return self.client.models.generate_content_stream(model=model_id, contents=contents)
+        except Exception as e:
+            self._handle_error(e, model_id)
+
+    def _handle_error(self, e, model_id):
+        error_msg = str(e)
+        if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+            friendly_msg = "현재 사용 중인 Gemini 모델의 무료 호출 한도(Quota)를 초과했습니다. 잠시 후 다시 시도해 주세요."
+            raise Exception(friendly_msg)
+        elif "404" in error_msg or "NOT_FOUND" in error_msg:
+            friendly_msg = f"모델({model_id})을 찾을 수 없습니다."
+            raise Exception(friendly_msg)
+        raise e
 
 gemini_service = GeminiService()
