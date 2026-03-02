@@ -106,8 +106,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const resp = await fetch(`/api/chat?query=${encodeURIComponent(text)}&model=${MODEL_ID}`);
-            if (!resp.ok) throw new Error('서버 응답 오류가 발생했습니다.');
-
+            if (!resp.ok) {
+                let errorMsg = '서버 응답 오류가 발생했습니다.';
+                try {
+                    const errData = await resp.json(); // Changed 'response' to 'resp'
+                    if (errData && errData.error) errorMsg = errData.error;
+                } catch (e) { }
+                throw new Error(errorMsg);
+            }
             loadingMsg.remove();
 
             // 스트리밍을 위한 빈 AI 메시지 버블 생성

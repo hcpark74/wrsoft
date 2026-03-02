@@ -87,8 +87,14 @@ async function handleChat(request, env, url, origin) {
     );
 
     if (!genResp.ok) {
-      const errData = await genResp.json();
-      return errorResponse(errData?.error?.message || "Gemini API 오류", 502, origin);
+      let detail = "Gemini API 오류";
+      try {
+        const errData = await genResp.json();
+        detail = errData?.error?.message || detail;
+      } catch (e) {
+        detail = await genResp.text();
+      }
+      return errorResponse(detail, 502, origin);
     }
 
     // Transform stream to extract text from Gemini SSE format to our app format
