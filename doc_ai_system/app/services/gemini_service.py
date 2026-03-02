@@ -10,6 +10,9 @@ load_dotenv()
 # File Search 공식 지원 모델 (File_Search.md 참조)
 FILE_SEARCH_MODEL = "gemini-2.5-flash-lite"
 
+# CEO 페르소나 시스템 인스트럭션
+CEO_PERSONA = "당신은 회사의 대표이사(CEO)입니다. 전문적이고 권위 있으면서도 격려하는 태도로, 전략적인 관점에서 답변하세요. 회사의 목표와 비전을 깊이 이해하고 있으며, 항상 이러한 관점에서 답변해야 합니다."
+
 
 class GeminiService:
     def __init__(self):
@@ -89,6 +92,7 @@ class GeminiService:
                 model=model_id,
                 contents=query,
                 config=types.GenerateContentConfig(
+                    system_instruction=CEO_PERSONA,
                     tools=[
                         types.Tool(
                             file_search=types.FileSearch(
@@ -115,6 +119,7 @@ class GeminiService:
                     model=model_id,
                     contents=query,
                     config=types.GenerateContentConfig(
+                        system_instruction=CEO_PERSONA,
                         tools=[
                             types.Tool(
                                 file_search=types.FileSearch(

@@ -8,6 +8,7 @@
  */
 
 const GEMINI_BASE = "https://generativelanguage.googleapis.com";
+const CEO_PERSONA = "당신은 회사의 대표이사(CEO)입니다. 전문적이고 권위 있으면서도 격려하는 태도로, 전략적인 관점에서 답변하세요. 회사의 목표와 비전을 깊이 이해하고 있으며, 항상 이러한 관점에서 답변해야 합니다.";
 
 // CORS 헤더: wrsoft 도메인에서만 허용 (필요 시 '*'로 변경)
 function corsHeaders(origin) {
@@ -42,7 +43,7 @@ function errorResponse(message, status = 500, origin) {
  */
 async function handleChat(request, env, url, origin) {
   const query = url.searchParams.get("query");
-  const model = url.searchParams.get("model") || "gemini-2.0-flash-lite";
+  const model = url.searchParams.get("model") || "gemini-2.5-flash-lite";
 
   if (!query) {
     return errorResponse("query 파라미터가 필요합니다.", 400, origin);
@@ -71,12 +72,17 @@ async function handleChat(request, env, url, origin) {
     parts.push({ text: query });
 
     // 3. Gemini generateContent 호출 (Streaming)
+    // 참고: Worker에서는 File Search Store를 직접 관리하기 복잡하므로 
+    // 기존의 File API(activeFiles) 방식을 유지하되, 페르소나와 모델만 Python과 맞춥니다.
     const genResp = await fetch(
       `${GEMINI_BASE}/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ role: "user", parts }] }),
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: CEO_PERSONA }] },
+          contents: [{ role: "user", parts }]
+        }),
       }
     );
 
@@ -302,6 +308,13 @@ export default {
     const staticPath = pageRoutes[url.pathname];
     if (staticPath) {
       const assetUrl = new URL(staticPath, url.origin);
+      return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    }
+
+    // /static/* 경로를 doc_ai_system/app/static/* 로 매핑하여 MIME 에러 해결
+    if (url.pathname.startsWith("/static/")) {
+      const newPath = "/doc_ai_system/app" + url.pathname;
+      const assetUrl = new URL(newPath, url.origin);
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
