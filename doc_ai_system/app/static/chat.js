@@ -41,18 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
         welcomeScreen.className = 'welcome-screen';
         welcomeScreen.innerHTML = `
             <div class="welcome-icon"><i class="fas fa-comments"></i></div>
-            <h3>무엇이든 물어보세요</h3>
-            <p>등록된 문서를 기반으로 AI가 정확한 답변을 제공합니다.</p>
+            <h3>(주)우리소프트에 대해<br>무엇이든 물어보세요</h3>
+            <p>우리소프트의 기업 정보, 서비스 및 솔루션에 대해<br>AI가 실시간으로 답변해 드립니다.</p>
             <div class="suggestion-chips">
-                <button class="chip" data-text="업로드된 문서들을 간략히 요약해줘">
-                    <i class="fas fa-list"></i> 문서 요약
-                </button>
-                <button class="chip" data-text="주요 내용이 뭐야?">
-                    <i class="fas fa-star"></i> 핵심 내용
-                </button>
-                <button class="chip" data-text="자주 묻는 질문이 있어?">
-                    <i class="fas fa-question-circle"></i> FAQ
-                </button>
+                <button class="chip" data-text="(주)우리소프트는 어떤 회사인가요?"><i class="fas fa-building"></i> 회사 소개</button>
+                <button class="chip" data-text="우리소프트의 주요 솔루션 및 서비스를 알려주세요."><i class="fas fa-microchip"></i> 주요 솔루션</button>
+                <button class="chip" data-text="서비스 도입 및 PoC 신청 절차가 어떻게 되나요?"><i class="fas fa-handshake"></i> 도입 및 PoC 문의</button>
             </div>
         `;
         chatMessages.appendChild(welcomeScreen);
@@ -108,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.value = '';
         userInput.style.height = 'auto';
 
-        const loadingMsg = appendMessage('ai', `답변을 생성하고 있습니다...`);
+        const loadingMsg = appendTypingIndicator();
 
         try {
             const resp = await fetch(`/api/chat?query=${encodeURIComponent(text)}&model=${MODEL_ID}`);
@@ -164,5 +158,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function setStatus(state, label) {
         statusBadge.className = `status-badge ${state}`;
         statusBadge.textContent = label;
+    }
+
+    // ── 타이핑 인디케이터 추가 ──
+    function appendTypingIndicator() {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message ai-message typing-msg';
+        msgDiv.innerHTML = `
+            <div class="ai-message-content">
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>`;
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+        return msgDiv;
     }
 });
