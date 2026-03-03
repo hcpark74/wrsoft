@@ -168,6 +168,28 @@ h3 {
     color: #fbbf24;
 }
 
+.fa-file-hwp {
+    color: #0054A6 !important;
+}
+
+/* 한글 브랜드 컬러 */
+
+/* HWP 전용 스타일 강조 */
+.doc-item.hwp-type .doc-icon-wrapper {
+    background: rgba(0, 84, 166, 0.05);
+    border-color: rgba(0, 84, 166, 0.2);
+}
+
+.doc-item.hwp-type .doc-info .doc-title {
+    font-family: 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+    font-weight: bold;
+    color: #0054A6;
+}
+
+.doc-item.hwp-type:hover {
+    border-color: rgba(0, 84, 166, 0.4);
+}
+
 .doc-info {
     flex: 1;
     display: flex;

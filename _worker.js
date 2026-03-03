@@ -309,14 +309,18 @@ async function handleDeleteFile(fileId, env, origin) {
   if (!apiKey) return errorResponse("서버 설정 오류: API 키가 없습니다.", 500, origin);
 
   try {
+    // fileId가 이미 'files/xxx' 형식이므로 /v1beta/ 뒤에 바로 붙입니다.
+    // 또한 URL 인코딩된 슬래시(%2F)를 정상적인 경로료 인식하도록 디코딩합니다.
+    const decodedId = decodeURIComponent(fileId);
     const resp = await fetch(
-      `${GEMINI_BASE}/v1beta/files/${fileId}?key=${apiKey}`,
+      `${GEMINI_BASE}/v1beta/${decodedId}?key=${apiKey}`,
       { method: "DELETE" }
     );
     if (!resp.ok) {
-      return errorResponse("파일 삭제 실패", 502, origin);
+      const errText = await resp.text();
+      return errorResponse(`파일 삭제 실패: ${errText}`, 502, origin);
     }
-    return jsonResponse({ status: "deleted", file_id: fileId }, 200, origin);
+    return jsonResponse({ status: "deleted", file_id: decodedId }, 200, origin);
   } catch (err) {
     return errorResponse(`삭제 오류: ${err.message}`, 500, origin);
   }

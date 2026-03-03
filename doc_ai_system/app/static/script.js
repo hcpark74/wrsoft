@@ -34,12 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const files = await resp.json();
             docList.innerHTML = files.map(f => {
                 const iconClass = getFileIcon(f.display_name);
+                const isHwp = f.display_name.toLowerCase().endsWith('.hwp');
                 const dateStr = f.create_time ? new Date(f.create_time).toLocaleString('ko-KR', {
                     month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                 }) : '방금 전';
 
                 return `
-                <li class="doc-item">
+                <li class="doc-item ${isHwp ? 'hwp-type' : ''}">
                     <div class="doc-icon-wrapper">
                         <i class="${iconClass}"></i>
                     </div>
@@ -79,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'csv': 'fas fa-file-csv',
             'pptx': 'fas fa-file-powerpoint',
             'txt': 'fas fa-file-alt',
-            'hwp': 'fas fa-file-signature',
+            'hwp': 'fa-regular fa-file-word fa-file-hwp',
             'md': 'fab fa-markdown',
             'py': 'fab fa-python',
             'js': 'fab fa-js',
