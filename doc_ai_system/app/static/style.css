@@ -116,30 +116,128 @@ h3 {
 
 .doc-item {
     padding: 12px;
-    border-radius: 8px;
+    border-radius: 12px;
     background: var(--glass);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     display: flex;
-    align-items: flex-start;
-    /* 아이콘이 위쪽에 고정되도록 */
-    gap: 10px;
+    align-items: center;
+    gap: 12px;
     font-size: 0.9rem;
     animation: fadeIn 0.4s ease;
-    word-break: break-all;
-    /* 긴 단어(파일명) 강제 줄바꿈 */
-    white-space: normal;
-    /* 줄바꿈 허용 */
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
 }
 
-.doc-item i {
-    margin-top: 3px;
-    /* 아이콘 위치 미세 조정 */
+.doc-item:hover {
+    border-color: var(--accent-border);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.doc-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    background: var(--sidebar-bg);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
     flex-shrink: 0;
+    color: var(--accent);
+    border: 1px solid var(--glass);
 }
 
-.doc-item span {
+/* 파일 타입별 아이콘 색상 */
+.fa-file-pdf {
+    color: #f87171;
+}
+
+.fa-file-word {
+    color: #60a5fa;
+}
+
+.fa-file-excel {
+    color: #34d399;
+}
+
+.fa-file-powerpoint {
+    color: #fb923c;
+}
+
+.fa-file-csv {
+    color: #fbbf24;
+}
+
+.doc-info {
     flex: 1;
-    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+}
+
+.doc-title {
+    color: var(--text-primary);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.doc-meta {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+}
+
+.delete-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    opacity: 0.4;
+}
+
+.doc-item.processing {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.doc-item.processing::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 12px;
+    backdrop-filter: blur(1px);
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(56, 189, 248, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--accent);
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.upload-box.processing {
+    pointer-events: none;
+    opacity: 0.7;
+    border-color: var(--accent);
 }
 
 /* Chat Area */

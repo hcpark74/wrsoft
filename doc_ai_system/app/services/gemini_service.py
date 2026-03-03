@@ -81,6 +81,18 @@ class GeminiService:
             print(f"Error listing documents: {e}")
             return []
 
+    def delete_document(self, document_name: str):
+        """File Search Store 내 특정 문서 삭제 (document_name: stores/.../documents/...)"""
+        try:
+            # 'Cannot delete non-empty Document' 에러 방지를 위해 관련 청크까지 강제 삭제 옵션 적용
+            # SDK 버전에 따라 인자명이 다를 수 있으나, 보통 force 또는 delete_chunks=True 지원
+            self.client.file_search_stores.documents.delete(name=document_name, config={'force': True})
+            print(f"Document deleted: {document_name}")
+            return True
+        except Exception as e:
+            print(f"Error deleting document {document_name}: {e}")
+            return False
+
     def ask_chatbot(self, query: str, model_id: str = FILE_SEARCH_MODEL):
         """File Search Tool을 사용한 RAG 답변 생성 (non-streaming)"""
         try:

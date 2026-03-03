@@ -65,15 +65,25 @@ async function handleChat(request, env, url, origin) {
       (f) => f.state === "ACTIVE"
     );
 
-    // 2. 지원되는 MIME 타입만 필터링 (Gemini grounding 지원 목록)
+    // 2. 지원되는 MIME 타입만 필터링 (Gemini grounding 지원 목록 기준)
     const SUPPORTED_MIMES = [
       "application/pdf",
       "text/plain",
       "text/csv",
-      "text/javascript",
-      "text/x-python",
       "text/html",
       "text/markdown",
+      "application/json",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "application/vnd.oasis.opendocument.text",
+      "application/x-hwp",
+      "application/x-hwp-v5",
+      "text/rtf",
+      "application/rtf"
     ];
 
     const validFiles = activeFiles.filter(f =>
@@ -187,14 +197,29 @@ async function handleUpload(request, env, origin) {
     if (!mimeType || mimeType === "application/octet-stream") {
       const ext = displayName.split('.').pop().toLowerCase();
       const mimeMap = {
+        // Documents
         'pdf': 'application/pdf',
+        'doc': 'application/msword',
+        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'dotx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+        'xls': 'application/vnd.ms-excel',
+        'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'odt': 'application/vnd.oasis.opendocument.text',
+        'hwp': 'application/x-hwp',
+        'rtf': 'application/rtf',
+        // Text/Data
         'txt': 'text/plain',
-        'py': 'text/x-python',
-        'js': 'text/javascript',
         'csv': 'text/csv',
+        'tsv': 'text/tab-separated-values',
         'md': 'text/markdown',
         'html': 'text/html',
-        'json': 'application/json'
+        'json': 'application/json',
+        // Programming
+        'py': 'text/x-python',
+        'js': 'text/javascript',
+        'ts': 'application/typescript',
+        'sql': 'application/sql'
       };
       mimeType = mimeMap[ext] || "text/plain"; // 최후의 수단으로 text/plain 사용
     }

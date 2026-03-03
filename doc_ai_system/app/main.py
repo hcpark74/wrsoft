@@ -42,7 +42,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 async def root():
     return FileResponse(os.path.join(BASE_DIR, "static", "index.html"))
 
-@app.post("/upload")
+@app.post("/api/upload")
 async def upload_document(display_name: str = Form(...), file: UploadFile = File(...)):
     if not DEFAULT_CORPUS_NAME:
         raise HTTPException(status_code=500, detail="Corpus not initialized")
@@ -67,8 +67,25 @@ async def upload_document(display_name: str = Form(...), file: UploadFile = File
 @app.get("/api/files")
 async def list_files():
     docs = gemini_service.list_documents(None)
-    # FileSearchDocument: name, display_name 필드
-    return [{"name": getattr(d, 'name', ''), "display_name": getattr(d, 'display_name', d.name)} for d in docs]
+    # FileSearchDocument: name, display_name, create_time 필드
+    return [
+        {
+            "name": getattr(d, 'name', ''),
+            "display_name": getattr(d, 'display_name', d.name),
+            "create_time": getattr(d, 'update_time', getattr(d, 'create_time', None))
+        } 
+        for d in docs
+    ]
+
+@app.delete("/api/files/{document_id:path}")
+async def delete_file(document_id: str):
+    # document_id는 list_files에서 받은 'name' (stores/S/documents/D 형식)을 기대
+    # URL 경로에 포함되므로 인코딩 상황에 따라 주의 필요하나, 
+    # 일단 직접 전달하거나 쿼리 스트링으로 처리 가능. 여기선 경로 변수 사용.
+    success = gemini_service.delete_document(document_id)
+    if not success:
+        raise HTTPException(status_code=500, detail="문서 삭제 실패")
+    return {"status": "success", "message": f"문서 {document_id} 삭제 완료"}
 
 @app.get("/api/chat")
 async def chat(query: str, model_id: str = "gemini-2.5-flash-lite"):
