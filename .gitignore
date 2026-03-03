@@ -56,3 +56,7 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+
+# Python virtual environment
+run.bat
+run.ps1

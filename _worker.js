@@ -65,13 +65,28 @@ async function handleChat(request, env, url, origin) {
       (f) => f.state === "ACTIVE"
     );
 
-    // 2. 컨텐츠 구성 (파일 파트 + 사용자 질문)
-    const parts = activeFiles.map((f) => ({
+    // 2. 지원되는 MIME 타입만 필터링 (Gemini grounding 지원 목록)
+    const SUPPORTED_MIMES = [
+      "application/pdf",
+      "text/plain",
+      "text/csv",
+      "text/javascript",
+      "text/x-python",
+      "text/html",
+      "text/markdown",
+    ];
+
+    const validFiles = activeFiles.filter(f =>
+      SUPPORTED_MIMES.includes(f.mimeType) || f.mimeType.startsWith("text/")
+    );
+
+    // 3. 컨텐츠 구성 (파일 파트 + 사용자 질문)
+    const parts = validFiles.map((f) => ({
       file_data: { mime_type: f.mimeType, file_uri: f.uri },
     }));
     parts.push({ text: query });
 
-    // 3. Gemini generateContent 호출 (Streaming)
+    // 4. Gemini generateContent 호출 (Streaming)
     // 참고: Worker에서는 File Search Store를 직접 관리하기 복잡하므로 
     // 기존의 File API(activeFiles) 방식을 유지하되, 페르소나와 모델만 Python과 맞춥니다.
     const genResp = await fetch(
@@ -166,7 +181,24 @@ async function handleUpload(request, env, origin) {
     if (!file) return errorResponse("file 필드가 필요합니다.", 400, origin);
 
     const fileBuffer = await file.arrayBuffer();
-    const mimeType = file.type || "application/octet-stream";
+
+    // MIME 타입 추측 (Browser가 제공하지 않을 경우 확장자 기준)
+    let mimeType = file.type;
+    if (!mimeType || mimeType === "application/octet-stream") {
+      const ext = displayName.split('.').pop().toLowerCase();
+      const mimeMap = {
+        'pdf': 'application/pdf',
+        'txt': 'text/plain',
+        'py': 'text/x-python',
+        'js': 'text/javascript',
+        'csv': 'text/csv',
+        'md': 'text/markdown',
+        'html': 'text/html',
+        'json': 'application/json'
+      };
+      mimeType = mimeMap[ext] || "text/plain"; // 최후의 수단으로 text/plain 사용
+    }
+
     const numBytes = fileBuffer.byteLength;
 
     // Step 1: Resumable upload 초기화
