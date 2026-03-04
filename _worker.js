@@ -306,8 +306,9 @@ async function handleDeleteFile(fileId, env, origin) {
 
   try {
     const decodedId = decodeURIComponent(fileId);
+    // force=true: 문서 내 청크까지 함께 강제 삭제 (Python SDK와 동일)
     const resp = await fetch(
-      `${GEMINI_BASE}/v1beta/${decodedId}?key=${apiKey}`,
+      `${GEMINI_BASE}/v1beta/${decodedId}?key=${apiKey}&force=true`,
       { method: "DELETE" }
     );
     if (!resp.ok) {
