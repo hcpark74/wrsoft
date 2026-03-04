@@ -43,21 +43,33 @@ async def root():
     return FileResponse(os.path.join(BASE_DIR, "static", "index.html"))
 
 @app.post("/api/upload")
-async def upload_document(display_name: str = Form(...), file: UploadFile = File(...)):
+async def upload_document(
+    display_name: str = Form(...), 
+    category: str = Form(None),
+    file: UploadFile = File(...)
+):
     if not DEFAULT_CORPUS_NAME:
         raise HTTPException(status_code=500, detail="Corpus not initialized")
     
-    # 임시 저장
-    temp_path = f"temp_{file.filename}"
+    # 인코딩 문제를 피하기 위해 로컬 임시 파일은 영문/숫자 이름 사용
+    temp_filename = f"temp_upload_{int(asyncio.get_event_loop().time())}_{file.filename.split('.')[-1]}"
+    temp_path = os.path.join(os.getcwd(), temp_filename)
+    
     with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
     try:
-        # Gemini에 등록
+        # custom_metadata 준비 (카테고리가 있는 경우)
+        custom_metadata = None
+        if category:
+            custom_metadata = [{"key": "category", "string_value": category}]
+
+        # Gemini에 등록 (display_name은 한글 가능)
         doc = gemini_service.upload_file_to_corpus(
             corpus_name=DEFAULT_CORPUS_NAME,
             file_path=temp_path,
-            display_name=display_name
+            display_name=display_name,
+            custom_metadata=custom_metadata
         )
         return {"status": "success", "document": str(doc)}
     finally:
@@ -67,15 +79,23 @@ async def upload_document(display_name: str = Form(...), file: UploadFile = File
 @app.get("/api/files")
 async def list_files():
     docs = gemini_service.list_documents(None)
-    # FileSearchDocument: name, display_name, create_time 필드
-    return [
-        {
+    # FileSearchDocument: name, display_name, update_time, custom_metadata 필드
+    result = []
+    for d in docs:
+        category = ""
+        custom_meta = getattr(d, 'custom_metadata', []) or []
+        for meta in custom_meta:
+            if getattr(meta, 'key', '') == 'category':
+                category = getattr(meta, 'string_value', '')
+                break
+        
+        result.append({
             "name": getattr(d, 'name', ''),
             "display_name": getattr(d, 'display_name', d.name),
-            "create_time": getattr(d, 'update_time', getattr(d, 'create_time', None))
-        } 
-        for d in docs
-    ]
+            "create_time": getattr(d, 'update_time', getattr(d, 'create_time', None)),
+            "category": category
+        })
+    return result
 
 @app.delete("/api/files/{document_id:path}")
 async def delete_file(document_id: str):
@@ -88,15 +108,20 @@ async def delete_file(document_id: str):
     return {"status": "success", "message": f"문서 {document_id} 삭제 완료"}
 
 @app.get("/api/chat")
-async def chat(query: str, model_id: str = "gemini-2.5-flash-lite"):
+async def chat(query: str, model_id: str = "gemini-2.5-flash-lite", category: str = None):
+    # category 기반 필터 문자열 생성 (예: category="marketing")
+    metadata_filter = f'category="{category}"' if category else None
     async def generate():
         loop = asyncio.get_event_loop()
         try:
-            # sync SDK 초기화를 스레드풀에서 실행 (이벤트 루프 블로킹 방지)
             stream = await loop.run_in_executor(
-                None,
-                lambda: gemini_service.ask_chatbot_stream(query=query, model_id=model_id)
-            )
+                    None,
+                    lambda: gemini_service.ask_chatbot_stream(
+                        query=query, 
+                        model_id=model_id, 
+                        metadata_filter=metadata_filter
+                    )
+                )
             if stream is None:
                 yield f"data: {json.dumps({'error': '스트림을 시작할 수 없습니다.'}, ensure_ascii=False)}\n\n"
                 return

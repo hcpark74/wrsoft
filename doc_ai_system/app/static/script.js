@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const getTranslateCat = (cat) => {
+        const map = {
+            'marketing': '마케팅',
+            'legal': '법무',
+            'tech': '기술',
+            'hr': '인사',
+            'company': '회사소개'
+        };
+        return map[cat] || cat;
+    };
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     const docList = document.getElementById('document-list');
@@ -34,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const files = await resp.json();
             docList.innerHTML = files.map(f => {
                 const iconClass = getFileIcon(f.display_name);
-                const isHwp = f.display_name.toLowerCase().endsWith('.hwp');
+                const isHwp = f.display_name.toLowerCase().endsWith('.hwp') || f.display_name.toLowerCase().endsWith('.hwpx');
                 const dateStr = f.create_time ? new Date(f.create_time).toLocaleString('ko-KR', {
                     month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                 }) : '방금 전';
@@ -46,7 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="doc-info">
                         <span class="doc-title">${f.display_name}</span>
-                        <span class="doc-meta">${dateStr}</span>
+                        <div class="doc-meta">
+                            ${f.category ? `<span class="cat-badge">${getTranslateCat(f.category)}</span>` : ''}
+                            <span>${dateStr}</span>
+                        </div>
                     </div>
                     <button class="delete-btn" data-name="${f.name}" title="삭제">
                         <i class="fas fa-trash-alt"></i>
@@ -78,12 +91,22 @@ document.addEventListener('DOMContentLoaded', () => {
             'xls': 'fas fa-file-excel',
             'xlsx': 'fas fa-file-excel',
             'csv': 'fas fa-file-csv',
+            'ppt': 'fas fa-file-powerpoint',
             'pptx': 'fas fa-file-powerpoint',
             'txt': 'fas fa-file-alt',
             'hwp': 'fa-regular fa-file-word fa-file-hwp',
+            'hwpx': 'fa-regular fa-file-word fa-file-hwp',
             'md': 'fab fa-markdown',
             'py': 'fab fa-python',
             'js': 'fab fa-js',
+            'ts': 'fas fa-code',
+            'jsx': 'fas fa-code',
+            'tsx': 'fas fa-code',
+            'css': 'fab fa-css3-alt',
+            'json': 'fas fa-file-code',
+            'xml': 'fas fa-file-code',
+            'yaml': 'fas fa-file-code',
+            'yml': 'fas fa-file-code',
             'html': 'fas fa-file-code'
         };
         return map[ext] || 'fas fa-file-alt';
@@ -124,9 +147,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleUpload(file) {
+        const category = document.getElementById('upload-category').value;
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('display_name', file.name);
+        if (category) {
+            formData.append('category', category);
+        }
 
         // UI 즉시 반영 (로딩 상태)
         dropZone.classList.add('processing');
@@ -163,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function sendMessage() {
         const text = userInput.value.trim();
         const modelId = document.getElementById('model-select').value;
+        const filterCat = document.getElementById('filter-category').value;
         if (!text) return;
 
         appendMessage('user', text);
@@ -172,7 +201,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadingMsg = appendMessage('ai', `${modelId}가 답변을 생성하고 있습니다...`);
 
         try {
-            const resp = await fetch(`/api/chat?query=${encodeURIComponent(text)}&model=${modelId}`);
+            let url = `/api/chat?query=${encodeURIComponent(text)}&model=${modelId}`;
+            if (filterCat) url += `&category=${filterCat}`;
+
+            const resp = await fetch(url);
 
             if (!resp.ok) {
                 const data = await resp.json();

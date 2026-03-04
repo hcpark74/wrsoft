@@ -39,10 +39,10 @@ class GeminiService:
             print(f"Error creating File Search Store: {e}")
             return None
 
-    def upload_file_to_corpus(self, corpus_name: str, file_path: str, display_name: str):
+    def upload_file_to_corpus(self, corpus_name: str, file_path: str, display_name: str, custom_metadata: list = None):
         """
         파일을 File Search Store에 직접 업로드하고 인덱싱 완료까지 대기.
-        File_Search.md: uploadToFileSearchStore API 사용.
+        custom_metadata 예: [{"key": "category", "string_value": "marketing"}]
         """
         try:
             store_name = corpus_name or self._store_name
@@ -51,10 +51,15 @@ class GeminiService:
                 return None
 
             print(f"Uploading '{display_name}' to File Search Store...")
+            
+            # upload_to_file_search_store API에 custom_metadata 전달
             operation = self.client.file_search_stores.upload_to_file_search_store(
                 file=file_path,
                 file_search_store_name=store_name,
-                config={"display_name": display_name},
+                config={
+                    "display_name": display_name,
+                    "custom_metadata": custom_metadata
+                },
             )
 
             # 비동기 인덱싱 작업 완료 대기
@@ -118,8 +123,8 @@ class GeminiService:
         except Exception as e:
             self._handle_error(e, model_id)
 
-    def ask_chatbot_stream(self, query: str, model_id: str = FILE_SEARCH_MODEL):
-        """File Search Tool 스트리밍 답변. 503 시 지수 백오프로 최대 3회 재시도."""
+    def ask_chatbot_stream(self, query: str, model_id: str = FILE_SEARCH_MODEL, metadata_filter: str = None):
+        """File Search Tool 스트리밍 답변. metadata_filter 지원."""
         max_retries = 3
         for attempt in range(max_retries):
             try:
@@ -135,7 +140,8 @@ class GeminiService:
                         tools=[
                             types.Tool(
                                 file_search=types.FileSearch(
-                                    file_search_store_names=[store_name]
+                                    file_search_store_names=[store_name],
+                                    metadata_filter=metadata_filter
                                 )
                             )
                         ],

@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const getTranslateCat = (cat) => {
+        const map = {
+            'marketing': '마케팅',
+            'legal': '법무',
+            'tech': '기술',
+            'hr': '인사',
+            'company': '회사소개'
+        };
+        return map[cat] || cat;
+    };
     const docList = document.getElementById('document-list');
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
@@ -19,6 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const chip = e.target.closest('.chip');
         if (chip) {
             const text = chip.dataset.text;
+            const category = chip.dataset.category;
+
+            if (category) {
+                const filterSelect = document.getElementById('filter-category');
+                if (filterSelect) filterSelect.value = category;
+            }
+
             userInput.value = text;
             sendMessage();
         }
@@ -41,15 +58,28 @@ document.addEventListener('DOMContentLoaded', () => {
         welcomeScreen.innerHTML = `
             <div class="welcome-icon"><i class="fas fa-comments"></i></div>
             <h3>(주)우리소프트에 대해<br>무엇이든 물어보세요</h3>
-            <p>우리소프트의 기업 정보, 서비스 및 솔루션에 대해<br>AI가 실시간으로 답변해 드립니다.</p>
+            <p>카테고리를 선택하거나 직접 궁금한 점을 입력해 주세요.</p>
             <div class="suggestion-chips">
-                <button class="chip" data-text="(주)우리소프트는 어떤 회사인가요?"><i class="fas fa-building"></i> 회사 소개</button>
-                <button class="chip" data-text="우리소프트의 주요 솔루션 및 서비스를 알려주세요."><i class="fas fa-microchip"></i> 주요 솔루션</button>
-                <button class="chip" data-text="서비스 도입 및 PoC 신청 절차가 어떻게 되나요?"><i class="fas fa-handshake"></i> 도입 및 PoC 문의</button>
+                <button class="chip" data-category="company" data-text="회사 소개와 연혁을 알려줘">
+                    <i class="fas fa-building"></i> 회사소개
+                </button>
+                <button class="chip" data-category="hr" data-text="우리 회사의 복리후생 제도가 뭐야?">
+                    <i class="fas fa-users"></i> 인사/복지
+                </button>
+                <button class="chip" data-category="tech" data-text="제품 기술 가이드를 요약해줘">
+                    <i class="fas fa-microchip"></i> 기술지원
+                </button>
+                <button class="chip" data-category="legal" data-text="최근 계약 관련 규정을 알려줘">
+                    <i class="fas fa-file-contract"></i> 법무/규정
+                </button>
             </div>
         `;
         chatMessages.appendChild(welcomeScreen);
         setStatus('ready', '준비됨');
+
+        // 필터 초기화
+        const filterSelect = document.getElementById('filter-category');
+        if (filterSelect) filterSelect.value = '';
     });
 
     // ── textarea 자동 높이 조절 ──
@@ -76,6 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="doc-info">
                             <span class="doc-title">${f.display_name}</span>
+                            <div class="doc-meta">
+                                ${f.category ? `<span class="cat-badge">${getTranslateCat(f.category)}</span>` : ''}
+                            </div>
                         </div>
                     </li>
                 `;
@@ -96,12 +129,22 @@ document.addEventListener('DOMContentLoaded', () => {
             'xls': 'fas fa-file-excel',
             'xlsx': 'fas fa-file-excel',
             'csv': 'fas fa-file-csv',
+            'ppt': 'fas fa-file-powerpoint',
             'pptx': 'fas fa-file-powerpoint',
             'txt': 'fas fa-file-alt',
             'hwp': 'fa-regular fa-file-word fa-file-hwp',
+            'hwpx': 'fa-regular fa-file-word fa-file-hwp',
             'md': 'fab fa-markdown',
             'py': 'fab fa-python',
             'js': 'fab fa-js',
+            'ts': 'fas fa-code',
+            'jsx': 'fas fa-code',
+            'tsx': 'fas fa-code',
+            'css': 'fab fa-css3-alt',
+            'json': 'fas fa-file-code',
+            'xml': 'fas fa-file-code',
+            'yaml': 'fas fa-file-code',
+            'yml': 'fas fa-file-code',
             'html': 'fas fa-file-code'
         };
         return map[ext] || 'fas fa-file-alt';
@@ -127,9 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const loadingMsg = appendTypingIndicator();
 
         const modelId = modelSelect.value;
+        const filterCat = document.getElementById('filter-category').value;
 
         try {
-            const resp = await fetch(`/api/chat?query=${encodeURIComponent(text)}&model=${modelId}`);
+            let url = `/api/chat?query=${encodeURIComponent(text)}&model=${modelId}`;
+            if (filterCat) url += `&category=${filterCat}`;
+            const resp = await fetch(url);
             if (!resp.ok) {
                 const data = await resp.json();
                 throw new Error(data.error || '답변 생성 중 오류가 발생했습니다.');
