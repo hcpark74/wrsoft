@@ -295,7 +295,7 @@ async function handleFiles(env, url, origin) {
         const category = catMeta?.stringValue || "";
         return {
           name: d.name,
-          display_name: d.displayName || d.name,
+          display_name: d.display_name || d.displayName || (d.name ? d.name.split('/').pop() : "알 수 없는 파일"),
           create_time: d.updateTime || d.createTime || null,
           category,
         };
