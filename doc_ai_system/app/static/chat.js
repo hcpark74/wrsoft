@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const loadingMsg = appendTypingIndicator();
 
-        const modelId = modelSelect ? modelSelect.value : (window.FIXED_MODEL || 'gemini-3-flash-preview');
+        const modelId = modelSelect ? modelSelect.value : (window.FIXED_MODEL || 'gemini-2.5-flash-lite');
         const fCatEl = document.getElementById('filter-category');
         const filterCat = fCatEl ? fCatEl.value : '';
 

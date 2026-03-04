@@ -49,7 +49,7 @@ async function getStoreName(env) {
 // ─────────────────────────────────────────────
 async function handleChat(request, env, url, origin) {
   const query = url.searchParams.get("query");
-  const model = url.searchParams.get("model") || "gemini-3-flash-preview";
+  const model = url.searchParams.get("model") || "gemini-2.5-flash-lite";
   const category = url.searchParams.get("category") || "";
 
   if (!query) return errorResponse("query 파라미터가 필요합니다.", 400, origin);
