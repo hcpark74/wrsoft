@@ -309,6 +309,7 @@ async function handleFiles(env, url, origin) {
           display_name: displayName,
           create_time: d.updateTime || d.createTime || null,
           category,
+          state: d.state || "ACTIVE",
         };
       })
       // 카테고리 필터 (서버단)

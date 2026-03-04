@@ -64,21 +64,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                 }) : '방금 전';
 
+                const s = (f.state || 'ACTIVE').toUpperCase();
+                const isActive = s === 'ACTIVE' || s === 'STATE_ACTIVE';
+                const isFailed = s === 'FAILED' || s === 'STATE_FAILED';
+                const isProcessing = !isActive && !isFailed;
+
                 return `
-                <li class="doc-item ${isHwp ? 'hwp-type' : ''}">
+                <li class="doc-item ${isHwp ? 'hwp-type' : ''} ${isProcessing ? 'processing' : ''} ${isFailed ? 'failed' : ''}">
                     <div class="doc-icon-wrapper">
-                        <i class="${iconClass}"></i>
+                        ${isProcessing ? '<span class="loading-spinner"></span>' : (isFailed ? '<i class="fas fa-exclamation-circle error-color"></i>' : `<i class="${iconClass}"></i>`)}
                     </div>
                     <div class="doc-info">
                         <span class="doc-title" title="${f.display_name}">${f.display_name}</span>
                         <div class="doc-meta">
-                            ${f.category ? `<span class="cat-badge" data-cat="${f.category}">${getTranslateCat(f.category)}</span>` : ''}
+                            ${isProcessing ? '<span>인덱싱 중...</span>' : (isFailed ? '<span class="error-color">인덱싱 실패</span>' : (f.category ? `<span class="cat-badge" data-cat="${f.category}">${getTranslateCat(f.category)}</span>` : ''))}
                             <span>${dateStr}</span>
                         </div>
                     </div>
+                    ${!isProcessing ? `
                     <button class="delete-btn" data-name="${f.name}" title="삭제">
                         <i class="fas fa-trash-alt"></i>
                     </button>
+                    ` : ''}
                 </li>
             `;
             }).join('');
@@ -92,6 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
             });
+            // 인덱싱 중인 파일이 있으면 3초 후 자동 갱신
+            const anyProcessing = files.some(f => {
+                const s = (f.state || 'ACTIVE').toUpperCase();
+                return !['ACTIVE', 'STATE_ACTIVE', 'FAILED', 'STATE_FAILED'].includes(s);
+            });
+            if (anyProcessing) {
+                setTimeout(() => loadFiles(), 3000);
+            }
         } catch (err) {
             console.error('Failed to load files', err);
         }
@@ -189,6 +204,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 body: formData
             });
+
+            if (resp.ok) {
+                // 업로드 성공 시 목록 갱신 (서버에서 파일이 잡힐 때까지 약간의 여유를 줌)
+                setTimeout(() => loadFiles(), 1000);
+            } else {
+                const data = await resp.json();
+                alert('업로드 실패: ' + (data.detail || '알 수 없는 오류'));
+                loadingItem.remove();
+            }
 
         } catch (err) {
             console.error('Upload error', err);

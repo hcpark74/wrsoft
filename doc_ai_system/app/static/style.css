@@ -11,6 +11,15 @@
     --input-bg: #1e293b;
 }
 
+.error-color {
+    color: #f87171 !important;
+}
+
+.doc-item.failed {
+    border-color: rgba(248, 113, 113, 0.2) !important;
+    background: rgba(248, 113, 113, 0.05) !important;
+}
+
 .chat-container {
     flex: 1;
     display: flex;

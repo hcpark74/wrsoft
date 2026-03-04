@@ -97,7 +97,8 @@ async def list_files(category: str = None):
             "name": getattr(d, 'name', ''),
             "display_name": getattr(d, 'display_name', d.name),
             "create_time": getattr(d, 'update_time', getattr(d, 'create_time', None)),
-            "category": doc_category
+            "category": doc_category,
+            "state": str(getattr(d, 'state', 'ACTIVE'))
         })
     return result
 
