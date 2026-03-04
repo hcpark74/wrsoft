@@ -162,32 +162,32 @@ async function handleUpload(request, env, ctx, origin) {
 
     const fileBuffer = await file.arrayBuffer();
 
-    // MIME 타입 결정
-    let mimeType = file.type;
-    if (!mimeType || mimeType === "application/octet-stream") {
-      const ext = displayName.split(".").pop().toLowerCase();
-      const mimeMap = {
-        pdf: "application/pdf",
-        doc: "application/msword",
-        docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        xls: "application/vnd.ms-excel",
-        xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        ppt: "application/vnd.ms-powerpoint",
-        pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        hwp: "application/x-hwp",
-        hwpx: "application/x-hwp",
-        txt: "text/plain",
-        csv: "text/csv",
-        md: "text/markdown",
-        html: "text/html",
-        json: "application/json",
-        py: "text/x-python",
-        js: "text/javascript",
-        ts: "application/typescript",
-        sql: "application/sql",
-      };
-      mimeType = mimeMap[ext] || "text/plain";
-    }
+    // 브라우저가 보내는 MIME 타입이 불완전하거나 비표준일 수 있으므로
+    // 파이썬 환경과 동일하게 확장자 기반 강제 매핑을 우선 적용합니다.
+    const ext = displayName.split(".").pop().toLowerCase();
+    const mimeMap = {
+      pdf: "application/pdf",
+      doc: "application/msword",
+      docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      xls: "application/vnd.ms-excel",
+      xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      ppt: "application/vnd.ms-powerpoint",
+      pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      hwp: "application/x-hwp",
+      hwpx: "application/x-hwp",
+      txt: "text/plain",
+      csv: "text/csv",
+      md: "text/markdown",
+      html: "text/html",
+      json: "application/json",
+      py: "text/x-python",
+      js: "text/javascript",
+      ts: "application/typescript",
+      sql: "application/sql",
+    };
+
+    // 맵에 있는 확장자면 맵의 값을 가장 우선시하고, 없으면 브라우저가 보낸 file.type, 마지막엔 text/plain
+    const mimeType = mimeMap[ext] || file.type || "text/plain";
 
     // ── Step 1: Gemini Files API로 파일 업로드 ──
     const numBytes = fileBuffer.byteLength;

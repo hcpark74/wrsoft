@@ -68,6 +68,10 @@ class GeminiService:
         'sql':  'application/sql',
         'zip':  'application/zip',
     }
+    
+    # Python 표준 mimetypes 모듈에 등록하여 Gemini SDK가 파일 확장자에서 안정적으로 자동 감지하도록 조치
+    for ext, mtype in MIME_MAP.items():
+        mimetypes.add_type(mtype, f'.{ext}')
 
     def upload_file_to_corpus(self, corpus_name: str, file_path: str, display_name: str, custom_metadata: list = None):
         """
@@ -91,7 +95,6 @@ class GeminiService:
                 file_search_store_name=store_name,
                 config={
                     "display_name": display_name,
-                    "mime_type": mime_type,
                     "custom_metadata": custom_metadata
                 },
             )
