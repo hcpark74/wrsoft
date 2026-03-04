@@ -156,13 +156,45 @@ h3 {
 }
 
 .cat-badge {
-    background: var(--accent-glow);
+    background: var(--accent-dim);
     color: var(--accent);
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.68rem;
     font-weight: 600;
-    border: 1px solid rgba(56, 189, 248, 0.2);
+    border: 1px solid var(--accent-border);
+    white-space: nowrap;
+}
+
+/* 카테고리별 포인트 컬러 */
+.cat-badge[data-cat="marketing"] {
+    background: rgba(244, 63, 94, 0.12);
+    color: #fb7185;
+    border-color: rgba(244, 63, 94, 0.2);
+}
+
+.cat-badge[data-cat="legal"] {
+    background: rgba(168, 85, 247, 0.12);
+    color: #c084fc;
+    border-color: rgba(168, 85, 247, 0.2);
+}
+
+.cat-badge[data-cat="tech"] {
+    background: rgba(34, 197, 94, 0.12);
+    color: #4ade80;
+    border-color: rgba(34, 197, 94, 0.2);
+}
+
+.cat-badge[data-cat="hr"] {
+    background: rgba(234, 179, 8, 0.12);
+    color: #facc15;
+    border-color: rgba(234, 179, 8, 0.2);
+}
+
+.cat-badge[data-cat="company"] {
+    background: rgba(56, 189, 248, 0.12);
+    color: #7dd3fc;
+    border-color: rgba(56, 189, 248, 0.2);
 }
 
 /* 파일 타입별 아이콘 색상 */

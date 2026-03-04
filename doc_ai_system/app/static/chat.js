@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="doc-info">
                             <span class="doc-title">${f.display_name}</span>
                             <div class="doc-meta">
-                                ${f.category ? `<span class="cat-badge">${getTranslateCat(f.category)}</span>` : ''}
+                                ${f.category ? `<span class="cat-badge" data-cat="${f.category}">${getTranslateCat(f.category)}</span>` : ''}
                             </div>
                         </div>
                     </li>
