@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
 
+    const filterSelect = document.getElementById('filter-category');
+
     // 초기 목록 로드
     loadFiles();
 
@@ -29,8 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 드래그 앤 드롭 (추가 가능)
 
-    // 필터 변경 시 목록 갱신
-    const filterSelect = document.getElementById('filter-category');
     if (filterSelect) {
         filterSelect.addEventListener('change', () => loadFiles());
     }
@@ -46,10 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadFiles() {
         try {
+            docList.innerHTML = '<li class="doc-item loading"><span class="loading-spinner"></span> 조회 중...</li>';
+
             const cat = filterSelect ? filterSelect.value : '';
             const url = cat ? `/api/files?category=${cat}` : '/api/files';
             const resp = await fetch(url);
             const files = await resp.json();
+            if (!Array.isArray(files) || files.length === 0) {
+                docList.innerHTML = '<li class="doc-item empty">업로드된 문서가 없습니다.</li>';
+                return;
+            }
+
             docList.innerHTML = files.map(f => {
                 const iconClass = getFileIcon(f.display_name);
                 const isHwp = f.display_name.toLowerCase().endsWith('.hwp') || f.display_name.toLowerCase().endsWith('.hwpx');
@@ -74,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </li>
             `;
-            }).join('') || '<li class="doc-item empty">업로드된 문서가 없습니다.</li>';
+            }).join('');
 
             // 삭제 버튼 이벤트 연결
             document.querySelectorAll('.delete-btn').forEach(btn => {

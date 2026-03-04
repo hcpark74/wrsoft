@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let welcomeScreen = chatMessages.querySelector('.welcome-screen');
     let isProcessing = false;
 
+    const filterSelect = document.getElementById('filter-category');
+
     // 초기 문서 목록 로드
     loadFiles();
 
@@ -91,8 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.style.height = Math.min(userInput.scrollHeight, 200) + 'px';
     });
 
-    // 필터 변경 시 목록 갱신
-    const filterSelect = document.getElementById('filter-category');
     if (filterSelect) {
         filterSelect.addEventListener('change', () => loadFiles());
     }
@@ -100,12 +100,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── 파일 목록 로드 ──
     async function loadFiles() {
         try {
+            docList.innerHTML = '<li class="doc-item loading"><i class="fas fa-spinner fa-spin"></i> 조회 중...</li>';
+
             const cat = filterSelect ? filterSelect.value : '';
             const url = cat ? `/api/files?category=${cat}` : '/api/files';
             const resp = await fetch(url);
             const files = await resp.json();
 
-            if (files.length === 0) {
+            if (!Array.isArray(files) || files.length === 0) {
                 docList.innerHTML = `<li class="doc-item empty">업로드된 문서가 없습니다.</li>`;
             } else {
                 docList.innerHTML = files.map(f => {

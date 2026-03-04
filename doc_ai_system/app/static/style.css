@@ -133,6 +133,16 @@ h3 {
     background: rgba(255, 255, 255, 0.08);
 }
 
+.doc-item.loading,
+.doc-item.empty {
+    justify-content: center;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    border: none !important;
+    background: transparent !important;
+}
+
 .doc-icon-wrapper {
     width: 36px;
     height: 36px;
@@ -541,4 +551,28 @@ textarea {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* 로딩 스피너 */
+.loading-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--accent);
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.doc-item.processing {
+    opacity: 0.7;
+    pointer-events: none;
 }

@@ -52,7 +52,7 @@ async def upload_document(
         raise HTTPException(status_code=500, detail="Corpus not initialized")
     
     # 인코딩 문제를 피하기 위해 로컬 임시 파일은 영문/숫자 이름 사용
-    temp_filename = f"temp_upload_{int(asyncio.get_event_loop().time())}_{file.filename.split('.')[-1]}"
+    temp_filename = f"temp_upload_{int(asyncio.get_event_loop().time())}.{file.filename.split('.')[-1]}"
     temp_path = os.path.join(os.getcwd(), temp_filename)
     
     with open(temp_path, "wb") as buffer:
@@ -89,8 +89,8 @@ async def list_files(category: str = None):
                 doc_category = getattr(meta, 'string_value', '')
                 break
         
-        # 필터링 로직 적용
-        if category and doc_category != category:
+        # 필터링 로직 적용 (대소문자 및 공백 무시)
+        if category and doc_category.strip().lower() != category.strip().lower():
             continue
             
         result.append({

@@ -39,6 +39,36 @@ class GeminiService:
             print(f"Error creating File Search Store: {e}")
             return None
 
+    # 확장자 → MIME 타입 매핑 테이블
+    MIME_MAP = {
+        'pdf':  'application/pdf',
+        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'doc':  'application/msword',
+        'txt':  'text/plain',
+        'md':   'text/markdown',
+        'html': 'text/html',
+        'css':  'text/css',
+        'js':   'text/javascript',
+        'ts':   'application/typescript',
+        'jsx':  'text/jsx',
+        'tsx':  'text/tsx',
+        'py':   'text/x-python',
+        'json': 'application/json',
+        'xml':  'application/xml',
+        'csv':  'text/csv',
+        'tsv':  'text/tab-separated-values',
+        'yaml': 'text/plain',
+        'yml':  'text/plain',
+        'xls':  'application/vnd.ms-excel',
+        'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'ppt':  'application/vnd.ms-powerpoint',
+        'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'hwp':  'application/x-hwp',
+        'hwpx': 'application/x-hwp',
+        'sql':  'application/sql',
+        'zip':  'application/zip',
+    }
+
     def upload_file_to_corpus(self, corpus_name: str, file_path: str, display_name: str, custom_metadata: list = None):
         """
         파일을 File Search Store에 직접 업로드하고 인덱싱 완료까지 대기.
@@ -50,14 +80,18 @@ class GeminiService:
                 print("No File Search Store available")
                 return None
 
-            print(f"Uploading '{display_name}' to File Search Store...")
-            
-            # upload_to_file_search_store API에 custom_metadata 전달
+            # 확장자로 MIME 타입 결정 (SDK가 자동 인식 못하는 경우 명시)
+            ext = file_path.rsplit('.', 1)[-1].lower() if '.' in file_path else ''
+            mime_type = self.MIME_MAP.get(ext, 'text/plain')
+
+            print(f"Uploading '{display_name}' (mime: {mime_type}) to File Search Store...")
+
             operation = self.client.file_search_stores.upload_to_file_search_store(
                 file=file_path,
                 file_search_store_name=store_name,
                 config={
                     "display_name": display_name,
+                    "mime_type": mime_type,
                     "custom_metadata": custom_metadata
                 },
             )
