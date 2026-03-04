@@ -64,10 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                 }) : '방금 전';
 
-                const s = (f.state || 'ACTIVE').toUpperCase();
-                const isActive = s === 'ACTIVE' || s === 'STATE_ACTIVE';
-                const isFailed = s === 'FAILED' || s === 'STATE_FAILED';
-                const isProcessing = !isActive && !isFailed;
+                const s = (f.state || '').toUpperCase();
+                // 명확하게 진행 중인 키워드가 포함된 경우만 로딩으로 간주
+                const isProcessing = s.includes('PROCESSING') || s.includes('IMPORTING') || s.includes('INITIALIZING');
+                // 명확하게 실패 키워드가 포함된 경우만 실패로 간주
+                const isFailed = s.includes('FAILED') || s.includes('ERROR');
+                // 그 외(ACTIVE 포함)는 모두 완료된 상태로 간주
+                const isActive = !isProcessing && !isFailed;
 
                 return `
                 <li class="doc-item ${isHwp ? 'hwp-type' : ''} ${isProcessing ? 'processing' : ''} ${isFailed ? 'failed' : ''}">
@@ -99,10 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
             });
-            // 인덱싱 중인 파일이 있으면 3초 후 자동 갱신
+            // 실제 '진행 중' 키워드가 있는 경우만 3초 후 갱신
             const anyProcessing = files.some(f => {
-                const s = (f.state || 'ACTIVE').toUpperCase();
-                return !['ACTIVE', 'STATE_ACTIVE', 'FAILED', 'STATE_FAILED'].includes(s);
+                const s = (f.state || '').toUpperCase();
+                return s.includes('PROCESSING') || s.includes('IMPORTING') || s.includes('INITIALIZING');
             });
             if (anyProcessing) {
                 setTimeout(() => loadFiles(), 3000);

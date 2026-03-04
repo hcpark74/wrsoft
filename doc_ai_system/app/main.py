@@ -93,12 +93,16 @@ async def list_files(category: str = None):
         if category and doc_category.strip().lower() != category.strip().lower():
             continue
             
+        # 상태 처리 (Enum 객체 대응)
+        raw_state = getattr(d, 'state', 'ACTIVE')
+        state_str = raw_state.name if hasattr(raw_state, 'name') else str(raw_state)
+        
         result.append({
             "name": getattr(d, 'name', ''),
             "display_name": getattr(d, 'display_name', d.name),
             "create_time": getattr(d, 'update_time', getattr(d, 'create_time', None)),
             "category": doc_category,
-            "state": str(getattr(d, 'state', 'ACTIVE'))
+            "state": state_str.split('.')[-1]  # 'State.ACTIVE' -> 'ACTIVE'
         })
     return result
 
