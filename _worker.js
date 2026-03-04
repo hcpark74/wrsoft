@@ -1,20 +1,20 @@
 /**
  * Cloudflare Pages Worker
- * - /api/* 요청을 Gemini REST API로 라우팅
- * - 그 외 요청은 Pages 정적 파일(env.ASSETS)로 전달
+ * - /api/* 요청을 Gemini File Search Store REST API로 라우팅
+ * - 카테고리 메타데이터 필터링 완전 지원
  *
  * 환경 변수 (Cloudflare Dashboard > Settings > Variables):
- *   GOOGLE_API_KEY  - Gemini API Key (Secret으로 등록)
+ *   GOOGLE_API_KEY      - Gemini API Key (Secret으로 등록)
+ *   FILE_SEARCH_STORE   - File Search Store name (예: fileSearchStores/abc123)
  */
 
 const GEMINI_BASE = "https://generativelanguage.googleapis.com";
 const CEO_PERSONA = "당신은 회사의 대표이사(CEO)입니다. 전문적이고 권위 있으면서도 격려하는 태도로, 전략적인 관점에서 답변하세요. 회사의 목표와 비전을 깊이 이해하고 있으며, 항상 이러한 관점에서 답변해야 합니다.";
 
-// CORS 헤더: wrsoft 도메인에서만 허용 (필요 시 '*'로 변경)
 function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin || "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
 }
@@ -22,10 +22,7 @@ function corsHeaders(origin) {
 function jsonResponse(data, status = 200, origin) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: {
-      "Content-Type": "application/json",
-      ...corsHeaders(origin),
-    },
+    headers: { "Content-Type": "application/json", ...corsHeaders(origin) },
   });
 }
 
@@ -33,72 +30,43 @@ function errorResponse(message, status = 500, origin) {
   return jsonResponse({ error: message }, status, origin);
 }
 
-// ─────────────────────────────────────────────
-// API 핸들러
-// ─────────────────────────────────────────────
+// File Search Store name 조회 (env 변수 또는 API 자동 조회)
+async function getStoreName(env) {
+  if (env.FILE_SEARCH_STORE) return env.FILE_SEARCH_STORE;
 
-/**
- * GET /api/chat?query=...&model=gemini-2.0-flash-lite
- * 업로드된 ACTIVE 파일 컨텍스트를 포함하여 Gemini에 질문
- */
+  // 자동 조회: 첫 번째 스토어 사용
+  const resp = await fetch(
+    `${GEMINI_BASE}/v1beta/fileSearchStores?key=${env.GOOGLE_API_KEY}`
+  );
+  if (!resp.ok) return null;
+  const data = await resp.json();
+  return data.fileSearchStores?.[0]?.name || null;
+}
+
+// ─────────────────────────────────────────────
+// GET /api/chat?query=...&model=...&category=...
+// File Search Store Tool + metadata_filter 지원
+// ─────────────────────────────────────────────
 async function handleChat(request, env, url, origin) {
   const query = url.searchParams.get("query");
-  const model = url.searchParams.get("model") || "gemini-2.5-flash-lite";
+  const model = url.searchParams.get("model") || "gemini-3-flash-preview";
+  const category = url.searchParams.get("category") || "";
 
-  if (!query) {
-    return errorResponse("query 파라미터가 필요합니다.", 400, origin);
-  }
+  if (!query) return errorResponse("query 파라미터가 필요합니다.", 400, origin);
 
   const apiKey = env.GOOGLE_API_KEY;
-  if (!apiKey) {
-    return errorResponse("서버 설정 오류: API 키가 없습니다.", 500, origin);
-  }
+  if (!apiKey) return errorResponse("서버 설정 오류: API 키가 없습니다.", 500, origin);
+
+  const storeName = await getStoreName(env);
+  if (!storeName) return errorResponse("File Search Store를 찾을 수 없습니다.", 500, origin);
 
   try {
-    // 1. ACTIVE 파일 목록 조회
-    const filesResp = await fetch(
-      `${GEMINI_BASE}/v1beta/files?key=${apiKey}`,
-      { headers: { "Content-Type": "application/json" } }
-    );
-    const filesData = await filesResp.json();
-    const activeFiles = (filesData.files || []).filter(
-      (f) => f.state === "ACTIVE"
-    );
+    // File Search Tool 구성 (metadata_filter 선택적 적용)
+    const fileSearchTool = { file_search_store_names: [storeName] };
+    if (category) {
+      fileSearchTool.metadata_filter = `category="${category}"`;
+    }
 
-    // 2. 지원되는 MIME 타입만 필터링 (Gemini grounding 지원 목록 기준)
-    const SUPPORTED_MIMES = [
-      "application/pdf",
-      "text/plain",
-      "text/csv",
-      "text/html",
-      "text/markdown",
-      "application/json",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
-      "application/vnd.ms-excel",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      "application/vnd.oasis.opendocument.text",
-      "application/x-hwp",
-      "application/x-hwp-v5",
-      "text/rtf",
-      "application/rtf"
-    ];
-
-    const validFiles = activeFiles.filter(f =>
-      SUPPORTED_MIMES.includes(f.mimeType) || f.mimeType.startsWith("text/")
-    );
-
-    // 3. 컨텐츠 구성 (파일 파트 + 사용자 질문)
-    const parts = validFiles.map((f) => ({
-      file_data: { mime_type: f.mimeType, file_uri: f.uri },
-    }));
-    parts.push({ text: query });
-
-    // 4. Gemini generateContent 호출 (Streaming)
-    // 참고: Worker에서는 File Search Store를 직접 관리하기 복잡하므로 
-    // 기존의 File API(activeFiles) 방식을 유지하되, 페르소나와 모델만 Python과 맞춥니다.
     const genResp = await fetch(
       `${GEMINI_BASE}/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
       {
@@ -106,23 +74,18 @@ async function handleChat(request, env, url, origin) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           system_instruction: { parts: [{ text: CEO_PERSONA }] },
-          contents: [{ role: "user", parts }]
+          contents: [{ role: "user", parts: [{ text: query }] }],
+          tools: [{ file_search: fileSearchTool }],
         }),
       }
     );
 
     if (!genResp.ok) {
-      let detail = "Gemini API 오류";
-      try {
-        const errData = await genResp.json();
-        detail = errData?.error?.message || detail;
-      } catch (e) {
-        detail = await genResp.text();
-      }
-      return errorResponse(detail, 502, origin);
+      const errData = await genResp.json().catch(() => ({}));
+      return errorResponse(errData?.error?.message || "Gemini API 오류", 502, origin);
     }
 
-    // Transform stream to extract text from Gemini SSE format to our app format
+    // SSE 스트림 변환: Gemini 응답 → 우리 앱 포맷
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const reader = genResp.body.getReader();
@@ -130,32 +93,39 @@ async function handleChat(request, env, url, origin) {
     const encoder = new TextEncoder();
 
     (async () => {
-      let buffer = '';
+      let buffer = "";
       try {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
+          const lines = buffer.split("\n");
           buffer = lines.pop();
 
           for (const line of lines) {
-            if (line.trim().startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.trim().slice(6));
-                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) {
-                  const sseData = `data: ${JSON.stringify({ text })}\n\n`;
-                  await writer.write(encoder.encode(sseData));
+            if (!line.trim().startsWith("data: ")) continue;
+            try {
+              const data = JSON.parse(line.trim().slice(6));
+              const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (text) {
+                await writer.write(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+              }
+              // Citations 추출
+              const groundingMeta = data?.candidates?.[0]?.groundingMetadata;
+              if (groundingMeta?.groundingChunks) {
+                const sources = groundingMeta.groundingChunks
+                  .map(gc => gc?.retrievedContext?.title)
+                  .filter(Boolean);
+                if (sources.length > 0) {
+                  await writer.write(encoder.encode(`data: ${JSON.stringify({ citations: sources })}\n\n`));
                 }
-              } catch (e) { }
-            }
+              }
+            } catch (e) { }
           }
         }
       } catch (err) {
-        const errData = `data: ${JSON.stringify({ error: err.message })}\n\n`;
-        await writer.write(encoder.encode(errData));
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ error: err.message })}\n\n`));
       } finally {
         await writer.close();
       }
@@ -174,71 +144,79 @@ async function handleChat(request, env, url, origin) {
   }
 }
 
-/**
- * POST /api/upload  (multipart/form-data)
- * Body: file (binary), display_name (string)
- * Gemini Files API로 파일 업로드 (Resumable Upload)
- */
+// ─────────────────────────────────────────────
+// POST /api/upload (multipart/form-data)
+// File Search Store에 직접 업로드 + custom_metadata(category)
+// ─────────────────────────────────────────────
 async function handleUpload(request, env, origin) {
   const apiKey = env.GOOGLE_API_KEY;
   if (!apiKey) return errorResponse("서버 설정 오류: API 키가 없습니다.", 500, origin);
+
+  const storeName = await getStoreName(env);
+  if (!storeName) return errorResponse("File Search Store를 찾을 수 없습니다.", 500, origin);
 
   try {
     const formData = await request.formData();
     const file = formData.get("file");
     const displayName = formData.get("display_name") || file?.name || "uploaded_file";
+    const category = formData.get("category") || "";
 
     if (!file) return errorResponse("file 필드가 필요합니다.", 400, origin);
 
     const fileBuffer = await file.arrayBuffer();
 
-    // MIME 타입 추측 (Browser가 제공하지 않을 경우 확장자 기준)
+    // MIME 타입 결정
     let mimeType = file.type;
     if (!mimeType || mimeType === "application/octet-stream") {
-      const ext = displayName.split('.').pop().toLowerCase();
+      const ext = displayName.split(".").pop().toLowerCase();
       const mimeMap = {
-        // Documents
-        'pdf': 'application/pdf',
-        'doc': 'application/msword',
-        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'dotx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-        'xls': 'application/vnd.ms-excel',
-        'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'odt': 'application/vnd.oasis.opendocument.text',
-        'hwp': 'application/x-hwp',
-        'rtf': 'application/rtf',
-        // Text/Data
-        'txt': 'text/plain',
-        'csv': 'text/csv',
-        'tsv': 'text/tab-separated-values',
-        'md': 'text/markdown',
-        'html': 'text/html',
-        'json': 'application/json',
-        // Programming
-        'py': 'text/x-python',
-        'js': 'text/javascript',
-        'ts': 'application/typescript',
-        'sql': 'application/sql'
+        pdf: "application/pdf",
+        doc: "application/msword",
+        docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        xls: "application/vnd.ms-excel",
+        xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ppt: "application/vnd.ms-powerpoint",
+        pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        hwp: "application/x-hwp",
+        hwpx: "application/x-hwp",
+        txt: "text/plain",
+        csv: "text/csv",
+        md: "text/markdown",
+        html: "text/html",
+        json: "application/json",
+        py: "text/x-python",
+        js: "text/javascript",
+        ts: "application/typescript",
+        sql: "application/sql",
       };
-      mimeType = mimeMap[ext] || "text/plain"; // 최후의 수단으로 text/plain 사용
+      mimeType = mimeMap[ext] || "text/plain";
     }
 
-    const numBytes = fileBuffer.byteLength;
+    // custom_metadata 구성
+    const customMetadata = [];
+    if (category) {
+      customMetadata.push({ key: "category", string_value: category });
+    }
 
-    // Step 1: Resumable upload 초기화
+    // Step 1: Resumable upload 초기화 (File Search Store용 엔드포인트)
+    const storeId = storeName.split("/").pop(); // fileSearchStores/{id} → {id}
     const initResp = await fetch(
-      `${GEMINI_BASE}/upload/v1beta/files?uploadType=resumable&key=${apiKey}`,
+      `${GEMINI_BASE}/upload/v1beta/fileSearchStores/${storeId}/documents?uploadType=resumable&key=${apiKey}`,
       {
         method: "POST",
         headers: {
           "X-Goog-Upload-Protocol": "resumable",
           "X-Goog-Upload-Command": "start",
-          "X-Goog-Upload-Header-Content-Length": numBytes,
+          "X-Goog-Upload-Header-Content-Length": fileBuffer.byteLength,
           "X-Goog-Upload-Header-Content-Type": mimeType,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ file: { display_name: displayName } }),
+        body: JSON.stringify({
+          document: {
+            display_name: displayName,
+            custom_metadata: customMetadata,
+          },
+        }),
       }
     );
 
@@ -250,11 +228,11 @@ async function handleUpload(request, env, origin) {
     const uploadUrl = initResp.headers.get("X-Goog-Upload-URL");
     if (!uploadUrl) return errorResponse("Upload URL을 받지 못했습니다.", 502, origin);
 
-    // Step 2: 실제 파일 데이터 전송
+    // Step 2: 파일 데이터 전송
     const uploadResp = await fetch(uploadUrl, {
       method: "POST",
       headers: {
-        "Content-Length": numBytes,
+        "Content-Length": fileBuffer.byteLength,
         "X-Goog-Upload-Offset": "0",
         "X-Goog-Upload-Command": "upload, finalize",
       },
@@ -267,50 +245,66 @@ async function handleUpload(request, env, origin) {
     }
 
     const uploadData = await uploadResp.json();
-    return jsonResponse({ status: "success", file: uploadData.file }, 200, origin);
+    return jsonResponse({ status: "success", document: uploadData }, 200, origin);
   } catch (err) {
     return errorResponse(`업로드 오류: ${err.message}`, 500, origin);
   }
 }
 
-/**
- * GET /api/files
- * Gemini Files API 목록 반환
- */
-async function handleFiles(env, origin) {
+// ─────────────────────────────────────────────
+// GET /api/files?category=...
+// File Search Store 문서 목록 + 카테고리 필터링
+// ─────────────────────────────────────────────
+async function handleFiles(env, url, origin) {
   const apiKey = env.GOOGLE_API_KEY;
   if (!apiKey) return errorResponse("서버 설정 오류: API 키가 없습니다.", 500, origin);
 
+  const filterCategory = url.searchParams.get("category") || "";
+  const storeName = await getStoreName(env);
+  if (!storeName) return errorResponse("File Search Store를 찾을 수 없습니다.", 500, origin);
+
   try {
-    const resp = await fetch(`${GEMINI_BASE}/v1beta/files?key=${apiKey}`);
-    if (!resp.ok) {
-      return errorResponse("파일 목록 조회 실패", 502, origin);
-    }
+    const resp = await fetch(
+      `${GEMINI_BASE}/v1beta/${storeName}/documents?key=${apiKey}`
+    );
+    if (!resp.ok) return errorResponse("파일 목록 조회 실패", 502, origin);
+
     const data = await resp.json();
-    const files = (data.files || []).map((f) => ({
-      name: f.name,
-      display_name: f.displayName,
-      mime_type: f.mimeType,
-      state: f.state,
-      uri: f.uri,
-    }));
-    return jsonResponse(files, 200, origin);
+    const docs = data.documents || data.fileSearchDocuments || [];
+
+    const result = docs
+      .map((d) => {
+        // category 메타데이터 추출
+        const metaList = d.customMetadata || [];
+        const catMeta = metaList.find((m) => m.key === "category");
+        const category = catMeta?.stringValue || "";
+        return {
+          name: d.name,
+          display_name: d.displayName || d.name,
+          create_time: d.updateTime || d.createTime || null,
+          category,
+        };
+      })
+      // 카테고리 필터 (서버단)
+      .filter((d) =>
+        !filterCategory || d.category.toLowerCase() === filterCategory.toLowerCase()
+      );
+
+    return jsonResponse(result, 200, origin);
   } catch (err) {
     return errorResponse(`조회 오류: ${err.message}`, 500, origin);
   }
 }
 
-/**
- * DELETE /api/files/:fileId
- * Gemini Files API 파일 삭제
- */
+// ─────────────────────────────────────────────
+// DELETE /api/files/{documentId}
+// File Search Store 문서 삭제
+// ─────────────────────────────────────────────
 async function handleDeleteFile(fileId, env, origin) {
   const apiKey = env.GOOGLE_API_KEY;
   if (!apiKey) return errorResponse("서버 설정 오류: API 키가 없습니다.", 500, origin);
 
   try {
-    // fileId가 이미 'files/xxx' 형식이므로 /v1beta/ 뒤에 바로 붙입니다.
-    // 또한 URL 인코딩된 슬래시(%2F)를 정상적인 경로료 인식하도록 디코딩합니다.
     const decodedId = decodeURIComponent(fileId);
     const resp = await fetch(
       `${GEMINI_BASE}/v1beta/${decodedId}?key=${apiKey}`,
@@ -318,9 +312,9 @@ async function handleDeleteFile(fileId, env, origin) {
     );
     if (!resp.ok) {
       const errText = await resp.text();
-      return errorResponse(`파일 삭제 실패: ${errText}`, 502, origin);
+      return errorResponse(`삭제 실패: ${errText}`, 502, origin);
     }
-    return jsonResponse({ status: "deleted", file_id: decodedId }, 200, origin);
+    return jsonResponse({ status: "deleted", document_id: decodedId }, 200, origin);
   } catch (err) {
     return errorResponse(`삭제 오류: ${err.message}`, 500, origin);
   }
@@ -329,34 +323,27 @@ async function handleDeleteFile(fileId, env, origin) {
 // ─────────────────────────────────────────────
 // 메인 라우터
 // ─────────────────────────────────────────────
-
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const origin = request.headers.get("Origin");
 
-    // Preflight (CORS)
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
 
-    // /api/* 라우팅
     if (url.pathname.startsWith("/api/")) {
       const path = url.pathname;
 
       if (path === "/api/chat" && request.method === "GET") {
         return handleChat(request, env, url, origin);
       }
-
       if (path === "/api/upload" && request.method === "POST") {
         return handleUpload(request, env, origin);
       }
-
       if (path === "/api/files" && request.method === "GET") {
-        return handleFiles(env, origin);
+        return handleFiles(env, url, origin);
       }
-
-      // DELETE /api/files/{fileId}
       const deleteMatch = path.match(/^\/api\/files\/(.+)$/);
       if (deleteMatch && request.method === "DELETE") {
         return handleDeleteFile(deleteMatch[1], env, origin);
@@ -365,11 +352,11 @@ export default {
       return errorResponse("알 수 없는 API 경로입니다.", 404, origin);
     }
 
-    // ── 페이지 라우팅 ──
+    // 페이지 라우팅
     const pageRoutes = {
-      "/chat": "/doc_ai_system/app/static/chat.html",   // 사용자 전용
-      "/admin": "/doc_ai_system/app/static/index.html",  // 관리자 전용
-      "/chatbot": "/doc_ai_system/app/static/popup.html", // 챗봇 전용
+      "/chat": "/doc_ai_system/app/static/chat.html",
+      "/admin": "/doc_ai_system/app/static/index.html",
+      "/chatbot": "/doc_ai_system/app/static/popup.html",
     };
 
     const staticPath = pageRoutes[url.pathname];
@@ -378,14 +365,12 @@ export default {
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
-    // /static/* 경로를 doc_ai_system/app/static/* 로 매핑하여 MIME 에러 해결
     if (url.pathname.startsWith("/static/")) {
       const newPath = "/doc_ai_system/app" + url.pathname;
       const assetUrl = new URL(newPath, url.origin);
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
-    // 그 외 정적 파일: Cloudflare Pages Assets로 위임
     return env.ASSETS.fetch(request);
   },
 };
