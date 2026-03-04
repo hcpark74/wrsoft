@@ -189,12 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 body: formData
             });
-            if (resp.ok) {
-                loadFiles();
-            } else {
-                alert('업로드 실패 (Gemini 서버 부하일 수 있습니다)');
-                loadingItem.remove();
-            }
+
         } catch (err) {
             console.error('Upload error', err);
             loadingItem.remove();
