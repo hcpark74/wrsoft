@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <i class="${iconClass}"></i>
                     </div>
                     <div class="doc-info">
-                        <span class="doc-title">${f.display_name}</span>
+                        <span class="doc-title" title="${f.display_name}">${f.display_name}</span>
                         <div class="doc-meta">
                             ${f.category ? `<span class="cat-badge" data-cat="${f.category}">${getTranslateCat(f.category)}</span>` : ''}
                             <span>${dateStr}</span>
@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingItem.innerHTML = `
             <div class="doc-icon-wrapper"><span class="loading-spinner"></span></div>
             <div class="doc-info">
-                <span class="doc-title">${file.name}</span>
+                <span class="doc-title" title="${file.name}">${file.name}</span>
                 <span class="doc-meta">인덱싱 중...(최대 1분 소요)</span>
             </div>
         `;

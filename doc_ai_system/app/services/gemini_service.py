@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # File Search 공식 지원 모델 (File_Search.md 참조)
-FILE_SEARCH_MODEL = "gemini-2.5-flash-lite"
+FILE_SEARCH_MODEL = "gemini-3-flash-preview"
 
 # CEO 페르소나 시스템 인스트럭션
 CEO_PERSONA = "당신은 회사의 대표이사(CEO)입니다. 전문적이고 권위 있으면서도 격려하는 태도로, 전략적인 관점에서 답변하세요. 회사의 목표와 비전을 깊이 이해하고 있으며, 항상 이러한 관점에서 답변해야 합니다."
