@@ -146,14 +146,11 @@ async function handleChat(request, env, url, origin) {
 
 // ─────────────────────────────────────────────
 // POST /api/upload (multipart/form-data)
-// File Search Store에 직접 업로드 + custom_metadata(category)
+// Step 1: Files API 업로드 → Step 2: File Search Store importFile + category metadata
 // ─────────────────────────────────────────────
-async function handleUpload(request, env, origin) {
+async function handleUpload(request, env, ctx, origin) {
   const apiKey = env.GOOGLE_API_KEY;
   if (!apiKey) return errorResponse("서버 설정 오류: API 키가 없습니다.", 500, origin);
-
-  const storeName = await getStoreName(env);
-  if (!storeName) return errorResponse("File Search Store를 찾을 수 없습니다.", 500, origin);
 
   try {
     const formData = await request.formData();
@@ -192,31 +189,20 @@ async function handleUpload(request, env, origin) {
       mimeType = mimeMap[ext] || "text/plain";
     }
 
-    // custom_metadata 구성
-    const customMetadata = [];
-    if (category) {
-      customMetadata.push({ key: "category", string_value: category });
-    }
-
-    // Step 1: Resumable upload 초기화 (File Search Store용 엔드포인트)
-    const storeId = storeName.split("/").pop(); // fileSearchStores/{id} → {id}
+    // ── Step 1: Gemini Files API로 파일 업로드 ──
+    const numBytes = fileBuffer.byteLength;
     const initResp = await fetch(
-      `${GEMINI_BASE}/upload/v1beta/fileSearchStores/${storeId}/documents?uploadType=resumable&key=${apiKey}`,
+      `${GEMINI_BASE}/upload/v1beta/files?uploadType=resumable&key=${apiKey}`,
       {
         method: "POST",
         headers: {
           "X-Goog-Upload-Protocol": "resumable",
           "X-Goog-Upload-Command": "start",
-          "X-Goog-Upload-Header-Content-Length": fileBuffer.byteLength,
+          "X-Goog-Upload-Header-Content-Length": numBytes,
           "X-Goog-Upload-Header-Content-Type": mimeType,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          document: {
-            display_name: displayName,
-            custom_metadata: customMetadata,
-          },
-        }),
+        body: JSON.stringify({ file: { display_name: displayName } }),
       }
     );
 
@@ -228,11 +214,10 @@ async function handleUpload(request, env, origin) {
     const uploadUrl = initResp.headers.get("X-Goog-Upload-URL");
     if (!uploadUrl) return errorResponse("Upload URL을 받지 못했습니다.", 502, origin);
 
-    // Step 2: 파일 데이터 전송
     const uploadResp = await fetch(uploadUrl, {
       method: "POST",
       headers: {
-        "Content-Length": fileBuffer.byteLength,
+        "Content-Length": numBytes,
         "X-Goog-Upload-Offset": "0",
         "X-Goog-Upload-Command": "upload, finalize",
       },
@@ -245,7 +230,29 @@ async function handleUpload(request, env, origin) {
     }
 
     const uploadData = await uploadResp.json();
-    return jsonResponse({ status: "success", document: uploadData }, 200, origin);
+    const fileName = uploadData?.file?.name; // "files/xxx"
+    if (!fileName) return errorResponse("업로드된 파일 이름을 받지 못했습니다.", 502, origin);
+
+    // ── Step 2: File Search Store에 importFile (카테고리 메타데이터 포함) ──
+    const storeName = await getStoreName(env);
+    if (storeName) {
+      const importBody = { file_name: fileName };
+      if (category) {
+        importBody.custom_metadata = [{ key: "category", string_value: category }];
+      }
+
+      // ctx.waitUntil: Worker 응답 반환 후에도 백그라운드에서 인덱싱 계속 실행
+      ctx.waitUntil(
+        fetch(`${GEMINI_BASE}/v1beta/${storeName}:importFile?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(importBody),
+        }).then(r => r.json()).then(d => console.log("Import started:", JSON.stringify(d)))
+          .catch(e => console.error("Import error:", e.message))
+      );
+    }
+
+    return jsonResponse({ status: "success", file: uploadData.file }, 200, origin);
   } catch (err) {
     return errorResponse(`업로드 오류: ${err.message}`, 500, origin);
   }
@@ -340,7 +347,7 @@ export default {
         return handleChat(request, env, url, origin);
       }
       if (path === "/api/upload" && request.method === "POST") {
-        return handleUpload(request, env, origin);
+        return handleUpload(request, env, ctx, origin);
       }
       if (path === "/api/files" && request.method === "GET") {
         return handleFiles(env, url, origin);

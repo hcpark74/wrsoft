@@ -96,13 +96,7 @@ class GeminiService:
                 },
             )
 
-            # 비동기 인덱싱 작업 완료 대기
-            while not operation.done:
-                print(f"Indexing '{display_name}'...")
-                time.sleep(5)
-                operation = self.client.operations.get(operation)
-
-            print(f"'{display_name}' indexed successfully.")
+            print(f"'{display_name}' upload initiated. Indexing runs in background.")
             return operation
         except Exception as e:
             print(f"Error uploading file: {e}")
