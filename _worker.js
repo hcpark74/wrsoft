@@ -252,8 +252,11 @@ async function handleUpload(request, env, ctx, origin) {
       metadata.push({ key: "original_name", string_value: displayName });
 
       const importBody = {
-        file_name: fileName,
-        custom_metadata: metadata,
+        fileName: fileName,
+        config: {
+          displayName: displayName,
+          customMetadata: metadata,
+        }
       };
 
       // ctx.waitUntil: Worker 응답 반환 후에도 백그라운드에서 인덱싱 계속 실행
@@ -302,7 +305,7 @@ async function handleFiles(env, url, origin) {
         const categoryMeta = metaList.find((m) => m.key === "category");
 
         const category = categoryMeta?.stringValue || "";
-        const displayName = nameMeta?.stringValue || d.display_name || d.displayName || (d.name ? d.name.split("/").pop() : "알 수 없는 파일");
+        const displayName = d.displayName || d.display_name || nameMeta?.stringValue || (d.name ? d.name.split("/").pop() : "알 수 없는 파일");
 
         return {
           name: d.name,

@@ -182,8 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const loadingMsg = appendTypingIndicator();
 
-        const modelId = modelSelect.value;
-        const filterCat = document.getElementById('filter-category').value;
+        const modelId = modelSelect ? modelSelect.value : (window.FIXED_MODEL || 'gemini-3-flash-preview');
+        const fCatEl = document.getElementById('filter-category');
+        const filterCat = fCatEl ? fCatEl.value : '';
 
         try {
             let url = `/api/chat?query=${encodeURIComponent(text)}&model=${modelId}`;

@@ -59,10 +59,10 @@ async def upload_document(
         shutil.copyfileobj(file.file, buffer)
     
     try:
-        # custom_metadata 준비 (카테고리가 있는 경우)
-        custom_metadata = None
+        # custom_metadata 준비 (카테고리 및 원본 파일명 보존)
+        custom_metadata = [{"key": "original_name", "string_value": display_name}]
         if category:
-            custom_metadata = [{"key": "category", "string_value": category}]
+            custom_metadata.append({"key": "category", "string_value": category})
 
         # Gemini에 등록 (display_name은 한글 가능)
         doc = gemini_service.upload_file_to_corpus(
@@ -83,13 +83,19 @@ async def list_files(category: str = None):
     result = []
     for d in docs:
         doc_category = ""
+        original_name = ""
         custom_meta = getattr(d, 'custom_metadata', []) or []
         for meta in custom_meta:
-            if getattr(meta, 'key', '') == 'category':
+            key = getattr(meta, 'key', '')
+            if key == 'category':
                 doc_category = getattr(meta, 'string_value', '')
-                break
+            elif key == 'original_name':
+                original_name = getattr(meta, 'string_value', '')
         
-        # 필터링 로직 적용 (대소문자 및 공백 무시)
+        # 이름 우선순위: display_name -> original_name(metadata) -> ID(name)
+        display_name = getattr(d, 'display_name', '') or original_name or (d.name.split('/')[-1] if getattr(d, 'name', None) else '알 수 없는 파일')
+
+        # 필터링 로직 적용
         if category and doc_category.strip().lower() != category.strip().lower():
             continue
             
@@ -99,7 +105,7 @@ async def list_files(category: str = None):
         
         result.append({
             "name": getattr(d, 'name', ''),
-            "display_name": getattr(d, 'display_name', d.name),
+            "display_name": display_name,
             "create_time": getattr(d, 'update_time', getattr(d, 'create_time', None)),
             "category": doc_category,
             "state": state_str.split('.')[-1]  # 'State.ACTIVE' -> 'ACTIVE'
