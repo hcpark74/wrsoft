@@ -77,23 +77,27 @@ async def upload_document(
             os.remove(temp_path)
 
 @app.get("/api/files")
-async def list_files():
+async def list_files(category: str = None):
     docs = gemini_service.list_documents(None)
     # FileSearchDocument: name, display_name, update_time, custom_metadata 필드
     result = []
     for d in docs:
-        category = ""
+        doc_category = ""
         custom_meta = getattr(d, 'custom_metadata', []) or []
         for meta in custom_meta:
             if getattr(meta, 'key', '') == 'category':
-                category = getattr(meta, 'string_value', '')
+                doc_category = getattr(meta, 'string_value', '')
                 break
         
+        # 필터링 로직 적용
+        if category and doc_category != category:
+            continue
+            
         result.append({
             "name": getattr(d, 'name', ''),
             "display_name": getattr(d, 'display_name', d.name),
             "create_time": getattr(d, 'update_time', getattr(d, 'create_time', None)),
-            "category": category
+            "category": doc_category
         })
     return result
 

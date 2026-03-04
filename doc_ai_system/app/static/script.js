@@ -29,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 드래그 앤 드롭 (추가 가능)
 
+    // 필터 변경 시 목록 갱신
+    const filterSelect = document.getElementById('filter-category');
+    if (filterSelect) {
+        filterSelect.addEventListener('change', () => loadFiles());
+    }
     // 채팅 전송
     sendBtn.addEventListener('click', sendMessage);
     userInput.addEventListener('keydown', (e) => {
@@ -38,9 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
     async function loadFiles() {
         try {
-            const resp = await fetch('/api/files');
+            const cat = filterSelect ? filterSelect.value : '';
+            const url = cat ? `/api/files?category=${cat}` : '/api/files';
+            const resp = await fetch(url);
             const files = await resp.json();
             docList.innerHTML = files.map(f => {
                 const iconClass = getFileIcon(f.display_name);

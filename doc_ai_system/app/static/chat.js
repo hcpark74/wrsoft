@@ -33,7 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (category) {
                 const filterSelect = document.getElementById('filter-category');
-                if (filterSelect) filterSelect.value = category;
+                if (filterSelect) {
+                    filterSelect.value = category;
+                    loadFiles(); // 목록 즉시 필터링
+                }
             }
 
             userInput.value = text;
@@ -88,10 +91,18 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.style.height = Math.min(userInput.scrollHeight, 200) + 'px';
     });
 
+    // 필터 변경 시 목록 갱신
+    const filterSelect = document.getElementById('filter-category');
+    if (filterSelect) {
+        filterSelect.addEventListener('change', () => loadFiles());
+    }
+
     // ── 파일 목록 로드 ──
     async function loadFiles() {
         try {
-            const resp = await fetch('/api/files');
+            const cat = filterSelect ? filterSelect.value : '';
+            const url = cat ? `/api/files?category=${cat}` : '/api/files';
+            const resp = await fetch(url);
             const files = await resp.json();
 
             if (files.length === 0) {
