@@ -138,7 +138,8 @@ class GeminiService:
                                     file_search_store_names=[store_name]
                                 )
                             )
-                        ]
+                        ],
+                        # grounding_metadata를 명시적으로 포함하도록 설정 (필요 시)
                     ),
                 )
             except Exception as e:

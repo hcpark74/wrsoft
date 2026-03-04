@@ -172,6 +172,22 @@ h3 {
     color: #0054A6 !important;
 }
 
+.fa-markdown {
+    color: #0891b2;
+}
+
+.fa-python {
+    color: #3776ab;
+}
+
+.fa-js {
+    color: #f7df1e;
+}
+
+.fa-file-code {
+    color: #ec4899;
+}
+
 /* 한글 브랜드 컬러 */
 
 /* HWP 전용 스타일 강조 */
@@ -400,6 +416,16 @@ h3 {
     border-top: 1px solid var(--glass);
     font-size: 0.8rem;
     color: var(--text-secondary);
+}
+
+.citation-ref {
+    color: var(--accent);
+    font-size: 0.75em;
+    font-weight: bold;
+    margin-left: 2px;
+    cursor: help;
+    vertical-align: super;
+    line-height: 0;
 }
 
 .chat-input-area {

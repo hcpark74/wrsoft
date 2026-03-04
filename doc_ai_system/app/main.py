@@ -111,6 +111,23 @@ async def chat(query: str, model_id: str = "gemini-2.5-flash-lite"):
                     break
                 if chunk.text:
                     yield f"data: {json.dumps({'text': chunk.text}, ensure_ascii=False)}\n\n"
+
+                # grounding_metadata 추출 (주로 마지막 청크에 포함됨)
+                if hasattr(chunk, 'candidates') and chunk.candidates:
+                    metadata = getattr(chunk.candidates[0], 'grounding_metadata', None)
+                    if metadata:
+                        sources = []
+                        # grounding_chunks에서 파일 제목 추출
+                        g_chunks = getattr(metadata, 'grounding_chunks', [])
+                        for gc in g_chunks:
+                            retv = getattr(gc, 'retrieved_context', None)
+                            if retv:
+                                title = getattr(retv, 'title', None)
+                                if title and title not in sources:
+                                    sources.append(title)
+                        
+                        if sources:
+                            yield f"data: {json.dumps({'citations': sources}, ensure_ascii=False)}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)}, ensure_ascii=False)}\n\n"
 

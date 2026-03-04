@@ -185,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const aiMsgDiv = appendMessage('ai', '');
             const contentDiv = aiMsgDiv.querySelector('.ai-message-content');
             let fullText = '';
+            let citations = [];
             let streamError = null;
 
             const reader = resp.body.getReader();
@@ -216,12 +217,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (data.text) {
                         fullText += data.text;
-                        if (typeof marked !== 'undefined') {
-                            contentDiv.innerHTML = marked.parse(fullText);
-                        } else {
-                            contentDiv.textContent = fullText;
-                        }
-                        chatMessages.scrollTo({ top: chatMessages.scrollHeight });
+                        updateAIMessage(contentDiv, fullText, citations);
+                    }
+
+                    if (data.citations) {
+                        citations = [...new Set([...citations, ...data.citations])];
+                        updateAIMessage(contentDiv, fullText, citations);
                     }
                 }
             }
@@ -233,6 +234,30 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingMsg.classList.add('error-message');
             loadingMsg.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${err.message}`;
         }
+    }
+
+    function updateAIMessage(container, text, citationsList) {
+        // [/cite:0] 형태의 태그를 [1] 형태의 위첨자로 변환
+        let formattedText = text.replace(/\[\/cite:(\d+)\]/g, (match, p1) => {
+            const index = parseInt(p1) + 1;
+            return `<sup class="citation-ref" title="출처 보기">[${index}]</sup>`;
+        });
+
+        let content = formattedText;
+        if (typeof marked !== 'undefined') {
+            try {
+                content = marked.parse(text);
+            } catch (e) {
+                console.error('Markdown parse error:', e);
+            }
+        }
+
+        if (citationsList && citationsList.length > 0) {
+            content += `<br><div class="citations"><strong>참조 문서:</strong> ${citationsList.join(', ')}</div>`;
+        }
+
+        container.innerHTML = content;
+        chatMessages.scrollTo({ top: chatMessages.scrollHeight });
     }
 
     function appendMessage(sender, text, citations = []) {

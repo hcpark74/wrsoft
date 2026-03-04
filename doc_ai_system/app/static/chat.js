@@ -6,8 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearBtn = document.getElementById('clear-btn');
     const statusBadge = document.getElementById('status-badge');
 
-    // FIXED_MODEL은 chat.html에서 전역으로 주입됨
-    const MODEL_ID = typeof FIXED_MODEL !== 'undefined' ? FIXED_MODEL : 'gemini-1.5-flash';
+    const modelSelect = document.getElementById('model-select');
 
     let welcomeScreen = chatMessages.querySelector('.welcome-screen');
     let isProcessing = false;
@@ -66,23 +65,46 @@ document.addEventListener('DOMContentLoaded', () => {
             const files = await resp.json();
 
             if (files.length === 0) {
-                docList.innerHTML = `
-                    <li class="empty-state">
-                        <i class="fas fa-folder-open"></i>
-                        등록된 문서가 없습니다.
-                    </li>`;
+                docList.innerHTML = `<li class="doc-item empty">업로드된 문서가 없습니다.</li>`;
             } else {
-                docList.innerHTML = files.map(f => `
+                docList.innerHTML = files.map(f => {
+                    const iconClass = getFileIcon(f.display_name);
+                    return `
                     <li class="doc-item">
-                        <i class="fas fa-file-alt"></i>
-                        <span>${f.display_name}</span>
+                        <div class="doc-icon-wrapper">
+                            <i class="${iconClass}"></i>
+                        </div>
+                        <div class="doc-info">
+                            <span class="doc-title">${f.display_name}</span>
+                        </div>
                     </li>
-                `).join('');
+                `;
+                }).join('');
             }
         } catch (err) {
             console.error('Failed to load files', err);
-            docList.innerHTML = `<li class="empty-state"><i class="fas fa-exclamation-triangle"></i> 문서 목록을 불러올 수 없습니다.</li>`;
+            docList.innerHTML = `<li class="doc-item empty">문서 목록을 불러올 수 없습니다.</li>`;
         }
+    }
+
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const map = {
+            'pdf': 'fas fa-file-pdf',
+            'doc': 'fas fa-file-word',
+            'docx': 'fas fa-file-word',
+            'xls': 'fas fa-file-excel',
+            'xlsx': 'fas fa-file-excel',
+            'csv': 'fas fa-file-csv',
+            'pptx': 'fas fa-file-powerpoint',
+            'txt': 'fas fa-file-alt',
+            'hwp': 'fa-regular fa-file-word fa-file-hwp',
+            'md': 'fab fa-markdown',
+            'py': 'fab fa-python',
+            'js': 'fab fa-js',
+            'html': 'fas fa-file-code'
+        };
+        return map[ext] || 'fas fa-file-alt';
     }
 
     // ── 메시지 전송 ──
@@ -104,15 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const loadingMsg = appendTypingIndicator();
 
+        const modelId = modelSelect.value;
+
         try {
-            const resp = await fetch(`/api/chat?query=${encodeURIComponent(text)}&model=${MODEL_ID}`);
+            const resp = await fetch(`/api/chat?query=${encodeURIComponent(text)}&model=${modelId}`);
             if (!resp.ok) {
-                let errorMsg = '서버 응답 오류가 발생했습니다.';
-                try {
-                    const errData = await resp.json(); // Changed 'response' to 'resp'
-                    if (errData && errData.error) errorMsg = errData.error;
-                } catch (e) { }
-                throw new Error(errorMsg);
+                const data = await resp.json();
+                throw new Error(data.error || '답변 생성 중 오류가 발생했습니다.');
             }
             loadingMsg.remove();
 
@@ -120,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const aiMsgDiv = appendMessage('ai', '');
             const contentDiv = aiMsgDiv.querySelector('.ai-message-content');
             let fullText = '';
+            let citations = [];
             let streamError = null;
 
             const reader = resp.body.getReader();
@@ -152,12 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (data.text) {
                         fullText += data.text;
-                        if (typeof marked !== 'undefined') {
-                            contentDiv.innerHTML = marked.parse(fullText);
-                        } else {
-                            contentDiv.textContent = fullText;
-                        }
-                        chatMessages.scrollTo({ top: chatMessages.scrollHeight });
+                        updateAIMessage(contentDiv, fullText, citations);
+                    }
+
+                    if (data.citations) {
+                        citations = [...new Set([...citations, ...data.citations])];
+                        updateAIMessage(contentDiv, fullText, citations);
                     }
                 }
             }
@@ -174,6 +195,30 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             isProcessing = false;
         }
+    }
+
+    function updateAIMessage(container, text, citationsList) {
+        // [/cite:0] 형태의 태그를 [1] 형태의 위첨자로 변환
+        let formattedText = text.replace(/\[\/cite:(\d+)\]/g, (match, p1) => {
+            const index = parseInt(p1) + 1;
+            return `<sup class="citation-ref" title="출처 보기">[${index}]</sup>`;
+        });
+
+        let content = formattedText;
+        if (typeof marked !== 'undefined') {
+            try {
+                content = marked.parse(formattedText);
+            } catch (e) {
+                console.error('Markdown parse error:', e);
+            }
+        }
+
+        if (citationsList && citationsList.length > 0) {
+            content += `<br><div class="citations"><strong>참조 문서:</strong> ${citationsList.join(', ')}</div>`;
+        }
+
+        container.innerHTML = content;
+        chatMessages.scrollTo({ top: chatMessages.scrollHeight });
     }
 
     // ── 메시지 DOM 추가 ──
