@@ -244,10 +244,17 @@ async function handleUpload(request, env, ctx, origin) {
     // ── Step 2: File Search Store에 importFile (카테고리 메타데이터 포함) ──
     const storeName = await getStoreName(env);
     if (storeName) {
-      const importBody = { file_name: fileName };
+      const metadata = [];
       if (category) {
-        importBody.custom_metadata = [{ key: "category", string_value: category }];
+        metadata.push({ key: "category", string_value: category });
       }
+      // 파일명 보존을 위해 메타데이터 추가
+      metadata.push({ key: "original_name", string_value: displayName });
+
+      const importBody = {
+        file_name: fileName,
+        custom_metadata: metadata,
+      };
 
       // ctx.waitUntil: Worker 응답 반환 후에도 백그라운드에서 인덱싱 계속 실행
       ctx.waitUntil(
@@ -289,13 +296,17 @@ async function handleFiles(env, url, origin) {
 
     const result = docs
       .map((d) => {
-        // category 메타데이터 추출
         const metaList = d.customMetadata || [];
-        const catMeta = metaList.find((m) => m.key === "category");
-        const category = catMeta?.stringValue || "";
+        // 메타데이터에서 원본 파일명 추출 시도
+        const nameMeta = metaList.find((m) => m.key === "original_name");
+        const categoryMeta = metaList.find((m) => m.key === "category");
+
+        const category = categoryMeta?.stringValue || "";
+        const displayName = nameMeta?.stringValue || d.display_name || d.displayName || (d.name ? d.name.split("/").pop() : "알 수 없는 파일");
+
         return {
           name: d.name,
-          display_name: d.display_name || d.displayName || (d.name ? d.name.split('/').pop() : "알 수 없는 파일"),
+          display_name: displayName,
           create_time: d.updateTime || d.createTime || null,
           category,
         };
