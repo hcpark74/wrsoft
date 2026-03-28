@@ -30,6 +30,10 @@ function errorResponse(message, status = 500, origin) {
   return jsonResponse({ error: message }, status, origin);
 }
 
+function getErrorMessage(data, fallback) {
+  return data?.error?.message || data?.error || data?.message || fallback;
+}
+
 // File Search Store name 조회 (env 변수 또는 API 자동 조회)
 async function getStoreName(env) {
   if (env.FILE_SEARCH_STORE) return env.FILE_SEARCH_STORE;
@@ -94,6 +98,7 @@ async function handleChat(request, env, url, origin) {
 
     (async () => {
       let buffer = "";
+      let streamedText = "";
       try {
         while (true) {
           const { done, value } = await reader.read();
@@ -108,10 +113,14 @@ async function handleChat(request, env, url, origin) {
             try {
               const data = JSON.parse(line.trim().slice(6));
               const parts = data?.candidates?.[0]?.content?.parts || [];
-              const text = parts
+              const fullText = parts
                 .map((part) => part?.text || "")
                 .join("");
+              const text = fullText.startsWith(streamedText)
+                ? fullText.slice(streamedText.length)
+                : fullText;
               if (text) {
+                streamedText = fullText;
                 await writer.write(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
               }
               // Citations 추출
@@ -265,15 +274,30 @@ async function handleUpload(request, env, ctx, origin) {
         }
       };
 
-      // ctx.waitUntil: Worker 응답 반환 후에도 백그라운드에서 인덱싱 계속 실행
-      ctx.waitUntil(
-        fetch(`${GEMINI_BASE}/v1beta/${storeName}:importFile?key=${apiKey}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(importBody),
-        }).then(r => r.json()).then(d => console.log("Import started:", JSON.stringify(d)))
-          .catch(e => console.error("Import error:", e.message))
-      );
+      const importResp = await fetch(`${GEMINI_BASE}/v1beta/${storeName}:importFile?key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(importBody),
+      });
+
+      const importData = await importResp.json().catch(() => ({}));
+      if (!importResp.ok) {
+        return errorResponse(
+          `인덱싱 시작 실패: ${getErrorMessage(importData, "File Search Store import 실패")}`,
+          502,
+          origin
+        );
+      }
+
+      ctx.waitUntil(Promise.resolve(console.log("Import started:", JSON.stringify(importData))));
+
+      return jsonResponse({
+        status: "success",
+        file_name: fileName,
+        store_name: storeName,
+        indexing: "pending",
+        operation_name: importData?.name || null,
+      }, 200, origin);
     }
 
     return jsonResponse({
@@ -300,13 +324,24 @@ async function handleFiles(env, url, origin) {
   if (!storeName) return errorResponse("File Search Store를 찾을 수 없습니다.", 500, origin);
 
   try {
-    const resp = await fetch(
-      `${GEMINI_BASE}/v1beta/${storeName}/documents?key=${apiKey}`
-    );
-    if (!resp.ok) return errorResponse("파일 목록 조회 실패", 502, origin);
+    const docs = [];
+    let pageToken = "";
 
-    const data = await resp.json();
-    const docs = data.documents || data.fileSearchDocuments || [];
+    do {
+      const listUrl = new URL(`${GEMINI_BASE}/v1beta/${storeName}/documents`);
+      listUrl.searchParams.set("key", apiKey);
+      if (pageToken) listUrl.searchParams.set("pageToken", pageToken);
+
+      const resp = await fetch(listUrl.toString());
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        return errorResponse(getErrorMessage(errData, "파일 목록 조회 실패"), 502, origin);
+      }
+
+      const data = await resp.json();
+      docs.push(...(data.documents || data.fileSearchDocuments || []));
+      pageToken = data.nextPageToken || "";
+    } while (pageToken);
 
     const result = docs
       .map((d) => {

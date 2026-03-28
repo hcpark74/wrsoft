@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    function getApiErrorMessage(data, fallback) {
+        return data?.error || data?.detail || fallback;
+    }
+
     const getTranslateCat = (cat) => {
         const map = {
             'marketing': '마케팅',
@@ -192,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const resp = await fetch(url);
             if (!resp.ok) {
                 const data = await resp.json();
-                throw new Error(data.error || '답변 생성 중 오류가 발생했습니다.');
+                throw new Error(getApiErrorMessage(data, '답변 생성 중 오류가 발생했습니다.'));
             }
             loadingMsg.remove();
 

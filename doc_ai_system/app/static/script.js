@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const filterSelect = document.getElementById('filter-category');
 
+    function getApiErrorMessage(data, fallback) {
+        return data?.error || data?.detail || fallback;
+    }
+
     // 초기 목록 로드
     loadFiles();
 
@@ -169,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadFiles();
             } else {
                 const data = await resp.json();
-                alert('삭제 실패: ' + (data.detail || '알 수 없는 오류'));
+                alert('삭제 실패: ' + getApiErrorMessage(data, '알 수 없는 오류'));
                 if (targetItem) targetItem.classList.remove('processing');
             }
         } catch (err) {
@@ -213,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => loadFiles(), 1000);
             } else {
                 const data = await resp.json();
-                alert('업로드 실패: ' + (data.detail || '알 수 없는 오류'));
+                alert('업로드 실패: ' + getApiErrorMessage(data, '알 수 없는 오류'));
                 loadingItem.remove();
             }
 
