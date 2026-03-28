@@ -107,16 +107,19 @@ async function handleChat(request, env, url, origin) {
             if (!line.trim().startsWith("data: ")) continue;
             try {
               const data = JSON.parse(line.trim().slice(6));
-              const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+              const parts = data?.candidates?.[0]?.content?.parts || [];
+              const text = parts
+                .map((part) => part?.text || "")
+                .join("");
               if (text) {
                 await writer.write(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
               }
               // Citations 추출
               const groundingMeta = data?.candidates?.[0]?.groundingMetadata;
               if (groundingMeta?.groundingChunks) {
-                const sources = groundingMeta.groundingChunks
+                const sources = [...new Set(groundingMeta.groundingChunks
                   .map(gc => gc?.retrievedContext?.title)
-                  .filter(Boolean);
+                  .filter(Boolean))];
                 if (sources.length > 0) {
                   await writer.write(encoder.encode(`data: ${JSON.stringify({ citations: sources })}\n\n`));
                 }
@@ -155,7 +158,8 @@ async function handleUpload(request, env, ctx, origin) {
   try {
     const formData = await request.formData();
     const file = formData.get("file");
-    const displayName = formData.get("display_name") || file?.name || "uploaded_file";
+    const originalFilename = file?.name || "uploaded_file";
+    const displayName = formData.get("display_name") || originalFilename;
     const category = formData.get("category") || "";
 
     if (!file) return errorResponse("file 필드가 필요합니다.", 400, origin);
@@ -164,7 +168,9 @@ async function handleUpload(request, env, ctx, origin) {
 
     // 브라우저가 보내는 MIME 타입이 불완전하거나 비표준일 수 있으므로
     // 파이썬 환경과 동일하게 확장자 기반 강제 매핑을 우선 적용합니다.
-    const ext = displayName.split(".").pop().toLowerCase();
+    const ext = originalFilename.includes(".")
+      ? originalFilename.split(".").pop().toLowerCase()
+      : "";
     const mimeMap = {
       pdf: "application/pdf",
       docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -270,7 +276,12 @@ async function handleUpload(request, env, ctx, origin) {
       );
     }
 
-    return jsonResponse({ status: "success", file: uploadData.file }, 200, origin);
+    return jsonResponse({
+      status: "success",
+      file_name: fileName,
+      store_name: storeName || null,
+      indexing: storeName ? "pending" : "not_started"
+    }, 200, origin);
   } catch (err) {
     return errorResponse(`업로드 오류: ${err.message}`, 500, origin);
   }
