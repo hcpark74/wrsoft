@@ -659,31 +659,16 @@ body.admin-page {
 }
 
 .admin-page .nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.admin-page .logo-mark {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    display: grid;
-    place-items: center;
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(129, 140, 248, 0.24));
-    color: var(--accent);
-    border: 1px solid rgba(125, 211, 252, 0.18);
-}
-
-.admin-page .nav-brand strong,
-.admin-page .nav-brand span {
     display: block;
+    width: 100%;
 }
 
-.admin-page .nav-brand span {
-    color: var(--text-secondary);
-    font-size: 0.78rem;
-    margin-top: 2px;
+.admin-page .nav-brand-image {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    object-fit: contain;
 }
 
 .admin-page .nav-menu {
