@@ -225,7 +225,7 @@ async function handleUpload(request, env, ctx, origin) {
           "X-Goog-Upload-Header-Content-Type": mimeType,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ file: { display_name: displayName } }),
+        body: JSON.stringify({ file: { displayName } }),
       }
     );
 
@@ -348,7 +348,7 @@ async function handleFiles(env, url, origin) {
         const categoryMeta = metaList.find((m) => m.key === "category");
 
         const category = categoryMeta?.stringValue || "";
-        const displayName = d.displayName || d.display_name || nameMeta?.stringValue || (d.name ? d.name.split("/").pop() : "알 수 없는 파일");
+        const displayName = nameMeta?.stringValue || d.displayName || d.display_name || (d.name ? d.name.split("/").pop() : "알 수 없는 파일");
 
         return {
           name: d.name,

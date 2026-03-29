@@ -38,10 +38,11 @@ describe('worker api', () => {
         documents: [
           {
             name: 'fileSearchStores/store/documents/doc-1',
-            displayName: 'Legal One.pdf',
+            displayName: 'generated-doc-1',
             updateTime: '2026-03-28T10:00:00Z',
             state: 'STATE_ACTIVE',
             customMetadata: [
+              { key: 'original_name', stringValue: 'Legal One.pdf' },
               { key: 'category', stringValue: 'legal' },
             ],
           },
@@ -181,6 +182,9 @@ describe('worker api', () => {
       operation_name: 'fileSearchStores/store/upload/operations/op-123',
     });
     expect(waitUntil).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
+      file: { displayName: 'sample.txt' },
+    });
     expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toEqual({
       fileName: 'files/xyz789',
       customMetadata: [
