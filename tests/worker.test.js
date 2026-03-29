@@ -181,6 +181,13 @@ describe('worker api', () => {
       operation_name: 'fileSearchStores/store/upload/operations/op-123',
     });
     expect(waitUntil).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toEqual({
+      fileName: 'files/xyz789',
+      customMetadata: [
+        { key: 'category', string_value: 'company' },
+        { key: 'original_name', string_value: 'sample.txt' },
+      ],
+    });
   });
 
   it('streams only delta text chunks for chat responses', async () => {

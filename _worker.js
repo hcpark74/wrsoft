@@ -268,10 +268,7 @@ async function handleUpload(request, env, ctx, origin) {
 
       const importBody = {
         fileName: fileName,
-        config: {
-          displayName: displayName,
-          customMetadata: metadata,
-        }
+        customMetadata: metadata,
       };
 
       const importResp = await fetch(`${GEMINI_BASE}/v1beta/${storeName}:importFile?key=${apiKey}`, {
