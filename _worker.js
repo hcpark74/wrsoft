@@ -14,8 +14,8 @@ const CEO_PERSONA = "당신은 회사의 대표이사(CEO)입니다. 전문적�
 function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin || "*",
-    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, X-Admin-Key",
   };
 }
 
@@ -32,6 +32,172 @@ function errorResponse(message, status = 500, origin) {
 
 function getErrorMessage(data, fallback) {
   return data?.error?.message || data?.error || data?.message || fallback;
+}
+
+function normalizeCategoryRow(row) {
+  if (!row) return null;
+  return {
+    slug: row.slug,
+    label: row.label,
+    description: row.description || "",
+    color: row.color || "",
+    sort_order: Number(row.sort_order || 100),
+    is_active: Boolean(row.is_active),
+    is_builtin: Boolean(row.is_builtin),
+    created_at: row.created_at || null,
+    updated_at: row.updated_at || null,
+  };
+}
+
+function validateCategorySlug(slug) {
+  return /^[a-z0-9-]+$/.test(slug);
+}
+
+function getDb(env) {
+  return env.DB || null;
+}
+
+function requireAdminAuth(request, env, origin) {
+  const configuredKey = env.ADMIN_API_KEY;
+  if (!configuredKey) return null;
+
+  const providedKey = request.headers.get("X-Admin-Key") || "";
+  if (providedKey !== configuredKey) {
+    return errorResponse("관리자 인증이 필요합니다.", 401, origin);
+  }
+
+  return null;
+}
+
+async function fetchCategoryBySlug(db, slug) {
+  const row = await db.prepare(
+    `SELECT slug, label, description, color, sort_order, is_active, is_builtin, created_at, updated_at
+     FROM categories WHERE slug = ?`
+  ).bind(slug).first();
+  return normalizeCategoryRow(row);
+}
+
+async function handleGetCategories(env, origin) {
+  const db = getDb(env);
+  if (!db) return errorResponse("서버 설정 오류: D1 카테고리 저장소가 없습니다.", 500, origin);
+
+  try {
+    const result = await db.prepare(
+      `SELECT slug, label, description, color, sort_order, is_active, is_builtin, created_at, updated_at
+       FROM categories
+       ORDER BY is_active DESC, sort_order ASC, label ASC`
+    ).all();
+    return jsonResponse((result.results || []).map(normalizeCategoryRow), 200, origin);
+  } catch (err) {
+    return errorResponse(`카테고리 조회 오류: ${err.message}`, 500, origin);
+  }
+}
+
+async function handleCreateCategory(request, env, origin) {
+  const authError = requireAdminAuth(request, env, origin);
+  if (authError) return authError;
+
+  const db = getDb(env);
+  if (!db) return errorResponse("서버 설정 오류: D1 카테고리 저장소가 없습니다.", 500, origin);
+
+  try {
+    const body = await request.json().catch(() => null);
+    const slug = String(body?.slug || "").trim().toLowerCase();
+    const label = String(body?.label || "").trim();
+    const description = String(body?.description || "").trim();
+    const color = String(body?.color || "").trim();
+    const sortOrder = Number.isFinite(Number(body?.sort_order)) ? Number(body.sort_order) : 100;
+
+    if (!slug || !label) {
+      return errorResponse("slug와 label은 필수입니다.", 400, origin);
+    }
+    if (!validateCategorySlug(slug)) {
+      return errorResponse("slug는 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.", 400, origin);
+    }
+
+    const exists = await fetchCategoryBySlug(db, slug);
+    if (exists) {
+      return errorResponse("이미 존재하는 카테고리입니다.", 409, origin);
+    }
+
+    await db.prepare(
+      `INSERT INTO categories (slug, label, description, color, sort_order, is_active, is_builtin, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, 1, 0, unixepoch(), unixepoch())`
+    ).bind(slug, label, description || null, color || null, sortOrder).run();
+
+    const created = await fetchCategoryBySlug(db, slug);
+    return jsonResponse(created, 201, origin);
+  } catch (err) {
+    return errorResponse(`카테고리 생성 오류: ${err.message}`, 500, origin);
+  }
+}
+
+async function handleUpdateCategory(slug, request, env, origin) {
+  const authError = requireAdminAuth(request, env, origin);
+  if (authError) return authError;
+
+  const db = getDb(env);
+  if (!db) return errorResponse("서버 설정 오류: D1 카테고리 저장소가 없습니다.", 500, origin);
+
+  try {
+    const existing = await fetchCategoryBySlug(db, slug);
+    if (!existing) return errorResponse("카테고리를 찾을 수 없습니다.", 404, origin);
+
+    const body = await request.json().catch(() => null);
+    const next = {
+      label: body?.label !== undefined ? String(body.label).trim() : existing.label,
+      description: body?.description !== undefined ? String(body.description).trim() : existing.description,
+      color: body?.color !== undefined ? String(body.color).trim() : existing.color,
+      sort_order: body?.sort_order !== undefined ? Number(body.sort_order) : existing.sort_order,
+      is_active: body?.is_active !== undefined ? Boolean(body.is_active) : existing.is_active,
+    };
+
+    if (!next.label) {
+      return errorResponse("label은 비워둘 수 없습니다.", 400, origin);
+    }
+    if (!Number.isFinite(next.sort_order)) {
+      return errorResponse("sort_order는 숫자여야 합니다.", 400, origin);
+    }
+
+    await db.prepare(
+      `UPDATE categories
+       SET label = ?, description = ?, color = ?, sort_order = ?, is_active = ?, updated_at = unixepoch()
+       WHERE slug = ?`
+    ).bind(
+      next.label,
+      next.description || null,
+      next.color || null,
+      next.sort_order,
+      next.is_active ? 1 : 0,
+      slug
+    ).run();
+
+    const updated = await fetchCategoryBySlug(db, slug);
+    return jsonResponse(updated, 200, origin);
+  } catch (err) {
+    return errorResponse(`카테고리 수정 오류: ${err.message}`, 500, origin);
+  }
+}
+
+async function handleDeleteCategory(slug, request, env, origin) {
+  const authError = requireAdminAuth(request, env, origin);
+  if (authError) return authError;
+
+  const db = getDb(env);
+  if (!db) return errorResponse("서버 설정 오류: D1 카테고리 저장소가 없습니다.", 500, origin);
+
+  try {
+    const existing = await fetchCategoryBySlug(db, slug);
+    if (!existing) return errorResponse("카테고리를 찾을 수 없습니다.", 404, origin);
+
+    await db.prepare(
+      `UPDATE categories SET is_active = 0, updated_at = unixepoch() WHERE slug = ?`
+    ).bind(slug).run();
+
+    return jsonResponse({ status: "disabled", slug }, 200, origin);
+  } catch (err) {
+    return errorResponse(`카테고리 삭제 오류: ${err.message}`, 500, origin);
+  }
 }
 
 // File Search Store name 조회 (env 변수 또는 API 자동 조회)
@@ -55,13 +221,14 @@ async function handleChat(request, env, url, origin) {
   const query = url.searchParams.get("query");
   const model = url.searchParams.get("model") || "gemini-2.5-flash-lite";
   const category = url.searchParams.get("category") || "";
+  const requestedStore = url.searchParams.get("store") || "";
 
   if (!query) return errorResponse("query 파라미터가 필요합니다.", 400, origin);
 
   const apiKey = env.GOOGLE_API_KEY;
   if (!apiKey) return errorResponse("서버 설정 오류: API 키가 없습니다.", 500, origin);
 
-  const storeName = await getStoreName(env);
+  const storeName = requestedStore || await getStoreName(env);
   if (!storeName) return errorResponse("File Search Store를 찾을 수 없습니다.", 500, origin);
 
   try {
@@ -417,6 +584,19 @@ export default {
       }
       if (path === "/api/files" && request.method === "GET") {
         return handleFiles(env, url, origin);
+      }
+      if (path === "/api/categories" && request.method === "GET") {
+        return handleGetCategories(env, origin);
+      }
+      if (path === "/api/categories" && request.method === "POST") {
+        return handleCreateCategory(request, env, origin);
+      }
+      const categoryMatch = path.match(/^\/api\/categories\/([^/]+)$/);
+      if (categoryMatch && request.method === "PATCH") {
+        return handleUpdateCategory(decodeURIComponent(categoryMatch[1]), request, env, origin);
+      }
+      if (categoryMatch && request.method === "DELETE") {
+        return handleDeleteCategory(decodeURIComponent(categoryMatch[1]), request, env, origin);
       }
       const deleteMatch = path.match(/^\/api\/files\/(.+)$/);
       if (deleteMatch && request.method === "DELETE") {

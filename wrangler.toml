@@ -3,3 +3,9 @@ compatibility_date = "2025-01-01"
 
 [site]
 bucket = "./"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "wrsoft-admin"
+database_id = "8ddfb61c-ad75-46f0-8687-8a5e21ff1ab2"
+preview_database_id = "wrsoft-admin-preview"

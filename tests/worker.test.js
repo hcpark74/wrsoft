@@ -18,6 +18,78 @@ function textResponse(body, init = {}) {
   });
 }
 
+function createMockDb(initialRows = []) {
+  const rows = initialRows.map((row) => ({ ...row }));
+
+  function buildStatement(sql, params = []) {
+    return {
+      async all() {
+        if (sql.includes('FROM categories') && sql.includes('ORDER BY is_active DESC')) {
+          const sorted = [...rows].sort((a, b) => {
+            if (Number(b.is_active) !== Number(a.is_active)) return Number(b.is_active) - Number(a.is_active);
+            if ((a.sort_order || 100) !== (b.sort_order || 100)) return (a.sort_order || 100) - (b.sort_order || 100);
+            return String(a.label).localeCompare(String(b.label));
+          });
+          return { results: sorted };
+        }
+        throw new Error(`Unsupported all() SQL: ${sql}`);
+      },
+      async first() {
+        if (sql.includes('FROM categories WHERE slug = ?')) {
+          return rows.find((row) => row.slug === params[0]) || null;
+        }
+        throw new Error(`Unsupported first() SQL: ${sql}`);
+      },
+      async run() {
+        if (sql.startsWith('INSERT INTO categories')) {
+          rows.push({
+            slug: params[0],
+            label: params[1],
+            description: params[2] || '',
+            color: params[3] || '',
+            sort_order: params[4],
+            is_active: 1,
+            is_builtin: 0,
+            created_at: 100,
+            updated_at: 100,
+          });
+          return { success: true, meta: { rows_written: 1 } };
+        }
+        if (sql.startsWith('UPDATE categories') && sql.includes('WHERE slug = ?')) {
+          const target = rows.find((row) => row.slug === params[params.length - 1]);
+          if (!target) return { success: true, meta: { rows_written: 0 } };
+          if (sql.includes('SET label = ?')) {
+            target.label = params[0];
+            target.description = params[1] || '';
+            target.color = params[2] || '';
+            target.sort_order = params[3];
+            target.is_active = params[4];
+            target.updated_at = 200;
+          } else {
+            target.is_active = 0;
+            target.updated_at = 200;
+          }
+          return { success: true, meta: { rows_written: 1 } };
+        }
+        throw new Error(`Unsupported run() SQL: ${sql}`);
+      },
+    };
+  }
+
+  return {
+    prepare(sql) {
+      return {
+        all() {
+          return buildStatement(sql).all();
+        },
+        bind(...params) {
+          return buildStatement(sql, params);
+        },
+      };
+    },
+  };
+}
+
 async function readSsePayload(response) {
   const text = await response.text();
   return text
@@ -103,6 +175,159 @@ describe('worker api', () => {
     expect(response.status).toBe(502);
     await expect(response.json()).resolves.toEqual({
       error: 'documents unavailable',
+    });
+  });
+
+  it('lists categories from D1', async () => {
+    const response = await worker.fetch(
+      new Request('https://example.com/api/categories'),
+      {
+        DB: createMockDb([
+          {
+            slug: 'legal',
+            label: '법무',
+            description: '계약 문서',
+            color: '#c084fc',
+            sort_order: 20,
+            is_active: 1,
+            is_builtin: 1,
+            created_at: 10,
+            updated_at: 10,
+          },
+        ]),
+      },
+      {}
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual([
+      {
+        slug: 'legal',
+        label: '법무',
+        description: '계약 문서',
+        color: '#c084fc',
+        sort_order: 20,
+        is_active: true,
+        is_builtin: true,
+        created_at: 10,
+        updated_at: 10,
+      },
+    ]);
+  });
+
+  it('creates a category in D1', async () => {
+    const db = createMockDb();
+    const response = await worker.fetch(
+      new Request('https://example.com/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug: 'customer-support',
+          label: '고객지원',
+          description: 'FAQ 문서',
+          color: '#f59e0b',
+        }),
+      }),
+      { DB: db },
+      {}
+    );
+
+    expect(response.status).toBe(201);
+    await expect(response.json()).resolves.toEqual({
+      slug: 'customer-support',
+      label: '고객지원',
+      description: 'FAQ 문서',
+      color: '#f59e0b',
+      sort_order: 100,
+      is_active: true,
+      is_builtin: false,
+      created_at: 100,
+      updated_at: 100,
+    });
+  });
+
+  it('requires admin key for category writes when configured', async () => {
+    const db = createMockDb();
+
+    const unauthorized = await worker.fetch(
+      new Request('https://example.com/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: 'customer-support', label: '고객지원' }),
+      }),
+      { DB: db, ADMIN_API_KEY: 'secret-key' },
+      {}
+    );
+
+    expect(unauthorized.status).toBe(401);
+    await expect(unauthorized.json()).resolves.toEqual({
+      error: '관리자 인증이 필요합니다.',
+    });
+
+    const authorized = await worker.fetch(
+      new Request('https://example.com/api/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Key': 'secret-key',
+        },
+        body: JSON.stringify({ slug: 'customer-support', label: '고객지원' }),
+      }),
+      { DB: db, ADMIN_API_KEY: 'secret-key' },
+      {}
+    );
+
+    expect(authorized.status).toBe(201);
+  });
+
+  it('updates and soft-deletes categories in D1', async () => {
+    const db = createMockDb([
+      {
+        slug: 'legal',
+        label: '법무',
+        description: '계약 문서',
+        color: '#c084fc',
+        sort_order: 20,
+        is_active: 1,
+        is_builtin: 1,
+        created_at: 10,
+        updated_at: 10,
+      },
+    ]);
+
+    const patchResponse = await worker.fetch(
+      new Request('https://example.com/api/categories/legal', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: '법률/규정', sort_order: 5, is_active: true }),
+      }),
+      { DB: db },
+      {}
+    );
+
+    expect(patchResponse.status).toBe(200);
+    await expect(patchResponse.json()).resolves.toEqual({
+      slug: 'legal',
+      label: '법률/규정',
+      description: '계약 문서',
+      color: '#c084fc',
+      sort_order: 5,
+      is_active: true,
+      is_builtin: true,
+      created_at: 10,
+      updated_at: 200,
+    });
+
+    const deleteResponse = await worker.fetch(
+      new Request('https://example.com/api/categories/legal', { method: 'DELETE' }),
+      { DB: db },
+      {}
+    );
+
+    expect(deleteResponse.status).toBe(200);
+    await expect(deleteResponse.json()).resolves.toEqual({
+      status: 'disabled',
+      slug: 'legal',
     });
   });
 
@@ -220,6 +445,28 @@ describe('worker api', () => {
       { text: 'Hello' },
       { text: ' world' },
       { citations: ['Doc A'] },
+    ]);
+  });
+
+  it('uses requested store name for chat scope when provided', async () => {
+    const sseBody = 'data: {"candidates":[{"content":{"parts":[{"text":"Scoped"}]}}]}\n\n';
+    const fetchMock = vi.fn().mockResolvedValueOnce(new Response(sseBody, {
+      status: 200,
+      headers: { 'Content-Type': 'text/event-stream' },
+    }));
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const response = await worker.fetch(
+      new Request('https://example.com/api/chat?query=hello&store=fileSearchStores/custom-scope'),
+      { GOOGLE_API_KEY: 'test-key', FILE_SEARCH_STORE: 'fileSearchStores/store' },
+      {}
+    );
+
+    expect(response.status).toBe(200);
+    const requestBody = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(requestBody.tools[0].file_search.file_search_store_names).toEqual([
+      'fileSearchStores/custom-scope',
     ]);
   });
 
