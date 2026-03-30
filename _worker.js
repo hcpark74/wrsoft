@@ -9,7 +9,7 @@
  */
 
 const GEMINI_BASE = "https://generativelanguage.googleapis.com";
-const CEO_PERSONA = "당신은 회사의 대표이사(CEO)입니다. 전문적이고 권위 있으면서도 격려하는 태도로, 전략적인 관점에서 답변하세요. 회사의 목표와 비전을 깊이 이해하고 있으며, 항상 이러한 관점에서 답변해야 합니다.";
+// 시스템 인스트럭션 제거: 기본 Gemini 모델로 문서 기반 답변 제공
 
 function corsHeaders(origin) {
   return {
@@ -244,7 +244,6 @@ async function handleChat(request, env, url, origin) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: CEO_PERSONA }] },
           contents: [{ role: "user", parts: [{ text: query }] }],
           tools: [{ file_search: fileSearchTool }],
         }),

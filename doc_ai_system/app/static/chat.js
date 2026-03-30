@@ -278,7 +278,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (citationsList && citationsList.length > 0) {
-            content += `<br><div class="citations"><strong>참조 문서:</strong> ${citationsList.join(', ')}</div>`;
+            // 문서 참조 강화: 아이콘과 함께 표시, 중복 제거
+            const uniqueCitations = [...new Set(citationsList)];
+            const citationsHtml = uniqueCitations.map((doc, idx) =>
+                `<span class="citation-badge" title="문서 참조">📄 ${doc}</span>`
+            ).join('');
+            
+            content += `
+                <br>
+                <div class="citations-section">
+                    <div class="citations-header">
+                        <i class="fas fa-book-open"></i>
+                        <strong>참고 문서 (${uniqueCitations.length}개)</strong>
+                    </div>
+                    <div class="citations-list">
+                        ${citationsHtml}
+                    </div>
+                </div>
+            `;
         }
 
         container.innerHTML = content;

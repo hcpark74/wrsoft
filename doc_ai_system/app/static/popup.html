@@ -443,7 +443,54 @@
             color: var(--text-2);
         }
 
-        /* 참조 */
+        /* 참조 - 강화된 스타일 */
+        .citations-section {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--surface-2);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .citations-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            color: var(--text-2);
+        }
+
+        .citations-header i {
+            color: var(--accent);
+        }
+
+        .citations-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .citation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-2);
+            transition: all 0.2s ease;
+        }
+
+        .citation-badge:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--text-1);
+        }
+
+        /* 기존 citations 스타일은 하위 호환성을 위해 유지 */
         .citations {
             margin-top: 10px;
             padding-top: 8px;
