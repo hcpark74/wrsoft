@@ -60,3 +60,5 @@ venv/
 # Python virtual environment
 run.bat
 run.ps1
+
+docs/

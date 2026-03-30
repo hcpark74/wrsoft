@@ -1,0 +1,57 @@
+[
+  {
+    "slug": "marketing",
+    "label": "마케팅",
+    "description": "전단, 보도자료, 홍보 자료 분류",
+    "color": null,
+    "sort_order": 10,
+    "is_active": true,
+    "is_builtin": true,
+    "created_at": 1774790239,
+    "updated_at": 1774790239
+  },
+  {
+    "slug": "legal",
+    "label": "법무",
+    "description": "계약, 규정, 준법 문서 분류",
+    "color": null,
+    "sort_order": 20,
+    "is_active": true,
+    "is_builtin": true,
+    "created_at": 1774790239,
+    "updated_at": 1774790239
+  },
+  {
+    "slug": "tech",
+    "label": "기술",
+    "description": "제품 문서, API, 운영 가이드 분류",
+    "color": null,
+    "sort_order": 30,
+    "is_active": true,
+    "is_builtin": true,
+    "created_at": 1774790239,
+    "updated_at": 1774790239
+  },
+  {
+    "slug": "hr",
+    "label": "인사",
+    "description": "복지, 인사 정책, 채용 자료 분류",
+    "color": null,
+    "sort_order": 40,
+    "is_active": true,
+    "is_builtin": true,
+    "created_at": 1774790239,
+    "updated_at": 1774790239
+  },
+  {
+    "slug": "company",
+    "label": "회사소개",
+    "description": "회사 소개, 연혁, 조직 정보 분류",
+    "color": null,
+    "sort_order": 50,
+    "is_active": true,
+    "is_builtin": true,
+    "created_at": 1774790239,
+    "updated_at": 1774790239
+  }
+]

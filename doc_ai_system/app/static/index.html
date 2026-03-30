@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doc Intel Admin - 지식베이스 운영 콘솔</title>
+    <title>(주)우리소프트 - 지식베이스 운영 콘솔</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -12,248 +12,214 @@
 
 <body class="admin-page">
     <div class="admin-shell">
-        <aside class="left-nav">
-            <div class="nav-brand">
-                <img src="/images/logo-wrsoft-ai.png" alt="우리소프트 AI 로고" class="nav-brand-image">
-            </div>
-
-            <nav class="nav-menu">
-                <button class="nav-item active" type="button"><i class="fas fa-database"></i><span>Knowledge Base</span></button>
-                <button class="nav-item" type="button"><i class="fas fa-folder-tree"></i><span>Collections</span></button>
-                <button class="nav-item" type="button"><i class="fas fa-tags"></i><span>Categories</span></button>
-                <button class="nav-item" type="button"><i class="fas fa-wave-square"></i><span>Indexing</span></button>
-                <button class="nav-item" type="button"><i class="fas fa-flask"></i><span>Playground</span></button>
-                <button class="nav-item" type="button"><i class="fas fa-chart-line"></i><span>Analytics</span></button>
-                <button class="nav-item" type="button"><i class="fas fa-comment-dots"></i><span>Widget</span></button>
-            </nav>
-
-            <section class="nav-upload-card">
-                <div class="section-heading">
-                    <span>Quick Upload</span>
-                    <small>문서를 컬렉션에 추가합니다</small>
-                </div>
-                <div class="upload-box" id="drop-zone">
-                    <input type="file" id="file-input"
-                        accept=".pdf,.docx,.doc,.txt,.md,.py,.js,.ts,.jsx,.tsx,.html,.css,.hwp,.hwpx,.xls,.xlsx,.csv,.ppt,.pptx,.json,.xml,.yaml,.yml"
-                        hidden>
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <p>문서 업로드</p>
-                    <span>PDF, HWP, Office, 코드 문서</span>
-                </div>
-                <select id="upload-category" class="model-select nav-select">
-                    <option value="">카테고리 없음</option>
-                    <option value="marketing">마케팅</option>
-                    <option value="legal">법무</option>
-                    <option value="tech">기술</option>
-                    <option value="hr">인사</option>
-                    <option value="company">회사소개</option>
-                </select>
-            </section>
-        </aside>
-
         <main class="workspace-shell">
             <header class="workspace-topbar">
-                <div>
+                <div class="topbar-intro">
                     <p class="eyebrow">Admin Console</p>
-                    <h1>Knowledge Base</h1>
+                    <h1>문서 관리자</h1>
                 </div>
-                <div class="topbar-actions">
-                    <button class="ghost-btn" type="button"><i class="fas fa-layer-group"></i> New Collection</button>
-                    <button class="ghost-btn" type="button"><i class="fas fa-tags"></i> New Category</button>
-                    <button class="primary-btn" id="trigger-upload-btn" type="button"><i class="fas fa-upload"></i> Upload</button>
+                <div class="topbar-actions admin-tabs" role="tablist" aria-label="관리 메뉴">
+                    <button class="ghost-btn admin-tab active" id="tab-upload" type="button" data-tab="upload" role="tab" aria-selected="true"><i class="fas fa-upload"></i> 업로드</button>
+                    <button class="ghost-btn admin-tab" id="tab-categories" type="button" data-tab="categories" role="tab" aria-selected="false"><i class="fas fa-tags"></i> 카테고리 관리</button>
+                    <button class="ghost-btn admin-tab" id="tab-chat" type="button" data-tab="chat" role="tab" aria-selected="false"><i class="fas fa-comment-dots"></i> 대화</button>
                 </div>
             </header>
 
-            <section class="stats-grid">
-                <article class="stat-card">
-                    <span class="stat-label">문서 수</span>
-                    <strong id="stat-total-docs">-</strong>
-                    <small>현재 검색 가능한 전체 문서</small>
-                </article>
-                <article class="stat-card">
-                    <span class="stat-label">인덱싱 대기</span>
-                    <strong id="stat-processing-docs">-</strong>
-                    <small>처리 중인 업로드 작업</small>
-                </article>
-                <article class="stat-card">
-                    <span class="stat-label">인덱싱 실패</span>
-                    <strong id="stat-failed-docs">-</strong>
-                    <small>재확인이 필요한 문서</small>
-                </article>
-                <article class="stat-card">
-                    <span class="stat-label">카테고리 수</span>
-                    <strong id="stat-category-count">-</strong>
-                    <small>현재 운영 중인 분류 체계</small>
-                </article>
-            </section>
-
-            <section class="workspace-card">
-                <div class="workspace-card-header">
-                    <div>
-                        <h2>Search Playground</h2>
-                        <p>대화 범위를 조정하면서 답변 품질을 확인합니다.</p>
+            <section class="tab-panel active" id="panel-upload" data-panel="upload" role="tabpanel" aria-labelledby="tab-upload">
+                <section class="workspace-card upload-hero-card">
+                    <div class="workspace-card-header upload-card-header">
+                        <div>
+                            <p class="eyebrow">Upload Workspace</p>
+                            <h2>문서 업로드</h2>
+                            <p>분류를 먼저 정하고 파일을 등록한 뒤, 아래 목록에서 인덱싱 상태를 바로 확인하세요.</p>
+                        </div>
+                        <button class="primary-btn" id="trigger-upload-btn" type="button"><i class="fas fa-upload"></i> 파일 선택</button>
                     </div>
-                    <div class="header-tools">
-                        <select id="model-select" class="model-select">
-                            <option value="gemini-2.5-flash-lite" selected>Gemini 2.5 Flash Lite</option>
-                            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-                            <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
-                            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
-                        </select>
-                        <div class="status-badge ready" id="status-badge">준비됨</div>
-                    </div>
-                </div>
 
-                <div class="filter-bar">
-                    <label class="filter-field">
-                        <span>스토어</span>
-                        <select id="scope-store" class="model-select">
-                            <option value="">기본 스토어</option>
-                        </select>
-                    </label>
-                    <label class="filter-field">
-                        <span>카테고리 필터</span>
-                        <select id="filter-category" class="model-select">
-                            <option value="">전체 문서</option>
-                            <option value="marketing">마케팅</option>
-                            <option value="legal">법무</option>
-                            <option value="tech">기술</option>
-                            <option value="hr">인사</option>
-                            <option value="company">회사소개</option>
-                        </select>
-                    </label>
-                    <button class="ghost-btn" id="scope-reset-btn" type="button"><i class="fas fa-rotate-left"></i> 범위 초기화</button>
-                </div>
+                    <div class="upload-control-grid">
+                        <section class="nav-upload-card upload-drop-card">
+                            <div class="section-heading">
+                                <span>파일 추가</span>
+                                <small>드래그 앤 드롭 또는 버튼 선택으로 바로 등록합니다</small>
+                            </div>
+                            <div class="upload-box" id="drop-zone">
+                                <input type="file" id="file-input"
+                                    accept=".pdf,.docx,.doc,.txt,.md,.py,.js,.ts,.jsx,.tsx,.html,.css,.hwp,.hwpx,.xls,.xlsx,.csv,.ppt,.pptx,.json,.xml,.yaml,.yml"
+                                    multiple
+                                    hidden>
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>여기에 파일을 놓거나 클릭해서 선택하세요</p>
+                                <span id="upload-status-text">업로드 준비 완료</span>
+                            </div>
+                        </section>
+                        <section class="workspace-card upload-settings-card">
+                            <div class="section-heading">
+                                <span>업로드 설정</span>
+                                <small>문서가 들어갈 기본 분류를 지정합니다</small>
+                            </div>
+                            <label class="filter-field">
+                                <span>기본 카테고리</span>
+                                <select id="upload-category" class="model-select nav-select">
+                                    <option value="">카테고리 없음</option>
+                                    <option value="marketing">마케팅</option>
+                                    <option value="legal">법무</option>
+                                    <option value="tech">기술</option>
+                                    <option value="hr">인사</option>
+                                    <option value="company">회사소개</option>
+                                </select>
+                            </label>
 
-                <div id="scope-badges" class="scope-badges"></div>
-
-                <div class="playground-layout">
-                    <section class="chat-stage">
-                        <div id="chat-messages" class="chat-messages admin-chat-messages">
-                            <div class="message ai-message">
-                                <div class="ai-message-content">
-                                    현재 선택한 스토어와 카테고리 범위 안에서 문서를 검색해 답변합니다.
+                            <div class="upload-selection-card">
+                                <div>
+                                    <small>현재 업로드 분류</small>
+                                    <strong id="upload-selection-value">카테고리 없음</strong>
                                 </div>
                             </div>
+                        </section>
+                    </div>
+                </section>
+
+                <section class="workspace-card knowledge-card">
+                    <div class="workspace-card-header">
+                        <div>
+                            <h2>문서 목록</h2>
+                            <p>문서를 운영하고, 상태와 카테고리를 확인합니다.</p>
                         </div>
-
-                        <footer class="chat-input-area admin-chat-input-area">
-                            <div class="input-wrapper">
-                                <textarea id="user-input" placeholder="문서에 대해 질문하세요..." rows="1"></textarea>
-                                <button id="send-btn" type="button"><i class="fas fa-paper-plane"></i></button>
-                            </div>
-                        </footer>
-                    </section>
-
-                    <aside class="playground-sidecard">
-                        <h3>현재 범위 안내</h3>
-                        <p>카테고리는 대화방이 아니라 검색 범위를 제한하는 필터입니다.</p>
-                        <ul class="scope-guidance">
-                            <li>스토어: 사용할 지식베이스 선택</li>
-                            <li>카테고리: 선택한 분류 문서만 검색</li>
-                            <li>선택 문서: 다음 단계에서 추가 예정</li>
-                        </ul>
-                    </aside>
-                </div>
-            </section>
-
-            <section class="workspace-card knowledge-card">
-                <div class="workspace-card-header">
-                    <div>
-                        <h2>Documents</h2>
-                        <p>문서를 운영하고, 상태와 카테고리를 확인합니다.</p>
                     </div>
-                </div>
 
-                <div class="table-shell">
-                    <div class="table-head">
-                        <span>문서명</span>
-                        <span>카테고리</span>
-                        <span>상태</span>
-                        <span>업데이트</span>
-                        <span>액션</span>
-                    </div>
-                    <div id="document-list" class="document-table-body">
-                        <div class="doc-row empty-row">조회 중...</div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="workspace-card categories-card">
-                <div class="workspace-card-header">
-                    <div>
-                        <h2>Categories</h2>
-                        <p>카테고리는 대화방이 아니라 문서 분류와 검색 범위를 위한 운영 필터입니다.</p>
-                    </div>
-                    <button class="ghost-btn" id="category-create-btn" type="button"><i class="fas fa-plus"></i> New Category</button>
-                </div>
-
-                <div class="categories-summary" id="categories-summary"></div>
-
-                <div class="categories-grid">
-                    <div class="table-shell category-table-shell">
-                        <div class="table-head category-table-head">
+                    <div class="document-toolbar">
+                        <label class="filter-field">
                             <span>카테고리</span>
-                            <span>문서 수</span>
-                            <span>최근 업데이트</span>
-                            <span>설명</span>
+                            <select id="document-filter-category" class="model-select">
+                                <option value="">전체 문서</option>
+                            </select>
+                        </label>
+                        <label class="filter-field document-search-field">
+                            <span>문서명 검색</span>
+                            <input id="document-search-input" class="model-select search-input" type="search" placeholder="문서명 또는 ID 검색">
+                        </label>
+                        <button class="ghost-btn" id="document-filter-reset" type="button"><i class="fas fa-rotate-left"></i> 검색 초기화</button>
+                    </div>
+
+                    <div class="table-shell">
+                        <div class="table-head">
+                            <span>문서명</span>
+                            <span>카테고리</span>
+                            <span>상태</span>
+                            <span>업데이트</span>
                             <span>액션</span>
                         </div>
-                        <div id="category-list" class="category-table-body">
-                            <div class="category-row empty-row">카테고리를 집계 중입니다...</div>
+                        <div id="document-list" class="document-table-body">
+                            <div class="doc-row empty-row">조회 중...</div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <section class="tab-panel" id="panel-categories" data-panel="categories" role="tabpanel" aria-labelledby="tab-categories" hidden>
+                <section class="workspace-card categories-card">
+                    <div class="workspace-card-header">
+                        <div>
+                            <h2>카테고리 관리</h2>
+                            <p>카테고리는 문서 분류와 검색 범위를 위한 운영 필터입니다.</p>
+                        </div>
+                        <button class="ghost-btn" id="category-create-btn" type="button"><i class="fas fa-plus"></i> New Category</button>
+                    </div>
+
+                    <div class="categories-summary" id="categories-summary"></div>
+
+                    <div class="categories-grid">
+                        <div class="table-shell category-table-shell">
+                            <div class="table-head category-table-head">
+                                <span>카테고리</span>
+                                <span>문서 수</span>
+                                <span>최근 업데이트</span>
+                                <span>설명</span>
+                                <span>액션</span>
+                            </div>
+                            <div id="category-list" class="category-table-body">
+                                <div class="category-row empty-row">카테고리를 집계 중입니다...</div>
+                            </div>
+                        </div>
+
+                        <aside class="category-sidecard">
+                            <h3>운영 원칙</h3>
+                            <ul class="scope-guidance">
+                                <li>카테고리는 문서를 실무 기준으로 분류합니다.</li>
+                                <li>질문 시 카테고리를 고르면 해당 분류 문서만 검색합니다.</li>
+                                <li>과도한 분류보다 운영자가 유지 가능한 수를 우선합니다.</li>
+                            </ul>
+                        </aside>
+                    </div>
+                </section>
+            </section>
+
+            <section class="tab-panel" id="panel-chat" data-panel="chat" role="tabpanel" aria-labelledby="tab-chat" hidden>
+                <section class="workspace-card">
+                    <div class="workspace-card-header">
+                        <div>
+                            <h2>대화</h2>
+                            <p>대화 범위를 조정하면서 답변 품질을 확인합니다.</p>
+                        </div>
+                        <div class="header-tools">
+                            <select id="model-select" class="model-select">
+                                <option value="gemini-2.5-flash-lite" selected>Gemini 2.5 Flash Lite</option>
+                                <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                                <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
+                                <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
+                            </select>
+                            <div class="status-badge ready" id="status-badge">준비됨</div>
                         </div>
                     </div>
 
-                    <aside class="category-sidecard">
-                        <h3>운영 원칙</h3>
-                        <ul class="scope-guidance">
-                            <li>카테고리는 문서를 실무 기준으로 분류합니다.</li>
-                            <li>질문 시 카테고리를 고르면 해당 분류 문서만 검색합니다.</li>
-                            <li>위젯에서는 필요할 때만 주제 선택 UX로 노출합니다.</li>
-                        </ul>
-                    </aside>
-                </div>
+                    <div class="filter-bar">
+                        <label class="filter-field">
+                            <span>카테고리 필터</span>
+                            <select id="filter-category" class="model-select">
+                                <option value="">전체 문서</option>
+                                <option value="marketing">마케팅</option>
+                                <option value="legal">법무</option>
+                                <option value="tech">기술</option>
+                                <option value="hr">인사</option>
+                                <option value="company">회사소개</option>
+                            </select>
+                        </label>
+                        <button class="ghost-btn" id="scope-reset-btn" type="button"><i class="fas fa-rotate-left"></i> 범위 초기화</button>
+                    </div>
+
+                    <div id="scope-badges" class="scope-badges"></div>
+
+                    <div class="playground-layout">
+                        <section class="chat-stage">
+                            <div id="chat-messages" class="chat-messages admin-chat-messages">
+                                <div class="message ai-message">
+                                    <div class="ai-message-content">
+                                        현재 선택한 카테고리 범위 안에서 문서를 검색해 답변합니다.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <footer class="chat-input-area admin-chat-input-area">
+                                <div class="input-wrapper">
+                                    <textarea id="user-input" placeholder="문서에 대해 질문하세요..." rows="1"></textarea>
+                                    <button id="send-btn" type="button"><i class="fas fa-paper-plane"></i></button>
+                                </div>
+                            </footer>
+                        </section>
+
+                        <aside class="playground-sidecard">
+                            <h3>현재 범위 안내</h3>
+                            <p>대화는 선택한 카테고리 범위 안에서만 문서를 검색합니다.</p>
+                            <ul class="scope-guidance">
+                                <li>필터를 비우면 전체 문서를 대상으로 답변합니다.</li>
+                                <li>카테고리를 고르면 해당 분류 문서만 검색합니다.</li>
+                                <li>참조 문서를 보고 응답 품질을 점검할 수 있습니다.</li>
+                            </ul>
+                        </aside>
+                    </div>
+                </section>
             </section>
         </main>
-
-        <aside class="detail-panel" id="detail-panel">
-            <div class="detail-panel-header">
-                <p class="eyebrow">Selected Item</p>
-                <h2 id="detail-title">문서를 선택하세요</h2>
-            </div>
-
-            <section class="detail-section">
-                <h3>기본 정보</h3>
-                <dl class="detail-grid">
-                    <div>
-                        <dt>카테고리</dt>
-                        <dd id="detail-category">-</dd>
-                    </div>
-                    <div>
-                        <dt>상태</dt>
-                        <dd id="detail-state">-</dd>
-                    </div>
-                    <div>
-                        <dt>업데이트</dt>
-                        <dd id="detail-updated">-</dd>
-                    </div>
-                    <div>
-                        <dt>문서 ID</dt>
-                        <dd id="detail-name">-</dd>
-                    </div>
-                </dl>
-            </section>
-
-            <section class="detail-section">
-                <h3>운영 메모</h3>
-                <p id="detail-summary" class="detail-summary">문서를 선택하면 상태와 메타데이터를 여기서 확인할 수 있습니다.</p>
-            </section>
-
-            <section class="detail-section detail-actions">
-                <button class="ghost-btn" id="detail-refresh-btn" type="button"><i class="fas fa-rotate"></i> 새로고침</button>
-                <button class="ghost-btn" id="detail-delete-btn" type="button" disabled><i class="fas fa-trash-alt"></i> 삭제</button>
-            </section>
-        </aside>
     </div>
     <script src="/static/script.js"></script>
 </body>

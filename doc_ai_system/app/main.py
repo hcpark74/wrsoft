@@ -1,11 +1,15 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Header
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 import asyncio
 import shutil
 import os
 import json
+import re
+import time
+from pathlib import Path
 from typing import Any, Optional, cast
+from pydantic import BaseModel
 from app.services.gemini_service import gemini_service
 
 app = FastAPI(title="Gemini File Search AI System")
@@ -42,6 +46,133 @@ async def startup_event():
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CATEGORY_FILE = Path(BASE_DIR) / "data" / "categories.json"
+DEFAULT_CATEGORIES = [
+    {
+        "slug": "marketing",
+        "label": "마케팅",
+        "description": "전단, 보도자료, 홍보 자료 분류",
+        "color": None,
+        "sort_order": 10,
+        "is_active": True,
+        "is_builtin": True,
+    },
+    {
+        "slug": "legal",
+        "label": "법무",
+        "description": "계약, 규정, 준법 문서 분류",
+        "color": None,
+        "sort_order": 20,
+        "is_active": True,
+        "is_builtin": True,
+    },
+    {
+        "slug": "tech",
+        "label": "기술",
+        "description": "제품 문서, API, 운영 가이드 분류",
+        "color": None,
+        "sort_order": 30,
+        "is_active": True,
+        "is_builtin": True,
+    },
+    {
+        "slug": "hr",
+        "label": "인사",
+        "description": "복지, 인사 정책, 채용 자료 분류",
+        "color": None,
+        "sort_order": 40,
+        "is_active": True,
+        "is_builtin": True,
+    },
+    {
+        "slug": "company",
+        "label": "회사소개",
+        "description": "회사 소개, 연혁, 조직 정보 분류",
+        "color": None,
+        "sort_order": 50,
+        "is_active": True,
+        "is_builtin": True,
+    },
+]
+
+
+class CategoryCreatePayload(BaseModel):
+    slug: str
+    label: str
+    description: str = ""
+    color: Optional[str] = None
+    sort_order: int = 100
+
+
+class CategoryUpdatePayload(BaseModel):
+    label: Optional[str] = None
+    description: Optional[str] = None
+    color: Optional[str] = None
+    sort_order: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+def validate_category_slug(slug: str) -> bool:
+    return bool(re.fullmatch(r"[a-z0-9-]+", slug))
+
+
+def require_admin_key(x_admin_key: Optional[str]) -> None:
+    configured_key = os.getenv("ADMIN_API_KEY", "").strip()
+    if configured_key and x_admin_key != configured_key:
+        raise HTTPException(status_code=401, detail="관리자 인증이 필요합니다.")
+
+
+def default_category_rows() -> list[dict[str, Any]]:
+    now = int(time.time())
+    return [
+        {
+            **item,
+            "created_at": now,
+            "updated_at": now,
+        }
+        for item in DEFAULT_CATEGORIES
+    ]
+
+
+def load_categories() -> list[dict[str, Any]]:
+    CATEGORY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    if not CATEGORY_FILE.exists():
+        rows = default_category_rows()
+        CATEGORY_FILE.write_text(
+            json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        return rows
+
+    try:
+        rows = json.loads(CATEGORY_FILE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise HTTPException(
+            status_code=500, detail=f"카테고리 저장소를 읽을 수 없습니다: {exc}"
+        ) from exc
+
+    if not isinstance(rows, list):
+        raise HTTPException(
+            status_code=500, detail="카테고리 저장소 형식이 올바르지 않습니다."
+        )
+    return rows
+
+
+def save_categories(rows: list[dict[str, Any]]) -> None:
+    CATEGORY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    CATEGORY_FILE.write_text(
+        json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def sort_categories(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return sorted(
+        rows,
+        key=lambda item: (
+            0 if item.get("is_active", True) else 1,
+            int(item.get("sort_order", 100)),
+            str(item.get("label", "")),
+        ),
+    )
 
 
 @app.get("/")
@@ -147,6 +278,104 @@ async def list_files(category: Optional[str] = None):
             }
         )
     return result
+
+
+@app.get("/api/categories")
+async def list_categories():
+    return sort_categories(load_categories())
+
+
+@app.post("/api/categories")
+async def create_category(
+    payload: CategoryCreatePayload,
+    x_admin_key: Optional[str] = Header(default=None),
+):
+    require_admin_key(x_admin_key)
+
+    slug = payload.slug.strip().lower()
+    label = payload.label.strip()
+    if not slug or not label:
+        raise HTTPException(status_code=400, detail="slug와 label은 필수입니다.")
+    if not validate_category_slug(slug):
+        raise HTTPException(
+            status_code=400,
+            detail="slug는 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.",
+        )
+
+    rows = load_categories()
+    if any(str(item.get("slug", "")) == slug for item in rows):
+        raise HTTPException(status_code=409, detail="이미 존재하는 카테고리입니다.")
+
+    now = int(time.time())
+    created = {
+        "slug": slug,
+        "label": label,
+        "description": payload.description.strip(),
+        "color": payload.color,
+        "sort_order": payload.sort_order,
+        "is_active": True,
+        "is_builtin": False,
+        "created_at": now,
+        "updated_at": now,
+    }
+    rows.append(created)
+    save_categories(rows)
+    return created
+
+
+@app.patch("/api/categories/{slug}")
+async def update_category(
+    slug: str,
+    payload: CategoryUpdatePayload,
+    x_admin_key: Optional[str] = Header(default=None),
+):
+    require_admin_key(x_admin_key)
+
+    rows = load_categories()
+    for item in rows:
+        if str(item.get("slug", "")) != slug:
+            continue
+
+        if payload.label is not None:
+            next_label = payload.label.strip()
+            if not next_label:
+                raise HTTPException(
+                    status_code=400, detail="label은 비워둘 수 없습니다."
+                )
+            item["label"] = next_label
+        if payload.description is not None:
+            item["description"] = payload.description.strip()
+        if payload.color is not None:
+            item["color"] = payload.color
+        if payload.sort_order is not None:
+            item["sort_order"] = payload.sort_order
+        if payload.is_active is not None:
+            item["is_active"] = payload.is_active
+        item["updated_at"] = int(time.time())
+
+        save_categories(rows)
+        return item
+
+    raise HTTPException(status_code=404, detail="카테고리를 찾을 수 없습니다.")
+
+
+@app.delete("/api/categories/{slug}")
+async def delete_category(
+    slug: str,
+    x_admin_key: Optional[str] = Header(default=None),
+):
+    require_admin_key(x_admin_key)
+
+    rows = load_categories()
+    for item in rows:
+        if str(item.get("slug", "")) != slug:
+            continue
+        item["is_active"] = False
+        item["updated_at"] = int(time.time())
+        save_categories(rows)
+        return {"status": "disabled", "slug": slug}
+
+    raise HTTPException(status_code=404, detail="카테고리를 찾을 수 없습니다.")
 
 
 @app.delete("/api/files/{document_id:path}")

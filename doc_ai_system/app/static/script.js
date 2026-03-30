@@ -9,36 +9,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const CATEGORY_STORAGE_KEY = 'doc-intel-admin-categories';
     const ADMIN_KEY_STORAGE_KEY = 'doc-intel-admin-key';
 
-    const DEFAULT_STORE_LABEL = '기본 스토어';
-
     const state = {
         files: [],
-        selectedDocName: '',
         categories: [],
+        activeTab: 'upload',
+        pendingUploadDisplayName: '',
+        uploadQueue: [],
+        isUploading: false,
     };
 
     const dropZone = document.getElementById('drop-zone');
     const triggerUploadBtn = document.getElementById('trigger-upload-btn');
     const fileInput = document.getElementById('file-input');
     const uploadCategory = document.getElementById('upload-category');
+    const uploadSelectionValue = document.getElementById('upload-selection-value');
+    const uploadStatusText = document.getElementById('upload-status-text');
     const docList = document.getElementById('document-list');
+    const documentFilterCategory = document.getElementById('document-filter-category');
+    const documentSearchInput = document.getElementById('document-search-input');
+    const documentFilterReset = document.getElementById('document-filter-reset');
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
     const modelSelect = document.getElementById('model-select');
     const filterSelect = document.getElementById('filter-category');
-    const scopeStore = document.getElementById('scope-store');
     const scopeResetBtn = document.getElementById('scope-reset-btn');
     const scopeBadges = document.getElementById('scope-badges');
     const statusBadge = document.getElementById('status-badge');
-    const detailTitle = document.getElementById('detail-title');
-    const detailCategory = document.getElementById('detail-category');
-    const detailState = document.getElementById('detail-state');
-    const detailUpdated = document.getElementById('detail-updated');
-    const detailName = document.getElementById('detail-name');
-    const detailSummary = document.getElementById('detail-summary');
-    const detailRefreshBtn = document.getElementById('detail-refresh-btn');
-    const detailDeleteBtn = document.getElementById('detail-delete-btn');
     const statTotalDocs = document.getElementById('stat-total-docs');
     const statProcessingDocs = document.getElementById('stat-processing-docs');
     const statFailedDocs = document.getElementById('stat-failed-docs');
@@ -46,6 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryList = document.getElementById('category-list');
     const categoriesSummary = document.getElementById('categories-summary');
     const categoryCreateBtn = document.getElementById('category-create-btn');
+    const tabButtons = Array.from(document.querySelectorAll('[data-tab]'));
+    const tabPanels = Array.from(document.querySelectorAll('[data-panel]'));
 
     const CATEGORY_DESCRIPTIONS = {
         marketing: '전단, 보도자료, 홍보 자료 분류',
@@ -168,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateCategoryControls() {
         const currentUploadValue = uploadCategory?.value || '';
         const currentFilterValue = filterSelect?.value || '';
+        const currentDocumentFilterValue = documentFilterCategory?.value || '';
 
         if (uploadCategory) {
             uploadCategory.innerHTML = [
@@ -184,6 +184,67 @@ document.addEventListener('DOMContentLoaded', () => {
             ].join('');
             filterSelect.value = state.categories.some((item) => item.value === currentFilterValue) ? currentFilterValue : '';
         }
+
+        if (documentFilterCategory) {
+            documentFilterCategory.innerHTML = [
+                '<option value="">전체 문서</option>',
+                ...state.categories.filter((item) => item.isActive !== false).map((item) => `<option value="${item.value}">${item.label}</option>`),
+            ].join('');
+            documentFilterCategory.value = state.categories.some((item) => item.value === currentDocumentFilterValue) ? currentDocumentFilterValue : '';
+        }
+
+        syncUploadPanel();
+    }
+
+    function syncUploadPanel(uploadingFileName = '') {
+        const selectedOption = uploadCategory?.selectedOptions?.[0];
+        const selectedLabel = selectedOption?.textContent?.trim() || '카테고리 없음';
+
+        if (uploadSelectionValue) {
+            uploadSelectionValue.textContent = selectedLabel;
+        }
+
+        if (!uploadStatusText) {
+            return;
+        }
+
+        if (uploadingFileName) {
+            uploadStatusText.textContent = `${uploadingFileName} 업로드 중...`;
+            return;
+        }
+
+        uploadStatusText.textContent = uploadCategory?.value
+            ? `${selectedLabel} 분류로 업로드 준비 완료`
+            : '카테고리 없이 업로드 준비 완료';
+    }
+
+    function uploadFile(formData) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/upload');
+
+            xhr.addEventListener('load', () => {
+                let data = null;
+                try {
+                    data = xhr.responseText ? JSON.parse(xhr.responseText) : null;
+                } catch (_error) {
+                    data = null;
+                }
+
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve(data);
+                    return;
+                }
+
+                reject(new Error(getApiErrorMessage(data, '업로드 실패')));
+            });
+
+            xhr.addEventListener('error', () => {
+                reject(new Error('업로드 중 네트워크 오류가 발생했습니다.'));
+            });
+
+            xhr.send(formData);
+        });
     }
 
     function slugifyCategoryLabel(label) {
@@ -364,17 +425,22 @@ document.addEventListener('DOMContentLoaded', () => {
         statusBadge.className = `status-badge ${type}`;
     }
 
+    function setActiveTab(nextTab) {
+        state.activeTab = nextTab;
+        tabButtons.forEach((button) => {
+            const isActive = button.getAttribute('data-tab') === nextTab;
+            button.classList.toggle('active', isActive);
+            button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        tabPanels.forEach((panel) => {
+            const isActive = panel.getAttribute('data-panel') === nextTab;
+            panel.classList.toggle('active', isActive);
+            panel.hidden = !isActive;
+        });
+    }
+
     function renderScopeBadges() {
         const badges = [];
-        const storeValue = scopeStore ? scopeStore.value : '';
-        const storeLabel = scopeStore?.selectedOptions?.[0]?.textContent || DEFAULT_STORE_LABEL;
-        badges.push(`
-            <span class="scope-badge">
-                <i class="fas fa-database"></i>
-                지식베이스: ${storeValue ? storeLabel : DEFAULT_STORE_LABEL}
-            </span>
-        `);
-
         const category = filterSelect ? filterSelect.value : '';
         if (category) {
             badges.push(`
@@ -384,6 +450,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button type="button" data-clear-scope="category" aria-label="카테고리 해제">
                         <i class="fas fa-xmark"></i>
                     </button>
+                </span>
+            `);
+        } else {
+            badges.push(`
+                <span class="scope-badge">
+                    <i class="fas fa-layer-group"></i>
+                    범위: 전체 문서
                 </span>
             `);
         }
@@ -402,6 +475,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateStats(files) {
+        if (!statTotalDocs || !statProcessingDocs || !statFailedDocs || !statCategoryCount) {
+            return;
+        }
         const processingCount = files.filter((file) => classifyState(file.state).isProcessing).length;
         const failedCount = files.filter((file) => classifyState(file.state).isFailed).length;
         const categories = new Set([
@@ -505,49 +581,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderDetailPanel(file) {
-        if (!file) {
-            detailTitle.textContent = '문서를 선택하세요';
-            detailCategory.textContent = '-';
-            detailState.textContent = '-';
-            detailUpdated.textContent = '-';
-            detailName.textContent = '-';
-            detailSummary.textContent = '문서를 선택하면 상태와 메타데이터를 여기서 확인할 수 있습니다.';
-            detailDeleteBtn.disabled = true;
-            return;
-        }
+    function getVisibleDocuments(files) {
+        const category = documentFilterCategory?.value || '';
+        const query = (documentSearchInput?.value || '').trim().toLowerCase();
 
-        const { isProcessing, isFailed, isActive } = classifyState(file.state);
-        detailTitle.textContent = file.display_name;
-        detailCategory.textContent = getTranslateCat(file.category);
-        detailState.textContent = isProcessing ? '인덱싱 중' : (isFailed ? '인덱싱 실패' : (isActive ? '활성' : file.state || '-'));
-        detailUpdated.textContent = formatDate(file.create_time);
-        detailName.textContent = file.name || '-';
-        detailSummary.textContent = isProcessing
-            ? '현재 이 문서는 인덱싱 중입니다. 완료되면 검색과 답변 범위에 포함됩니다.'
-            : (isFailed
-                ? '인덱싱 실패 문서입니다. 원본 파일과 메타데이터를 확인한 뒤 재업로드를 권장합니다.'
-                : '현재 문서는 검색 가능한 상태입니다. 카테고리 필터를 통해 질의 범위를 제한할 수 있습니다.');
-        detailDeleteBtn.disabled = isProcessing;
-        detailDeleteBtn.dataset.name = file.name || '';
+        return files.filter((file) => {
+            const matchesCategory = !category || file.category === category;
+            const matchesQuery = !query
+                || (file.display_name || '').toLowerCase().includes(query)
+                || (file.name || '').toLowerCase().includes(query);
+            return matchesCategory && matchesQuery;
+        });
     }
 
     function renderDocuments(files) {
-        if (!Array.isArray(files) || files.length === 0) {
-            docList.innerHTML = '<div class="doc-row empty-row">업로드된 문서가 없습니다.</div>';
-            renderDetailPanel(null);
+        const visibleFiles = getVisibleDocuments(Array.isArray(files) ? files : []);
+
+        if (visibleFiles.length === 0) {
+            const hasFilter = Boolean(documentFilterCategory?.value || (documentSearchInput?.value || '').trim());
+            docList.innerHTML = hasFilter
+                ? '<div class="doc-row empty-row">조건에 맞는 문서가 없습니다.</div>'
+                : '<div class="doc-row empty-row">업로드된 문서가 없습니다.</div>';
             return;
         }
 
-        docList.innerHTML = files.map((file) => {
+        docList.innerHTML = visibleFiles.map((file) => {
             const iconClass = getFileIcon(file.display_name);
             const { isProcessing, isFailed, isActive } = classifyState(file.state);
             const stateLabel = isProcessing ? '인덱싱 중' : (isFailed ? '실패' : (isActive ? '활성' : (file.state || '-')));
             const stateClass = isProcessing ? 'processing' : (isFailed ? 'failed' : 'active');
-            const isSelected = state.selectedDocName === file.name;
 
             return `
-                <div class="doc-row ${isSelected ? 'selected' : ''}" data-doc-name="${file.name}">
+                <div class="doc-row" data-doc-name="${file.name}">
                     <div class="doc-main">
                         <div class="doc-icon-wrapper">
                             ${isProcessing ? '<span class="loading-spinner"></span>' : `<i class="${iconClass}"></i>`}
@@ -567,17 +632,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }).join('');
 
-        docList.querySelectorAll('[data-doc-name]').forEach((row) => {
-            row.addEventListener('click', (event) => {
-                if (event.target.closest('[data-delete-name]')) return;
-                const docName = row.getAttribute('data-doc-name');
-                state.selectedDocName = docName;
-                const selected = state.files.find((file) => file.name === docName) || null;
-                renderDocuments(state.files);
-                renderDetailPanel(selected);
-            });
-        });
-
         docList.querySelectorAll('[data-delete-name]').forEach((button) => {
             button.addEventListener('click', async (event) => {
                 event.stopPropagation();
@@ -587,21 +641,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
-
-        const selected = state.files.find((file) => file.name === state.selectedDocName) || files[0];
-        state.selectedDocName = selected?.name || '';
-        renderDetailPanel(selected || null);
-        if (selected && !docList.querySelector('.doc-row.selected')) {
-            renderDocuments(state.files);
-        }
     }
 
     async function loadFiles() {
         try {
             docList.innerHTML = '<div class="doc-row empty-row"><span class="loading-spinner"></span> 조회 중...</div>';
-            const category = filterSelect ? filterSelect.value : '';
-            const url = category ? `/api/files?category=${encodeURIComponent(category)}` : '/api/files';
-            const resp = await fetch(url);
+            const resp = await fetch('/api/files');
             const files = await resp.json();
 
             if (!Array.isArray(files)) {
@@ -620,7 +665,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Failed to load files', error);
             docList.innerHTML = '<div class="doc-row empty-row">문서 목록을 불러올 수 없습니다.</div>';
-            renderDetailPanel(null);
         }
     }
 
@@ -633,9 +677,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await resp.json();
                 throw new Error(getApiErrorMessage(data, '삭제에 실패했습니다.'));
             }
-            if (state.selectedDocName === docName) {
-                state.selectedDocName = '';
-            }
             await loadFiles();
         } catch (error) {
             console.error('Delete error', error);
@@ -643,33 +684,59 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function handleUpload(file) {
-        const category = uploadCategory ? uploadCategory.value : '';
+    async function processUploadQueue() {
+        if (state.isUploading) {
+            return;
+        }
+
+        const nextItem = state.uploadQueue.find((item) => item.status === 'queued');
+        if (!nextItem) {
+            syncUploadPanel();
+            return;
+        }
+
+        state.isUploading = true;
+        const category = nextItem.categoryValue;
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('display_name', file.name);
+        formData.append('file', nextItem.file);
+        formData.append('display_name', nextItem.file.name);
         if (category) {
             formData.append('category', category);
         }
 
         dropZone.classList.add('processing');
+        syncUploadPanel(nextItem.file.name);
         try {
-            const resp = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            });
-            if (!resp.ok) {
-                const data = await resp.json();
-                throw new Error(getApiErrorMessage(data, '업로드 실패'));
-            }
+            await uploadFile(formData);
+            state.uploadQueue = state.uploadQueue.filter((item) => item.id !== nextItem.id);
+            syncUploadPanel();
             setTimeout(() => loadFiles(), 1000);
         } catch (error) {
             console.error('Upload error', error);
             alert(error.message || '업로드 중 오류가 발생했습니다.');
+            state.uploadQueue = state.uploadQueue.filter((item) => item.id !== nextItem.id);
         } finally {
+            state.isUploading = false;
             dropZone.classList.remove('processing');
             fileInput.value = '';
+            syncUploadPanel();
+            processUploadQueue();
         }
+    }
+
+    function enqueueUploads(fileList) {
+        const items = Array.from(fileList).map((file, index) => ({
+            id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
+            file,
+            categoryValue: uploadCategory?.value || '',
+        }));
+        if (items.length === 0) {
+            return;
+        }
+
+        state.uploadQueue.push(...items);
+        syncUploadPanel();
+        processUploadQueue();
     }
 
     function bindDragAndDrop() {
@@ -688,9 +755,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         dropZone.addEventListener('drop', (event) => {
-            const file = event.dataTransfer?.files?.[0];
-            if (file) {
-                handleUpload(file);
+            const files = event.dataTransfer?.files;
+            if (files?.length) {
+                enqueueUploads(files);
             }
         });
     }
@@ -701,7 +768,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const modelId = modelSelect ? modelSelect.value : 'gemini-2.5-flash-lite';
         const category = filterSelect ? filterSelect.value : '';
-        const store = scopeStore ? scopeStore.value : '';
 
         appendMessage('user', text);
         userInput.value = '';
@@ -712,7 +778,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const params = new URLSearchParams({ query: text, model: modelId });
             if (category) params.set('category', category);
-            if (store) params.set('store', store);
 
             const resp = await fetch(`/api/chat?${params.toString()}`);
 
@@ -828,38 +893,43 @@ document.addEventListener('DOMContentLoaded', () => {
     dropZone.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', (event) => {
         if (event.target.files.length > 0) {
-            handleUpload(event.target.files[0]);
+            enqueueUploads(event.target.files);
         }
     });
+    uploadCategory?.addEventListener('change', () => {
+        syncUploadPanel();
+    });
     bindDragAndDrop();
+
+    documentFilterCategory?.addEventListener('change', () => {
+        renderDocuments(state.files);
+    });
+    documentSearchInput?.addEventListener('input', () => {
+        renderDocuments(state.files);
+    });
+    documentFilterReset?.addEventListener('click', () => {
+        if (documentFilterCategory) documentFilterCategory.value = '';
+        if (documentSearchInput) documentSearchInput.value = '';
+        renderDocuments(state.files);
+    });
 
     if (filterSelect) {
         filterSelect.addEventListener('change', () => {
             renderScopeBadges();
-            loadFiles();
         });
-    }
-
-    if (scopeStore) {
-        scopeStore.addEventListener('change', renderScopeBadges);
     }
 
     if (scopeResetBtn) {
         scopeResetBtn.addEventListener('click', () => {
-            if (scopeStore) scopeStore.value = '';
             if (filterSelect) filterSelect.value = '';
             renderScopeBadges();
-            loadFiles();
         });
     }
 
-    detailRefreshBtn.addEventListener('click', loadFiles);
-    detailDeleteBtn.addEventListener('click', async () => {
-        const docName = detailDeleteBtn.dataset.name;
-        if (!docName) return;
-        if (confirm('정말 이 문서를 삭제하시겠습니까?')) {
-            await deleteFile(docName);
-        }
+    tabButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            setActiveTab(button.getAttribute('data-tab'));
+        });
     });
 
     if (categoryCreateBtn) {
@@ -934,9 +1004,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     (async () => {
+        setActiveTab(state.activeTab);
         await initializeCategories();
         renderScopeBadges();
-        renderDetailPanel(null);
         setStatus('ready', '준비됨');
         loadFiles();
     })();
